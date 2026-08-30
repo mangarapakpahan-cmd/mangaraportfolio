@@ -288,55 +288,7 @@
         </div>
 
 
-        <!--
-          - clients
-        -->
 
-        <section class="clients">
-
-          <h3 class="h3 clients-title">Clients</h3>
-
-          <ul class="clients-list has-scrollbar">
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-1-color.png" alt="client logo">
-              </a>
-            </li>
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-2-color.png" alt="client logo">
-              </a>
-            </li>
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-3-color.png" alt="client logo">
-              </a>
-            </li>
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-4-color.png" alt="client logo">
-              </a>
-            </li>
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-5-color.png" alt="client logo">
-              </a>
-            </li>
-
-            <li class="clients-item">
-              <a href="#">
-                <img src="./assets/images/logo-6-color.png" alt="client logo">
-              </a>
-            </li>
-
-          </ul>
-
-        </section>
 
       </article>
 
@@ -544,13 +496,13 @@
   <script>
     'use strict';
     // Sidebar toggle
-    const sidebar    = document.querySelector("[data-sidebar]");
+    const sidebar = document.querySelector("[data-sidebar]");
     const sidebarBtn = document.querySelector("[data-sidebar-btn]");
     if (sidebarBtn) sidebarBtn.addEventListener("click", () => sidebar?.classList.toggle("active"));
 
     // Page navigation
     const navigationLinks = document.querySelectorAll("[data-nav-link]");
-    const pages           = document.querySelectorAll("[data-page]");
+    const pages = document.querySelectorAll("[data-page]");
     navigationLinks.forEach((link, i) => {
       link.addEventListener("click", () => {
         pages.forEach((page, j) => {
