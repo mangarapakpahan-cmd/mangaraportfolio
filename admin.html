@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Portfolio CMS</title>
+  <meta name="description" content="Admin dashboard untuk mengelola konten portofolio secara dinamis.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./assets/images/logo.ico" type="image/x-icon">
+
+  <!-- Admin CSS -->
+  <link rel="stylesheet" href="./assets/css/admin.css">
+</head>
+
+<body>
+
+  <!-- Auth Loading Overlay -->
+  <div id="auth-loading">
+    <div class="auth-spinner"></div>
+  </div>
+
+  <!-- ═══ SIDEBAR ══════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <ion-icon name="briefcase-outline"></ion-icon>
+      </div>
+      <div>
+        <div class="brand-name">Portfolio CMS</div>
+        <div class="brand-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+
+      <div class="nav-section-label">Overview</div>
+
+      <div class="nav-item">
+        <button class="nav-link active" data-section="dashboard" onclick="switchSection('dashboard')">
+          <ion-icon name="grid-outline"></ion-icon>
+          Dashboard
+        </button>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Konten</div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="profile" onclick="switchSection('profile')">
+          <ion-icon name="person-outline"></ion-icon>
+          Profil
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="services" onclick="switchSection('services')">
+          <ion-icon name="construct-outline"></ion-icon>
+          Layanan
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="skills" onclick="switchSection('skills')">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          Skills
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="education" onclick="switchSection('education')">
+          <ion-icon name="school-outline"></ion-icon>
+          Pendidikan
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="experience" onclick="switchSection('experience')">
+          <ion-icon name="briefcase-outline"></ion-icon>
+          Pengalaman
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="projects" onclick="switchSection('projects')">
+          <ion-icon name="folder-open-outline"></ion-icon>
+          Proyek
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="blog" onclick="switchSection('blog')">
+          <ion-icon name="newspaper-outline"></ion-icon>
+          Blog
+        </button>
+      </div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="testimonials" onclick="switchSection('testimonials')">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+          Testimoni
+        </button>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Inbox</div>
+
+      <div class="nav-item">
+        <button class="nav-link" data-section="messages" onclick="switchSection('messages')">
+          <ion-icon name="mail-outline"></ion-icon>
+          Pesan
+          <span class="nav-badge" id="msg-badge" style="display:none">0</span>
+        </button>
+      </div>
+
+    </nav>
+
+    <!-- User Footer -->
+    <div class="sidebar-footer">
+      <div class="user-info-box">
+        <div class="user-avatar">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div>
+          <div class="user-name" id="user-email">Loading...</div>
+          <div class="user-role">Administrator</div>
+        </div>
+        <button class="logout-btn" id="logout-btn" title="Logout">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Sidebar backdrop (mobile) -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- ═══ MAIN CONTENT ══════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        <div class="page-breadcrumb">
+          <span class="page-title" id="page-title">Dashboard</span>
+          <span class="page-subtitle" id="page-subtitle">Ringkasan semua konten portofolio</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="./index.html" target="_blank" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;font-size:13px;border:1px solid var(--glass-border);color:var(--text-secondary)">
+          <ion-icon name="eye-outline"></ion-icon> Lihat Portfolio
+        </a>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="content-area">
+
+      <!-- ─── DASHBOARD ──────────────────────────────────────── -->
+      <section class="section-panel active" id="section-dashboard">
+
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Selamat Datang 👋</h2>
+            <p class="section-desc">Pantau dan kelola semua konten portofolio Anda dari sini.</p>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><ion-icon name="folder-open-outline"></ion-icon></div>
+            <div>
+              <div class="stat-value" id="stat-projects">—</div>
+              <div class="stat-label">Total Proyek</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
+            <div>
+              <div class="stat-value" id="stat-skills">—</div>
+              <div class="stat-label">Skills</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><ion-icon name="newspaper-outline"></ion-icon></div>
+            <div>
+              <div class="stat-value" id="stat-blog">—</div>
+              <div class="stat-label">Artikel Blog</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><ion-icon name="mail-outline"></ion-icon></div>
+            <div>
+              <div class="stat-value" id="stat-messages">—</div>
+              <div class="stat-label">Pesan Masuk</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="data-card">
+          <div class="data-card-header">
+            <span class="data-card-title">Akses Cepat</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--glass-border);">
+            ${[
+              ["profile","person-outline","Edit Profil","Nama, bio, kontak"],
+              ["projects","folder-open-outline","Proyek","Tambah / edit proyek"],
+              ["skills","bar-chart-outline","Skills","Atur skill & persentase"],
+              ["blog","newspaper-outline","Blog","Kelola artikel"],
+              ["experience","briefcase-outline","Pengalaman","Riwayat kerja"],
+              ["messages","mail-outline","Pesan","Lihat pesan masuk"],
+            ].map(([s,ic,t,sub]) => `
+              <button onclick="switchSection('${s}')" style="display:flex;align-items:center;gap:12px;padding:18px 20px;background:var(--bg-card);border:none;text-align:left;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-card-2)'" onmouseout="this.style.background='var(--bg-card)'">
+                <div style="width:38px;height:38px;background:var(--accent-dim);border-radius:8px;display:grid;place-items:center;color:var(--accent);font-size:18px;flex-shrink:0;">
+                  <ion-icon name="${ic}"></ion-icon>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${t}</div>
+                  <div style="font-size:11px;color:var(--text-muted)">${sub}</div>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ─── PROFILE ────────────────────────────────────────── -->
+      <section class="section-panel" id="section-profile">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Profil</h2>
+            <p class="section-desc">Edit informasi pribadi yang ditampilkan di sidebar portfolio.</p>
+          </div>
+          <button class="btn-primary" onclick="saveProfile()">
+            <ion-icon name="save-outline"></ion-icon> Simpan Perubahan
+          </button>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-avatar-section">
+            <div class="profile-avatar-placeholder" id="avatar-preview">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div>
+              <h3 style="font-size:15px;font-weight:600;margin-bottom:4px;" id="avatar-name-preview">Nama Anda</h3>
+              <p style="font-size:12px;color:var(--text-muted)">Perbarui URL foto profil di bawah untuk mengubah avatar.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="profile-name">Nama Lengkap <span class="required">*</span></label>
+              <input id="profile-name" class="form-control" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-title">Profesi / Judul</label>
+              <input id="profile-title" class="form-control" placeholder="Web Developer">
+            </div>
+            <div class="form-group full">
+              <label class="form-label" for="profile-bio">Bio / Tentang Saya</label>
+              <textarea id="profile-bio" class="form-control" rows="4" placeholder="Ceritakan tentang diri Anda..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-email">Email</label>
+              <input id="profile-email" class="form-control" type="email" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-phone">Nomor Telepon</label>
+              <input id="profile-phone" class="form-control" placeholder="+62 ...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-birthday">Tanggal Lahir</label>
+              <input id="profile-birthday" class="form-control" type="date">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-location">Lokasi</label>
+              <input id="profile-location" class="form-control" placeholder="Jakarta, Indonesia">
+            </div>
+            <div class="form-group full">
+              <label class="form-label" for="profile-avatarUrl">URL Foto Profil</label>
+              <input id="profile-avatarUrl" class="form-control" placeholder="https://..." oninput="updateAvatarPreview(this.value)">
+              <p class="form-hint">Gunakan URL gambar publik (Google Drive, Cloudinary, Imgur, dll.)</p>
+            </div>
+
+            <!-- Social -->
+            <div style="grid-column:1/-1;margin-top:8px;margin-bottom:8px;border-top:1px solid var(--glass-border);padding-top:20px;">
+              <h4 style="font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Media Sosial</h4>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-social_facebook">Facebook URL</label>
+              <input id="profile-social_facebook" class="form-control" placeholder="https://facebook.com/...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-social_twitter">Twitter / X URL</label>
+              <input id="profile-social_twitter" class="form-control" placeholder="https://twitter.com/...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profile-social_instagram">Instagram URL</label>
+              <input id="profile-social_instagram" class="form-control" placeholder="https://instagram.com/...">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SERVICES ──────────────────────────────────────── -->
+      <section class="section-panel" id="section-services">
+        <div class="section-header">
+          <div><h2 class="section-title">Layanan</h2><p class="section-desc">Daftar layanan yang Anda tawarkan.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('service')"><ion-icon name="add-outline"></ion-icon>Tambah Layanan</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Judul</th><th>Deskripsi</th><th>Urutan</th><th>Aksi</th></tr></thead>
+              <tbody id="services-tbody"><tr><td colspan="4"><div class="empty-state"><ion-icon name="construct-outline"></ion-icon><p>Memuat...</p></div></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SKILLS ────────────────────────────────────────── -->
+      <section class="section-panel" id="section-skills">
+        <div class="section-header">
+          <div><h2 class="section-title">Skills</h2><p class="section-desc">Daftar skill beserta persentase keahlian.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('skill')"><ion-icon name="add-outline"></ion-icon>Tambah Skill</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Nama Skill</th><th>Persentase</th><th>Urutan</th><th>Aksi</th></tr></thead>
+              <tbody id="skills-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── EDUCATION ─────────────────────────────────────── -->
+      <section class="section-panel" id="section-education">
+        <div class="section-header">
+          <div><h2 class="section-title">Pendidikan</h2><p class="section-desc">Riwayat pendidikan formal.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('education')"><ion-icon name="add-outline"></ion-icon>Tambah Pendidikan</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Institusi</th><th>Periode</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+              <tbody id="edu-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── EXPERIENCE ────────────────────────────────────── -->
+      <section class="section-panel" id="section-experience">
+        <div class="section-header">
+          <div><h2 class="section-title">Pengalaman Kerja</h2><p class="section-desc">Riwayat pekerjaan dan karir.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('experience')"><ion-icon name="add-outline"></ion-icon>Tambah Pengalaman</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Posisi</th><th>Perusahaan</th><th>Periode</th><th>Aksi</th></tr></thead>
+              <tbody id="exp-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── PROJECTS ──────────────────────────────────────── -->
+      <section class="section-panel" id="section-projects">
+        <div class="section-header">
+          <div><h2 class="section-title">Proyek Portfolio</h2><p class="section-desc">Proyek yang ditampilkan di halaman portfolio.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('project')"><ion-icon name="add-outline"></ion-icon>Tambah Proyek</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Gambar</th><th>Judul</th><th>Kategori</th><th>URL</th><th>Aksi</th></tr></thead>
+              <tbody id="projects-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── BLOG ──────────────────────────────────────────── -->
+      <section class="section-panel" id="section-blog">
+        <div class="section-header">
+          <div><h2 class="section-title">Blog</h2><p class="section-desc">Artikel dan tulisan yang ditampilkan di halaman blog.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('blog')"><ion-icon name="add-outline"></ion-icon>Tambah Artikel</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Kutipan</th><th>Aksi</th></tr></thead>
+              <tbody id="blog-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TESTIMONIALS ──────────────────────────────────── -->
+      <section class="section-panel" id="section-testimonials">
+        <div class="section-header">
+          <div><h2 class="section-title">Testimoni</h2><p class="section-desc">Ulasan dan testimoni dari klien.</p></div>
+          <button class="btn-primary" onclick="adminAddNew('testimonial')"><ion-icon name="add-outline"></ion-icon>Tambah Testimoni</button>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Nama</th><th>Tanggal</th><th>Teks</th><th>Aksi</th></tr></thead>
+              <tbody id="test-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── MESSAGES ──────────────────────────────────────── -->
+      <section class="section-panel" id="section-messages">
+        <div class="section-header">
+          <div><h2 class="section-title">Pesan Masuk</h2><p class="section-desc">Pesan dari form kontak portofolio Anda.</p></div>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Nama</th><th>Email</th><th>Pesan</th><th>Aksi</th></tr></thead>
+              <tbody id="msg-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+
+  <!-- ═══ MODAL ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Modal</h3>
+        <button class="modal-close" id="modal-close-btn"><ion-icon name="close-outline"></ion-icon></button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <!-- Admin Script -->
+  <script type="module">
+    import { authGuard, logout } from "./assets/js/auth.js";
+    import {
+      loadDashboardStats,
+      loadProfile, saveProfile,
+      loadServices, loadSkills,
+      loadEducation, loadExperience,
+      loadProjects, loadBlog,
+      loadTestimonials, loadMessages,
+    } from "./assets/js/admin.js";
+
+    // ─── Auth Guard ──────────────────────────────────────────
+    const user = await authGuard();
+
+    // Hide loading, show app
+    const loadingEl = document.getElementById("auth-loading");
+    loadingEl.classList.add("hidden");
+
+    // Set user info
+    document.getElementById("user-email").textContent = user.email || "Admin";
+
+    // ─── Logout ──────────────────────────────────────────────
+    document.getElementById("logout-btn").addEventListener("click", () => logout());
+
+    // ─── Section switching ────────────────────────────────────
+    const sectionLoaders = {
+      dashboard:    loadDashboardStats,
+      profile:      loadProfile,
+      services:     loadServices,
+      skills:       loadSkills,
+      education:    loadEducation,
+      experience:   loadExperience,
+      projects:     loadProjects,
+      blog:         loadBlog,
+      testimonials: loadTestimonials,
+      messages:     loadMessages,
+    };
+
+    const sectionMeta = {
+      dashboard:    { title: "Dashboard", sub: "Ringkasan semua konten portofolio" },
+      profile:      { title: "Profil",    sub: "Informasi pribadi di sidebar portfolio" },
+      services:     { title: "Layanan",   sub: "Layanan yang Anda tawarkan" },
+      skills:       { title: "Skills",    sub: "Keahlian teknis dan persentase" },
+      education:    { title: "Pendidikan",sub: "Riwayat pendidikan formal" },
+      experience:   { title: "Pengalaman",sub: "Riwayat pekerjaan dan karir" },
+      projects:     { title: "Proyek",    sub: "Proyek portfolio yang ditampilkan" },
+      blog:         { title: "Blog",      sub: "Artikel dan tulisan blog" },
+      testimonials: { title: "Testimoni", sub: "Ulasan dari klien" },
+      messages:     { title: "Pesan",     sub: "Pesan dari form kontak" },
+    };
+
+    let loadedSections = new Set();
+
+    window.switchSection = function(section) {
+      // Update panels
+      document.querySelectorAll(".section-panel").forEach(p => p.classList.remove("active"));
+      document.getElementById(`section-${section}`)?.classList.add("active");
+
+      // Update nav
+      document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+      document.querySelector(`[data-section="${section}"]`)?.classList.add("active");
+
+      // Update header
+      const meta = sectionMeta[section] || {};
+      document.getElementById("page-title").textContent   = meta.title || section;
+      document.getElementById("page-subtitle").textContent = meta.sub  || "";
+
+      // Load data (only first time or dashboard always)
+      if (!loadedSections.has(section) || section === "dashboard") {
+        sectionLoaders[section]?.();
+        loadedSections.add(section);
+      }
+
+      // Close sidebar on mobile
+      closeSidebar();
+    };
+
+    // ─── Save profile (make global) ──────────────────────────
+    window.saveProfile = saveProfile;
+    window.updateAvatarPreview = function(url) {
+      const preview = document.getElementById("avatar-preview");
+      const namePreview = document.getElementById("avatar-name-preview");
+      const nameInput = document.getElementById("profile-name");
+      if (nameInput) namePreview.textContent = nameInput.value || "Nama Anda";
+
+      if (url) {
+        preview.innerHTML = `<img class="profile-avatar" src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<ion-icon name=\\'person-outline\\'></ion-icon>'">`;
+      } else {
+        preview.innerHTML = `<ion-icon name="person-outline"></ion-icon>`;
+      }
+    };
+
+    document.getElementById("profile-name")?.addEventListener("input", () => {
+      document.getElementById("avatar-name-preview").textContent =
+        document.getElementById("profile-name").value || "Nama Anda";
+    });
+
+    // ─── Mobile sidebar ───────────────────────────────────────
+    window.toggleSidebar = function() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebar-backdrop").classList.toggle("show");
+    };
+
+    window.closeSidebar = function() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebar-backdrop").classList.remove("show");
+    };
+
+    // ─── Initial load ─────────────────────────────────────────
+    switchSection("dashboard");
+  </script>
+
+</body>
+</html>

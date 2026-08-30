@@ -1,0 +1,27 @@
+# Firebase config — jangan commit jika berisi kredensial nyata
+# (Untuk proyek ini, Firebase API key untuk web aman di-commit karena
+#  keamanan dijaga oleh Firestore Security Rules, bukan key tersembunyi)
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (jika suatu saat menggunakan npm)
+node_modules/
+
+# Build output
+dist/
+build/
