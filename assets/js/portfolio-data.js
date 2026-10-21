@@ -30,10 +30,16 @@ const qsa = (sel, ctx = document) => ctx.querySelectorAll(sel);
 function safeSet(selector, value, attr = null) {
   const el = qs(selector);
   if (!el || value === undefined || value === null) return;
-  if (attr) el.setAttribute(attr, value);
-  else if (el.tagName === "IMG") el.src = value;
-  else if (el.tagName === "A") el.href = value;
-  else el.textContent = value;
+  if (attr) {
+    el.setAttribute(attr, value);
+  } else if (el.tagName === "IMG") {
+    el.src = value;
+  } else {
+    el.textContent = value;
+    if (el.tagName === "A" && !el.getAttribute("href")) {
+      el.href = value;
+    }
+  }
 }
 
 function capitalize(str) {
@@ -60,30 +66,44 @@ export function showPublicToast(message, type = "success") {
 
 // ─── Theme Switcher (Dark / Light Mode) ─────────────────────────
 function initThemeSwitcher() {
-  const toggleBtn = document.getElementById("theme-toggle-btn");
-  const themeIcon = document.getElementById("theme-icon");
-  if (!toggleBtn || !themeIcon) return;
+  const toggleBtns = [
+    document.getElementById("theme-toggle-btn"),
+    document.getElementById("nav-theme-btn"),
+    document.getElementById("sidebar-theme-btn")
+  ].filter(Boolean);
+
+  const themeIcons = [
+    document.getElementById("theme-icon"),
+    document.getElementById("nav-theme-icon"),
+    document.getElementById("sidebar-theme-icon")
+  ].filter(Boolean);
+
+  const sidebarThemeText = document.getElementById("sidebar-theme-text");
 
   const savedTheme = localStorage.getItem("portfolio-theme") || "dark";
-  applyTheme(savedTheme);
+  applyTheme(savedTheme, false);
 
-  toggleBtn.addEventListener("click", () => {
-    const current = document.body.getAttribute("data-theme") === "light" ? "light" : "dark";
-    const next = current === "light" ? "dark" : "light";
-    applyTheme(next);
-    localStorage.setItem("portfolio-theme", next);
-    showPublicToast(next === "light" ? "Mode Terang diaktifkan ☀️" : "Mode Gelap diaktifkan 🌙", "success");
+  toggleBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const current = document.body.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const next = current === "light" ? "dark" : "light";
+      applyTheme(next, true);
+      localStorage.setItem("portfolio-theme", next);
+    });
   });
 
-  function applyTheme(theme) {
+  function applyTheme(theme, showToast = true) {
     if (theme === "light") {
       document.body.setAttribute("data-theme", "light");
-      themeIcon.setAttribute("name", "moon-outline");
-      toggleBtn.title = "Ganti ke Tema Gelap";
+      themeIcons.forEach(icon => icon.setAttribute("name", "moon-outline"));
+      if (sidebarThemeText) sidebarThemeText.textContent = "Mode Gelap";
+      if (showToast) showPublicToast("Mode Terang diaktifkan ☀️", "success");
     } else {
       document.body.removeAttribute("data-theme");
-      themeIcon.setAttribute("name", "sunny-outline");
-      toggleBtn.title = "Ganti ke Tema Terang";
+      themeIcons.forEach(icon => icon.setAttribute("name", "sunny-outline"));
+      if (sidebarThemeText) sidebarThemeText.textContent = "Mode Terang";
+      if (showToast) showPublicToast("Mode Gelap diaktifkan 🌙", "success");
     }
   }
 }
@@ -166,12 +186,32 @@ function renderProfile(d) {
     safeSet("[data-profile-avatar]", d.avatarUrl, "src");
     safeSet("[data-profile-avatar]", d.name || "", "alt");
   }
-  safeSet("[data-profile-name]", d.name || "Portfolio");
-  safeSet("[data-profile-title]", d.title || "Web Developer");
-  safeSet("[data-profile-email]", d.email || "");
-  safeSet("[data-profile-email-href]", d.email ? `mailto:${d.email}` : "#", "href");
-  safeSet("[data-profile-phone]", d.phone || "");
-  safeSet("[data-profile-phone-href]", d.phone ? `tel:${d.phone}` : "#", "href");
+  safeSet("[data-profile-name]", d.name || "Mangara Ferdianto Pakpahan");
+  safeSet("[data-profile-title]", d.title || "Data Analyst & Social Media Specialist");
+
+  // Fix email text & link
+  const emailEl = qs("[data-profile-email]");
+  if (emailEl) {
+    emailEl.textContent = d.email || "mangarapakpahan51@gmail.com";
+    emailEl.href = `mailto:${d.email || "mangarapakpahan51@gmail.com"}`;
+  }
+
+  // Fix phone text & link
+  const phoneEl = qs("[data-profile-phone]");
+  if (phoneEl) {
+    phoneEl.textContent = d.phone || "+62 822-7788-9900";
+    phoneEl.href = `tel:${d.phone || "+6282277889900"}`;
+  }
+
+  // Dynamic WhatsApp Link
+  const rawPhone = (d.phone || "082277889900").replace(/\D/g, "");
+  const waPhone = rawPhone.startsWith("0") ? "62" + rawPhone.slice(1) : rawPhone;
+  const waBtn = document.getElementById("whatsapp-direct-link");
+  if (waBtn) {
+    const waText = encodeURIComponent("Halo Mangara, saya melihat portfolio Anda dan tertarik untuk berdiskusi mengenai proyek Analisis Data / Social Media. Bisa luangkan waktu untuk konsultasi?");
+    waBtn.href = `https://wa.me/${waPhone}?text=${waText}`;
+  }
+
   safeSet("[data-profile-birthday]", d.birthday || "");
   safeSet("[data-profile-location]", d.location || "");
 
@@ -183,7 +223,7 @@ function renderProfile(d) {
     }
   }
 
-  if (d.name) document.title = `${d.name} — Portfolio`;
+  if (d.name) document.title = `${d.name} — Portfolio | Data Analyst & Social Media Specialist`;
 
   if (d.social_facebook) safeSet("[data-social-facebook]", d.social_facebook, "href");
   if (d.social_twitter) safeSet("[data-social-twitter]", d.social_twitter, "href");
@@ -222,11 +262,19 @@ function renderTestimonials(items) {
     const avatar = t.avatarUrl || "./assets/images/avatar-1.png";
     return `
       <li class="testimonials-item">
-        <div class="content-card" data-testimonials-item>
-          <figure class="testimonials-avatar-box">
-            <img src="${avatar}" alt="${t.name}" width="60" data-testimonials-avatar onerror="this.src='./assets/images/avatar-1.png'">
-          </figure>
-          <h4 class="h4 testimonials-item-title" data-testimonials-title>${t.name || ""}</h4>
+        <div class="content-card testimonial-card" data-testimonials-item>
+          <div class="testimonial-author-wrapper">
+            <figure class="testimonials-avatar-box">
+              <img src="${avatar}" alt="${t.name || 'Author'}" width="56" height="56" data-testimonials-avatar onerror="this.src='./assets/images/avatar-1.png'">
+            </figure>
+            <div class="testimonial-author-info">
+              <h4 class="h4 testimonials-item-title" data-testimonials-title>${t.name || ""}</h4>
+              <span class="testimonials-date">${t.date || "Partner / Rekan Riset"}</span>
+            </div>
+            <div class="testimonial-quote-icon">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+            </div>
+          </div>
           <div class="testimonials-text" data-testimonials-text>
             <p>${t.text || ""}</p>
           </div>
@@ -471,6 +519,19 @@ function setupContactForm() {
       formBtn.disabled = !form.checkValidity();
     });
   });
+
+  // Direct Send via WhatsApp Button
+  const waFormBtn = document.getElementById("form-send-wa-btn");
+  if (waFormBtn) {
+    waFormBtn.addEventListener("click", () => {
+      const nameVal = (document.getElementById("contact-fullname")?.value || "").trim();
+      const msgVal = (document.getElementById("contact-message")?.value || "").trim();
+      const rawPhone = (DEFAULT_DATA.profile.phone || "082277889900").replace(/\D/g, "");
+      const waPhone = rawPhone.startsWith("0") ? "62" + rawPhone.slice(1) : rawPhone;
+      const text = encodeURIComponent(`Halo Mangara,\n\nNama saya: ${nameVal || "(Pengunjung Portfolio)"}\n\nPesan:\n${msgVal || "Saya tertarik untuk berdiskusi mengenai proyek Anda."}`);
+      window.open(`https://wa.me/${waPhone}?text=${text}`, "_blank");
+    });
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

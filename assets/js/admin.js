@@ -586,9 +586,17 @@ function projectForm(p = {}) {
         </select>
       </div>
       <div class="form-group full">
-        <label class="form-label">URL Gambar</label>
-        <input id="prj-img" class="form-control" value="${p.imageUrl||""}" placeholder="https://..." oninput="updateModalImgPreview(this.value)">
-        <div class="img-preview-box" id="modal-img-preview">
+        <label class="form-label">Gambar Proyek</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+          <input type="file" id="prj-file" accept="image/*" style="display:none;" onchange="handleProjectFileUpload(this)">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('prj-file').click()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;font-size:12px;border-radius:8px;background:var(--bg-card-2);border:1px solid var(--glass-border);color:var(--text-primary);cursor:pointer;font-weight:500;">
+            <ion-icon name="cloud-upload-outline" style="font-size:16px;color:var(--accent);"></ion-icon>
+            <span>Upload Gambar dari Perangkat</span>
+          </button>
+          <span id="prj-file-name" style="font-size:12px;color:var(--text-muted);">Pilih file (JPG, PNG, WebP)</span>
+        </div>
+        <input id="prj-img" class="form-control" value="${p.imageUrl||""}" placeholder="Atau masukkan URL gambar..." oninput="updateModalImgPreview(this.value)">
+        <div class="img-preview-box" id="modal-img-preview" style="margin-top:8px;">
           ${p.imageUrl ? `<img src="${p.imageUrl}" alt="Preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">` : ''}
           <span class="placeholder-text" ${p.imageUrl ? 'style="display:none;"' : ''}><ion-icon name="image-outline"></ion-icon> Pratinjau Gambar</span>
         </div>
@@ -1046,3 +1054,22 @@ window.adminImportData = function(event) {
 
 // Global exports
 window.closeModal = closeModal;
+
+window.handleProjectFileUpload = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const status = document.getElementById("prj-file-name");
+  if (status) status.textContent = `Memproses: ${file.name}...`;
+  try {
+    const compressedBase64 = await (window.compressImage ? window.compressImage(file, 900, 0.85) : readFileAsBase64(file));
+    const urlInput = document.getElementById("prj-img");
+    if (urlInput) {
+      urlInput.value = compressedBase64;
+      window.updateModalImgPreview(compressedBase64);
+    }
+    if (status) status.textContent = `✓ Gambar siap: ${file.name}`;
+  } catch (err) {
+    console.error("Gagal membaca gambar proyek:", err);
+    if (status) status.textContent = "Gagal memproses gambar.";
+  }
+};

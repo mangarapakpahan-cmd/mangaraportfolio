@@ -90,7 +90,7 @@
             <div class="contact-info">
               <p class="contact-title">Email</p>
 
-              <a href="#" class="contact-link" data-profile-email-href data-profile-email></a>
+              <a href="mailto:mangarapakpahan51@gmail.com" class="contact-link" data-profile-email>mangarapakpahan51@gmail.com</a>
             </div>
 
           </li>
@@ -104,7 +104,7 @@
             <div class="contact-info">
               <p class="contact-title">Phone</p>
 
-              <a href="#" class="contact-link" data-profile-phone-href data-profile-phone></a>
+              <a href="tel:+6282277889900" class="contact-link" data-profile-phone>+62 822-7788-9900</a>
             </div>
 
           </li>
@@ -175,11 +175,15 @@
 
         </ul>
 
-        <div style="text-align: center; margin-top: 15px;">
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
           <a href="./login.html" class="admin-quick-link" title="Buka Admin CMS Panel">
             <ion-icon name="lock-closed-outline"></ion-icon>
             <span>Admin CMS</span>
           </a>
+          <button type="button" class="sidebar-theme-btn" id="sidebar-theme-btn" title="Ganti Mode Terang / Gelap">
+            <ion-icon name="sunny-outline" id="sidebar-theme-icon"></ion-icon>
+            <span id="sidebar-theme-text">Mode Terang</span>
+          </button>
         </div>
 
       </div>
@@ -236,6 +240,13 @@
             <button class="navbar-link" data-nav-link data-target="contact">
               <ion-icon name="mail-outline"></ion-icon>
               <span>Contact</span>
+            </button>
+          </li>
+
+          <li class="navbar-item">
+            <button type="button" class="navbar-link nav-theme-toggle-btn" id="nav-theme-btn" title="Ganti Mode Terang / Gelap" aria-label="Toggle Theme">
+              <ion-icon name="sunny-outline" id="nav-theme-icon"></ion-icon>
+              <span>Tema</span>
             </button>
           </li>
 
@@ -486,30 +497,63 @@
         <section class="mapbox" data-mapbox>
           <figure>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d199666.5651251294!2d-121.58334177520186!3d38.56165006739519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x809ac672b28397f9%3A0x921f6aaa74197fdb!2sSacramento%2C%20CA%2C%20USA!5e0!3m2!1sen!2sbd!4v1647608789441!5m2!1sen!2sbd"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126920.28507851222!2d106.75618491950228!3d-6.1753924!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5d2e764b12d%3A0x3d2ad6e1e0e9bcc8!2sJakarta%2C%20Indonesia!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
               width="400" height="300" loading="lazy"></iframe>
           </figure>
         </section>
 
+        <!-- WhatsApp Direct CTA Card -->
+        <section class="whatsapp-cta-section">
+          <div class="whatsapp-card">
+            <div class="whatsapp-card-badge">
+              <span class="whatsapp-pulse"></span>
+              <span>Fast Response via WhatsApp</span>
+            </div>
+            <div class="whatsapp-card-content">
+              <div class="whatsapp-icon-box">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+              </div>
+              <div class="whatsapp-card-info">
+                <h3 class="whatsapp-card-title">Siap Berkolaborasi atau Diskusi Proyek?</h3>
+                <p class="whatsapp-card-desc">
+                  Butuh solusi <strong>Analisis Data Bisnis</strong>, perancangan <strong>Dashboard Interaktif (Power BI &amp; Excel)</strong>, atau pengembangan <strong>Strategi Pertumbuhan Media Sosial</strong>? Mari diskusikan kebutuhan Anda secara langsung dan dapatkan penawaran terbaik!
+                </p>
+              </div>
+            </div>
+            <a href="https://wa.me/6282277889900?text=Halo%20Mangara,%20saya%20tertarik%20untuk%20berdiskusi%20dan%20bekerja%20sama%20terkait%20proyek%20Analisis%20Data%20/%20Social%20Media.%20Bisa%20luangkan%20waktu%20untuk%20konsultasi?" 
+               target="_blank" rel="noopener" class="whatsapp-action-btn" id="whatsapp-direct-link">
+              <ion-icon name="logo-whatsapp"></ion-icon>
+              <span>Chat WhatsApp Sekarang</span>
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </a>
+          </div>
+        </section>
+
         <section class="contact-form">
 
-          <h3 class="h3 form-title">Contact Form</h3>
+          <h3 class="h3 form-title">Kirim Pesan / Formulir Kontak</h3>
 
           <form action="#" class="form" data-form>
 
             <div class="input-wrapper">
-              <input type="text" name="fullname" class="form-input" placeholder="Full name" required data-form-input>
+              <input type="text" name="fullname" class="form-input" placeholder="Nama Lengkap" required data-form-input id="contact-fullname">
 
-              <input type="email" name="email" class="form-input" placeholder="Email address" required data-form-input>
+              <input type="email" name="email" class="form-input" placeholder="Alamat Email" required data-form-input id="contact-email">
             </div>
 
-            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input maxlength="500"></textarea>
+            <textarea name="message" class="form-input" placeholder="Tuliskan pesan atau kebutuhan proyek Anda..." required data-form-input maxlength="500" id="contact-message"></textarea>
             <div class="form-char-count"><span id="msg-char-counter">0</span> / 500 karakter</div>
 
-            <button class="form-btn" type="submit" disabled data-form-btn>
-              <ion-icon name="paper-plane"></ion-icon>
-              <span>Send Message</span>
-            </button>
+            <div class="contact-form-actions">
+              <button class="form-btn" type="submit" disabled data-form-btn>
+                <ion-icon name="paper-plane"></ion-icon>
+                <span>Kirim Pesan</span>
+              </button>
+              <button type="button" class="form-btn-wa" id="form-send-wa-btn">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+                <span>Kirim via WhatsApp</span>
+              </button>
+            </div>
 
           </form>
 
