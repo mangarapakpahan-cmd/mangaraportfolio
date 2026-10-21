@@ -19,14 +19,21 @@
   <link rel="stylesheet" href="./assets/css/style.css">
 
   <!--
-    - google font link
+    - google font link (Inter — matching Admin Login UI)
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
+
+  <!-- Animated Background Canvas (identical to Admin Login UI) -->
+  <div class="bg-canvas" aria-hidden="true">
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+  </div>
 
   <!--
     - #MAIN
@@ -147,6 +154,13 @@
           </li>
 
         </ul>
+
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="./login.html" class="admin-quick-link" title="Buka Admin CMS Panel">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <span>Admin CMS</span>
+          </a>
+        </div>
 
       </div>
 
@@ -502,7 +516,8 @@
               <input type="email" name="email" class="form-input" placeholder="Email address" required data-form-input>
             </div>
 
-            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input></textarea>
+            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input maxlength="500"></textarea>
+            <div class="form-char-count"><span id="msg-char-counter">0</span> / 500 karakter</div>
 
             <button class="form-btn" type="submit" disabled data-form-btn>
               <ion-icon name="paper-plane"></ion-icon>
@@ -518,6 +533,44 @@
     </div>
 
   </main>
+
+  <!--
+    - #PROJECT DETAIL MODAL
+  -->
+  <div class="project-modal-container" data-project-modal-container>
+    <div class="project-modal-box">
+      <button class="project-modal-close-btn" data-project-modal-close aria-label="Tutup Modal">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <img src="" alt="" class="project-modal-img" data-project-modal-img>
+      <span class="project-modal-category" data-project-modal-category></span>
+      <h3 class="project-modal-title" data-project-modal-title></h3>
+      <p class="project-modal-desc" data-project-modal-desc></p>
+      <div class="project-modal-actions">
+        <a href="#" target="_blank" rel="noopener" class="project-btn-primary" data-project-modal-link>
+          <ion-icon name="open-outline"></ion-icon>
+          <span>Buka Demo / Website</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    - #PUBLIC TOAST NOTIFICATIONS
+  -->
+  <div class="public-toast-container" id="public-toast-container"></div>
+
+  <!--
+    - #FLOATING ACTIONS (Theme Toggle & Back to Top)
+  -->
+  <div class="floating-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Ganti Tema Gelap / Terang" aria-label="Toggle Dark/Light Mode">
+      <ion-icon name="sunny-outline" id="theme-icon"></ion-icon>
+    </button>
+    <button class="back-to-top-btn" id="back-to-top-btn" title="Kembali ke Atas" aria-label="Back to Top">
+      <ion-icon name="arrow-up-outline"></ion-icon>
+    </button>
+  </div>
 
 
 
