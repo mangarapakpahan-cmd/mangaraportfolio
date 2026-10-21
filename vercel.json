@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": "echo 'Static portfolio ready'",
+  "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
   "routes": [
