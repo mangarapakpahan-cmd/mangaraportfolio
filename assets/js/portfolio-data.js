@@ -188,6 +188,8 @@ function renderProfile(d) {
   if (d.social_facebook) safeSet("[data-social-facebook]", d.social_facebook, "href");
   if (d.social_twitter) safeSet("[data-social-twitter]", d.social_twitter, "href");
   if (d.social_instagram) safeSet("[data-social-instagram]", d.social_instagram, "href");
+  if (d.social_github) safeSet("[data-social-github]", d.social_github, "href");
+  if (d.social_linkedin) safeSet("[data-social-linkedin]", d.social_linkedin, "href");
 }
 
 // 2. Services
