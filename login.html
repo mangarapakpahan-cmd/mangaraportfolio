@@ -149,16 +149,18 @@
     }
 
     // Firebase error → pesan user-friendly
-    function getFriendlyError(code) {
+    function getFriendlyError(code, message) {
       const map = {
-        "auth/invalid-email":        "Format email tidak valid.",
-        "auth/user-not-found":       "Akun dengan email ini tidak ditemukan.",
-        "auth/wrong-password":       "Password yang Anda masukkan salah.",
-        "auth/invalid-credential":   "Email atau password salah. Silakan coba lagi.",
-        "auth/too-many-requests":    "Terlalu banyak percobaan. Coba lagi beberapa saat.",
+        "auth/invalid-email":          "Format email tidak valid.",
+        "auth/user-not-found":         "Akun dengan email ini belum terdaftar di Firebase Authentication (tab Users).",
+        "auth/wrong-password":         "Password yang Anda masukkan salah.",
+        "auth/invalid-credential":     "Email atau password salah. Pastikan akun sudah dibuat di Firebase Console.",
+        "auth/too-many-requests":      "Terlalu banyak percobaan. Coba lagi beberapa saat.",
         "auth/network-request-failed": "Gagal terhubung. Periksa koneksi internet Anda.",
+        "auth/operation-not-allowed":  "Metode login Email/Password belum diaktifkan di Firebase Console -> Authentication -> Sign-in method.",
+        "auth/unauthorized-domain":    "Domain vercel belum diizinkan. Tambahkan 'mangaraportfolio.vercel.app' di Firebase Console -> Authentication -> Settings -> Authorized domains."
       };
-      return map[code] || "Terjadi kesalahan. Silakan coba lagi.";
+      return map[code] || `Error (${code || "unknown"}): ${message || "Periksa konfigurasi Firebase"}`;
     }
 
     // Form submit
@@ -174,7 +176,8 @@
         // onAuthStateChanged di auth.js akan handle redirect ke admin.html
         window.location.replace("./admin.html");
       } catch (err) {
-        showError(getFriendlyError(err.code));
+        console.error("Login error:", err);
+        showError(getFriendlyError(err.code, err.message));
         loginBtn.classList.remove("loading");
         loginBtn.disabled = false;
       }
