@@ -1,3 +1,16 @@
+
+function formatBirthday(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const d = parseInt(parts[2], 10);
+    const m = months[parseInt(parts[1], 10) - 1] || parts[1];
+    const y = parts[0];
+    return `${d} ${m} ${y}`;
+  }
+  return dateStr;
+}
 /**
  * portfolio-data.js
  * Logika interaktif dan pemuat data untuk halaman portofolio publik (index.html).
@@ -526,7 +539,8 @@ function setupContactForm() {
     waFormBtn.addEventListener("click", () => {
       const nameVal = (document.getElementById("contact-fullname")?.value || "").trim();
       const msgVal = (document.getElementById("contact-message")?.value || "").trim();
-      const rawPhone = (DEFAULT_DATA.profile.phone || "082277889900").replace(/\D/g, "");
+      const profileCached = JSON.parse(localStorage.getItem("portfolio_cache_profile") || "null") || DEFAULT_DATA.profile;
+      const rawPhone = (profileCached.phone || "081318816058").replace(/\D/g, "");
       const waPhone = rawPhone.startsWith("0") ? "62" + rawPhone.slice(1) : rawPhone;
       const text = encodeURIComponent(`Halo Mangara,\n\nNama saya: ${nameVal || "(Pengunjung Portfolio)"}\n\nPesan:\n${msgVal || "Saya tertarik untuk berdiskusi mengenai proyek Anda."}`);
       window.open(`https://wa.me/${waPhone}?text=${text}`, "_blank");
@@ -581,93 +595,69 @@ async function syncFirestoreData() {
   // 1. Profile
   try {
     const snap = await getDoc(doc(db, "profile", "main"));
-    if (snap.exists()) renderProfile(snap.data());
+    if (snap.exists()) {
+      const data = snap.data();
+      renderProfile(data);
+      localStorage.setItem("portfolio_cache_profile", JSON.stringify(data));
+    }
   } catch (err) {
     console.debug("Firestore profile load:", err);
   }
 
-  // 2. Services
-  try {
-    const snap = await getDocs(query(collection(db, "services"), orderBy("order")));
-    if (!snap.empty) {
-      renderServices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  // Safe helper for collections with in-memory sorting
+  const syncColl = async (collName, renderFn, sortField = null) => {
+    try {
+      const snap = await getDocs(collection(db, collName));
+      if (!snap.empty) {
+        let items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (sortField) {
+          items.sort((a, b) => {
+            const vA = a[sortField] ?? 0;
+            const vB = b[sortField] ?? 0;
+            return vA > vB ? 1 : vA < vB ? -1 : 0;
+          });
+        }
+        renderFn(items);
+        localStorage.setItem(`portfolio_cache_${collName}`, JSON.stringify(items));
+      }
+    } catch (err) {
+      console.debug(`Firestore ${collName} load:`, err);
     }
-  } catch (err) {
-    console.debug("Firestore services load:", err);
-  }
+  };
 
-  // 3. Testimonials
-  try {
-    const snap = await getDocs(collection(db, "testimonials"));
-    if (!snap.empty) {
-      renderTestimonials(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore testimonials load:", err);
-  }
-
-  // 4. Skills
-  try {
-    const snap = await getDocs(query(collection(db, "skills"), orderBy("order")));
-    if (!snap.empty) {
-      renderSkills(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore skills load:", err);
-  }
-
-  // 5. Education
-  try {
-    const snap = await getDocs(query(collection(db, "education"), orderBy("order")));
-    if (!snap.empty) {
-      renderEducation(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore education load:", err);
-  }
-
-  // 6. Experience
-  try {
-    const snap = await getDocs(query(collection(db, "experience"), orderBy("order")));
-    if (!snap.empty) {
-      renderExperience(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore experience load:", err);
-  }
-
-  // 7. Projects
-  try {
-    const snap = await getDocs(query(collection(db, "projects"), orderBy("order")));
-    if (!snap.empty) {
-      renderProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore projects load:", err);
-  }
-
-  // 8. Blog
-  try {
-    const snap = await getDocs(query(collection(db, "blog"), orderBy("date")));
-    if (!snap.empty) {
-      renderBlog(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    }
-  } catch (err) {
-    console.debug("Firestore blog load:", err);
-  }
+  await syncColl("services", renderServices, "order");
+  await syncColl("testimonials", renderTestimonials);
+  await syncColl("skills", renderSkills, "order");
+  await syncColl("education", renderEducation, "order");
+  await syncColl("experience", renderExperience, "order");
+  await syncColl("projects", renderProjects, "order");
+  await syncColl("blog", renderBlog, "date");
 }
 
 // ─── INITIALIZATION ───────────────────────────────────────────
 (function init() {
-  // 1. Render default data immediately (Instant 0-delay visual)
-  renderProfile(DEFAULT_DATA.profile);
-  renderServices(DEFAULT_DATA.services);
-  renderTestimonials(DEFAULT_DATA.testimonials);
-  renderSkills(DEFAULT_DATA.skills);
-  renderEducation(DEFAULT_DATA.education);
-  renderExperience(DEFAULT_DATA.experience);
-  renderProjects(DEFAULT_DATA.projects);
-  renderBlog(DEFAULT_DATA.blog);
+  function getLocalOrDef(key, def) {
+    try {
+      const c = localStorage.getItem(`portfolio_cache_${key}`);
+      if (c) {
+        const parsed = JSON.parse(c);
+        if (parsed && (Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0)) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return def;
+  }
+
+  // 1. Render immediately from local cache or default data (Instant 0-delay visual)
+  renderProfile(getLocalOrDef("profile", DEFAULT_DATA.profile));
+  renderServices(getLocalOrDef("services", DEFAULT_DATA.services));
+  renderTestimonials(getLocalOrDef("testimonials", DEFAULT_DATA.testimonials));
+  renderSkills(getLocalOrDef("skills", DEFAULT_DATA.skills));
+  renderEducation(getLocalOrDef("education", DEFAULT_DATA.education));
+  renderExperience(getLocalOrDef("experience", DEFAULT_DATA.experience));
+  renderProjects(getLocalOrDef("projects", DEFAULT_DATA.projects));
+  renderBlog(getLocalOrDef("blog", DEFAULT_DATA.blog));
 
   // 2. Setup interactive widgets
   initThemeSwitcher();

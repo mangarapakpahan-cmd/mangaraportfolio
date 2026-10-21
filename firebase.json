@@ -17,5 +17,8 @@
         "destination": "/login.html"
       }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

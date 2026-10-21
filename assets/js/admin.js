@@ -139,17 +139,69 @@ window.setAdminAccent = function(color) {
   }, 100);
 })();
 
-// ─── Generic Firestore Helpers ──────────────────────────────────
+// ─── Generic Firestore Helpers with Dual Cache & Fallback ──────
 export async function fetchCollection(collName, orderField = null) {
   try {
-    const ref = orderField
-      ? query(collection(db, collName), orderBy(orderField))
-      : collection(db, collName);
-    const snap = await getDocs(ref);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, collName));
+    let items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (orderField && items.length > 0) {
+      items.sort((a, b) => {
+        const valA = a[orderField] ?? 0;
+        const valB = b[orderField] ?? 0;
+        return valA > valB ? 1 : valA < valB ? -1 : 0;
+      });
+    }
+    if (items.length > 0) {
+      localStorage.setItem(`portfolio_cache_${collName}`, JSON.stringify(items));
+      return items;
+    }
   } catch (err) {
-    console.warn(`Error fetching ${collName}:`, err);
-    return [];
+    console.warn(`Firestore read failed for ${collName}:`, err);
+  }
+
+  // Fallback 1: Local cache
+  const cached = localStorage.getItem(`portfolio_cache_${collName}`);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+
+  // Fallback 2: DEFAULT_DATA (prefill so admin is never blank)
+  if (DEFAULT_DATA[collName] && Array.isArray(DEFAULT_DATA[collName])) {
+    return DEFAULT_DATA[collName].map((item, idx) => ({
+      ...item,
+      id: `default_${idx}`,
+      _isDefault: true
+    }));
+  }
+
+  return [];
+}
+
+export function updateLocalCollectionCache(collName, id, data, isDelete = false) {
+  try {
+    let list = JSON.parse(localStorage.getItem(`portfolio_cache_${collName}`) || "null");
+    if (!list || !Array.isArray(list) || !list.length) {
+      list = (DEFAULT_DATA[collName] || []).map((x, idx) => ({ ...x, id: `default_${idx}` }));
+    }
+    if (isDelete) {
+      list = list.filter(item => item.id !== id);
+    } else if (id && !id.startsWith("default_")) {
+      const idx = list.findIndex(item => item.id === id);
+      if (idx >= 0) list[idx] = { ...list[idx], ...data, id };
+      else list.unshift({ ...data, id });
+    } else if (id && id.startsWith("default_")) {
+      const idx = list.findIndex(item => item.id === id);
+      if (idx >= 0) list[idx] = { ...list[idx], ...data, _isDefault: false };
+      else list.unshift({ ...data, _isDefault: false });
+    } else {
+      list.unshift({ ...data, id: "local_" + Date.now() });
+    }
+    localStorage.setItem(`portfolio_cache_${collName}`, JSON.stringify(list));
+  } catch (e) {
+    console.warn("Failed updating local cache:", e);
   }
 }
 
@@ -193,13 +245,30 @@ export function renderSkeleton(containerId, rows = 4, cols = 4) {
 export async function loadDashboardStats() {
   const collections = ["projects", "skills", "blog", "messages"];
   const ids         = ["stat-projects", "stat-skills", "stat-blog", "stat-messages"];
+  let totalCloud = 0;
   await Promise.all(collections.map(async (c, i) => {
     try {
       const snap = await getDocs(collection(db, c));
       const el = document.getElementById(ids[i]);
-      if (el) el.textContent = snap.size;
-    } catch {}
+      if (el) {
+        if (snap.size > 0 || c === "messages") {
+          el.textContent = snap.size;
+        } else {
+          const defCount = (DEFAULT_DATA[c] || []).length;
+          el.textContent = defCount;
+        }
+      }
+      if (c !== "messages") totalCloud += snap.size;
+    } catch {
+      const el = document.getElementById(ids[i]);
+      if (el) el.textContent = (DEFAULT_DATA[c] || []).length;
+    }
   }));
+
+  const syncAlert = document.getElementById("firestore-sync-alert");
+  if (syncAlert) {
+    syncAlert.style.display = totalCloud === 0 ? "flex" : "none";
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -208,10 +277,32 @@ export async function loadDashboardStats() {
 
 // ─── PROFILE ───────────────────────────────────────────────────
 export async function loadProfile() {
-  const data = await getDocumentById("profile", "main");
-  const fields = ["name","title","bio","email","phone","birthday","location","avatarUrl","social_facebook","social_twitter","social_instagram"];
+  let data = null;
+  try {
+    data = await getDocumentById("profile", "main");
+  } catch (err) {
+    console.warn("Load profile from Firestore error:", err);
+  }
+
+  if (!data) {
+    const cached = localStorage.getItem("portfolio_cache_profile");
+    if (cached) {
+      try { data = JSON.parse(cached); } catch {}
+    }
+  }
 
   const effective = data || DEFAULT_DATA.profile;
+
+  // Clean duplicate URL prefix if exists
+  if (effective.social_instagram && effective.social_instagram.includes("https://instagram.comhttps://instagram.com/")) {
+    effective.social_instagram = effective.social_instagram.replace("https://instagram.comhttps://instagram.com/", "https://instagram.com/");
+  }
+
+  const fields = [
+    "name", "title", "bio", "email", "phone", "birthday", "location",
+    "avatarUrl", "social_facebook", "social_twitter", "social_instagram",
+    "social_github", "social_linkedin"
+  ];
 
   fields.forEach(f => {
     const el = document.getElementById(`profile-${f}`);
@@ -224,14 +315,33 @@ export async function loadProfile() {
 }
 
 export async function saveProfile() {
-  const fields = ["name","title","bio","email","phone","birthday","location","avatarUrl","social_facebook","social_twitter","social_instagram"];
+  const fields = [
+    "name", "title", "bio", "email", "phone", "birthday", "location",
+    "avatarUrl", "social_facebook", "social_twitter", "social_instagram",
+    "social_github", "social_linkedin"
+  ];
   const data = {};
   fields.forEach(f => {
     const el = document.getElementById(`profile-${f}`);
     if (el) data[f] = el.value.trim();
   });
-  await setDocument("profile", "main", data);
-  showToast("Profil berhasil disimpan!");
+
+  // Clean duplicate prefix on Instagram if user pasted full URL into input
+  if (data.social_instagram && data.social_instagram.includes("https://instagram.comhttps://instagram.com/")) {
+    data.social_instagram = data.social_instagram.replace("https://instagram.comhttps://instagram.com/", "https://instagram.com/");
+  }
+
+  // 1. Immediately cache locally
+  localStorage.setItem("portfolio_cache_profile", JSON.stringify(data));
+
+  // 2. Save to Firestore
+  try {
+    await setDocument("profile", "main", data);
+    showToast("Profil berhasil disimpan ke Cloud & Website! 🚀", "success");
+  } catch (err) {
+    console.error("Save profile error:", err);
+    showToast("Profil tersimpan di browser lokal! (Cloud: " + (err.message || "akses ditolak") + ")", "info");
+  }
 }
 
 // ─── SERVICES ───────────────────────────────────────────────────
@@ -240,12 +350,12 @@ export async function loadServices() {
   const items = await fetchCollection("services", "order");
   const tbody = document.getElementById("services-tbody");
   if (!items.length) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><ion-icon name="construct-outline"></ion-icon><p>Belum ada layanan. Gunakan tombol 'Tambah Layanan' atau 'Isi Data Bawaan' di Dashboard.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><ion-icon name="construct-outline"></ion-icon><p>Belum ada layanan. Gunakan tombol 'Tambah Layanan' atau 'Sinkronkan Data Bawaan' di Dashboard.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = items.map(s => `
     <tr>
-      <td class="cell-bold">${s.title || "—"}</td>
+      <td class="cell-bold">${s.title || "—"} ${s._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td>${s.description ? s.description.substring(0,60)+"..." : "—"}</td>
       <td><span class="pill pill-accent">${s.order ?? 0}</span></td>
       <td>
@@ -270,16 +380,40 @@ window.adminEditService = async (id) => {
 window.adminDeleteService = async (id, title) => {
   const ok = await confirmDelete(`Hapus layanan "<strong>${title}</strong>"? Aksi ini tidak dapat dibatalkan.`);
   if (!ok) return;
-  await deleteDocument("services", id);
-  showToast("Layanan dihapus.");
-  loadServices();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("services", id);
+    }
+    updateLocalCollectionCache("services", id, null, true);
+    showToast("Layanan dihapus.");
+    loadServices();
+  } catch (err) {
+    updateLocalCollectionCache("services", id, null, true);
+    showToast("Layanan dihapus dari cache lokal.");
+    loadServices();
+  }
 };
 
 window.adminSaveService = async (id) => {
   const data = getServiceFormData();
-  if (id) { await updateDocument("services", id, data); showToast("Layanan diperbarui!"); }
-  else     { await addDocument("services", data);       showToast("Layanan ditambahkan!"); }
-  closeModal(); loadServices();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("services", id, data);
+      showToast("Layanan diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("services", data);
+      showToast("Layanan berhasil ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("services", id, data);
+    closeModal();
+    loadServices();
+  } catch (err) {
+    console.error("Save service error:", err);
+    updateLocalCollectionCache("services", id, data);
+    showToast("Layanan tersimpan di browser lokal!", "info");
+    closeModal();
+    loadServices();
+  }
 };
 
 function serviceForm(s = {}) {
@@ -322,7 +456,7 @@ function renderSkillsTable(items) {
   }
   tbody.innerHTML = items.map(s => `
     <tr>
-      <td class="cell-bold">${s.name||"—"}</td>
+      <td class="cell-bold">${s.name||"—"} ${s._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td>
         <div class="skill-bar-wrap">
           <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${s.percentage||0}%"></div></div>
@@ -358,15 +492,40 @@ window.adminEditSkill = async (id) => {
 window.adminDeleteSkill = async (id, name) => {
   const ok = await confirmDelete(`Hapus skill "<strong>${name}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("skills", id);
-  showToast("Skill dihapus."); loadSkills();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("skills", id);
+    }
+    updateLocalCollectionCache("skills", id, null, true);
+    showToast("Skill dihapus.");
+    loadSkills();
+  } catch (err) {
+    updateLocalCollectionCache("skills", id, null, true);
+    showToast("Skill dihapus dari cache lokal.");
+    loadSkills();
+  }
 };
 
 window.adminSaveSkill = async (id) => {
   const data = getSkillFormData();
-  if (id) { await updateDocument("skills", id, data); showToast("Skill diperbarui!"); }
-  else     { await addDocument("skills", data);       showToast("Skill ditambahkan!"); }
-  closeModal(); loadSkills();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("skills", id, data);
+      showToast("Skill diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("skills", data);
+      showToast("Skill berhasil ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("skills", id, data);
+    closeModal();
+    loadSkills();
+  } catch (err) {
+    console.error("Save skill error:", err);
+    updateLocalCollectionCache("skills", id, data);
+    showToast("Skill tersimpan di browser lokal!", "info");
+    closeModal();
+    loadSkills();
+  }
 };
 
 function skillForm(s = {}) {
@@ -408,7 +567,7 @@ export async function loadEducation() {
   if (!items.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><ion-icon name="school-outline"></ion-icon><p>Belum ada riwayat pendidikan.</p></div></td></tr>`; return; }
   tbody.innerHTML = items.map(e => `
     <tr>
-      <td class="cell-bold">${e.institution||"—"}</td>
+      <td class="cell-bold">${e.institution||"—"} ${e._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td>${e.period||"—"}</td>
       <td>${e.description ? e.description.substring(0,50)+"..." : "—"}</td>
       <td>
@@ -432,14 +591,40 @@ window.adminEditEdu = async (id) => {
 window.adminDeleteEdu = async (id, name) => {
   const ok = await confirmDelete(`Hapus pendidikan "<strong>${name}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("education", id); showToast("Dihapus."); loadEducation();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("education", id);
+    }
+    updateLocalCollectionCache("education", id, null, true);
+    showToast("Pendidikan dihapus.");
+    loadEducation();
+  } catch (err) {
+    updateLocalCollectionCache("education", id, null, true);
+    showToast("Pendidikan dihapus dari cache lokal.");
+    loadEducation();
+  }
 };
 
 window.adminSaveEdu = async (id) => {
   const data = getTimelineFormData("edu");
-  if (id) { await updateDocument("education", id, data); showToast("Pendidikan diperbarui!"); }
-  else     { await addDocument("education", data);       showToast("Pendidikan ditambahkan!"); }
-  closeModal(); loadEducation();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("education", id, data);
+      showToast("Pendidikan diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("education", data);
+      showToast("Pendidikan ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("education", id, data);
+    closeModal();
+    loadEducation();
+  } catch (err) {
+    console.error("Save education error:", err);
+    updateLocalCollectionCache("education", id, data);
+    showToast("Pendidikan tersimpan di browser lokal!", "info");
+    closeModal();
+    loadEducation();
+  }
 };
 
 // ─── EXPERIENCE ─────────────────────────────────────────────────
@@ -450,7 +635,7 @@ export async function loadExperience() {
   if (!items.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><ion-icon name="briefcase-outline"></ion-icon><p>Belum ada pengalaman kerja.</p></div></td></tr>`; return; }
   tbody.innerHTML = items.map(e => `
     <tr>
-      <td class="cell-bold">${e.position||"—"}</td>
+      <td class="cell-bold">${e.position||"—"} ${e._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td>${e.company||"—"}</td>
       <td>${e.period||"—"}</td>
       <td>
@@ -474,7 +659,18 @@ window.adminEditExp = async (id) => {
 window.adminDeleteExp = async (id, name) => {
   const ok = await confirmDelete(`Hapus pengalaman "<strong>${name}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("experience", id); showToast("Dihapus."); loadExperience();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("experience", id);
+    }
+    updateLocalCollectionCache("experience", id, null, true);
+    showToast("Pengalaman dihapus.");
+    loadExperience();
+  } catch (err) {
+    updateLocalCollectionCache("experience", id, null, true);
+    showToast("Pengalaman dihapus dari cache lokal.");
+    loadExperience();
+  }
 };
 
 window.adminSaveExp = async (id) => {
@@ -485,9 +681,24 @@ window.adminSaveExp = async (id) => {
     description: document.getElementById("exp-desc")?.value     || "",
     order:       parseInt(document.getElementById("exp-order")?.value) || 0,
   };
-  if (id) { await updateDocument("experience", id, data); showToast("Pengalaman diperbarui!"); }
-  else     { await addDocument("experience", data);       showToast("Pengalaman ditambahkan!"); }
-  closeModal(); loadExperience();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("experience", id, data);
+      showToast("Pengalaman diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("experience", data);
+      showToast("Pengalaman ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("experience", id, data);
+    closeModal();
+    loadExperience();
+  } catch (err) {
+    console.error("Save experience error:", err);
+    updateLocalCollectionCache("experience", id, data);
+    showToast("Pengalaman tersimpan di browser lokal!", "info");
+    closeModal();
+    loadExperience();
+  }
 };
 
 function expForm(e = {}) {
@@ -524,7 +735,7 @@ function renderProjectsTable(items) {
   tbody.innerHTML = items.map(p => `
     <tr>
       <td>${p.imageUrl ? `<img class="table-img" src="${p.imageUrl}" alt="${p.title}" onerror="this.src='./assets/images/project-1.jpg'">` : `<div class="table-img" style="background:var(--bg-card-2);display:grid;place-items:center;"><ion-icon name="image-outline" style="color:var(--text-muted)"></ion-icon></div>`}</td>
-      <td class="cell-bold">${p.title||"—"}</td>
+      <td class="cell-bold">${p.title||"—"} ${p._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td><span class="pill pill-info">${p.category||"—"}</span></td>
       <td>${p.projectUrl ? `<a href="${p.projectUrl}" target="_blank" style="color:var(--accent);font-size:12px;">${p.projectUrl.substring(0,30)}...</a>` : "—"}</td>
       <td>
@@ -557,7 +768,18 @@ window.adminEditProject = async (id) => {
 window.adminDeleteProject = async (id, title) => {
   const ok = await confirmDelete(`Hapus proyek "<strong>${title}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("projects", id); showToast("Proyek dihapus."); loadProjects();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("projects", id);
+    }
+    updateLocalCollectionCache("projects", id, null, true);
+    showToast("Proyek dihapus.");
+    loadProjects();
+  } catch (err) {
+    updateLocalCollectionCache("projects", id, null, true);
+    showToast("Proyek dihapus dari cache lokal.");
+    loadProjects();
+  }
 };
 
 window.adminSaveProject = async (id) => {
@@ -569,9 +791,24 @@ window.adminSaveProject = async (id) => {
     description: document.getElementById("prj-desc")?.value.trim()     || "",
     order:       parseInt(document.getElementById("prj-order")?.value) || 0,
   };
-  if (id) { await updateDocument("projects", id, data); showToast("Proyek diperbarui!"); }
-  else     { await addDocument("projects", data);       showToast("Proyek ditambahkan!"); }
-  closeModal(); loadProjects();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("projects", id, data);
+      showToast("Proyek diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("projects", data);
+      showToast("Proyek ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("projects", id, data);
+    closeModal();
+    loadProjects();
+  } catch (err) {
+    console.error("Save project error:", err);
+    updateLocalCollectionCache("projects", id, data);
+    showToast("Proyek tersimpan di browser lokal!", "info");
+    closeModal();
+    loadProjects();
+  }
 };
 
 function projectForm(p = {}) {
@@ -627,7 +864,7 @@ function renderBlogTable(items) {
   }
   tbody.innerHTML = items.map(b => `
     <tr>
-      <td class="cell-bold">${b.title||"—"}</td>
+      <td class="cell-bold">${b.title||"—"} ${b._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td><span class="pill pill-info">${b.category||"—"}</span></td>
       <td class="cell-muted">${b.date||"—"}</td>
       <td>${b.excerpt ? b.excerpt.substring(0,50)+"..." : "—"}</td>
@@ -661,7 +898,18 @@ window.adminEditBlog = async (id) => {
 window.adminDeleteBlog = async (id, title) => {
   const ok = await confirmDelete(`Hapus artikel "<strong>${title}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("blog", id); showToast("Artikel dihapus."); loadBlog();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("blog", id);
+    }
+    updateLocalCollectionCache("blog", id, null, true);
+    showToast("Artikel dihapus.");
+    loadBlog();
+  } catch (err) {
+    updateLocalCollectionCache("blog", id, null, true);
+    showToast("Artikel dihapus dari cache lokal.");
+    loadBlog();
+  }
 };
 
 window.adminSaveBlog = async (id) => {
@@ -673,9 +921,24 @@ window.adminSaveBlog = async (id) => {
     imageUrl: document.getElementById("blg-img")?.value.trim()      || "",
     url:      document.getElementById("blg-url")?.value.trim()      || "",
   };
-  if (id) { await updateDocument("blog", id, data); showToast("Artikel diperbarui!"); }
-  else     { await addDocument("blog", data);       showToast("Artikel ditambahkan!"); }
-  closeModal(); loadBlog();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("blog", id, data);
+      showToast("Artikel diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("blog", data);
+      showToast("Artikel ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("blog", id, data);
+    closeModal();
+    loadBlog();
+  } catch (err) {
+    console.error("Save blog error:", err);
+    updateLocalCollectionCache("blog", id, data);
+    showToast("Artikel tersimpan di browser lokal!", "info");
+    closeModal();
+    loadBlog();
+  }
 };
 
 function blogForm(b = {}) {
@@ -710,7 +973,7 @@ export async function loadTestimonials() {
   if (!items.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><ion-icon name="chatbubble-ellipses-outline"></ion-icon><p>Belum ada testimoni.</p></div></td></tr>`; return; }
   tbody.innerHTML = items.map(t => `
     <tr>
-      <td class="cell-bold">${t.name||"—"}</td>
+      <td class="cell-bold">${t.name||"—"} ${t._isDefault ? '<span class="pill pill-warning" style="font-size:10px;margin-left:4px;">Bawaan</span>' : ''}</td>
       <td class="cell-muted">${t.date||"—"}</td>
       <td>${t.text ? t.text.substring(0,60)+"..." : "—"}</td>
       <td>
@@ -734,7 +997,18 @@ window.adminEditTest = async (id) => {
 window.adminDeleteTest = async (id, name) => {
   const ok = await confirmDelete(`Hapus testimoni dari "<strong>${name}</strong>"?`);
   if (!ok) return;
-  await deleteDocument("testimonials", id); showToast("Testimoni dihapus."); loadTestimonials();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await deleteDocument("testimonials", id);
+    }
+    updateLocalCollectionCache("testimonials", id, null, true);
+    showToast("Testimoni dihapus.");
+    loadTestimonials();
+  } catch (err) {
+    updateLocalCollectionCache("testimonials", id, null, true);
+    showToast("Testimoni dihapus dari cache lokal.");
+    loadTestimonials();
+  }
 };
 
 window.adminSaveTest = async (id) => {
@@ -744,9 +1018,24 @@ window.adminSaveTest = async (id) => {
     avatarUrl: document.getElementById("tst-avatar")?.value.trim() || "",
     text:      document.getElementById("tst-text")?.value.trim()   || "",
   };
-  if (id) { await updateDocument("testimonials", id, data); showToast("Testimoni diperbarui!"); }
-  else     { await addDocument("testimonials", data);       showToast("Testimoni ditambahkan!"); }
-  closeModal(); loadTestimonials();
+  try {
+    if (id && !id.startsWith("default_")) {
+      await updateDocument("testimonials", id, data);
+      showToast("Testimoni diperbarui di Cloud & Website!");
+    } else {
+      await addDocument("testimonials", data);
+      showToast("Testimoni ditambahkan ke Cloud & Website!");
+    }
+    updateLocalCollectionCache("testimonials", id, data);
+    closeModal();
+    loadTestimonials();
+  } catch (err) {
+    console.error("Save testimonial error:", err);
+    updateLocalCollectionCache("testimonials", id, data);
+    showToast("Testimoni tersimpan di browser lokal!", "info");
+    closeModal();
+    loadTestimonials();
+  }
 };
 
 function testForm(t = {}) {
@@ -919,62 +1208,64 @@ window.adminAddNew = function(section) {
 // 1. Seed Demo Data to Firestore
 window.adminSeedData = async function() {
   const ok = await confirmDelete(
-    "Apakah Anda yakin ingin mengisi Firestore dengan data portofolio lengkap bawaan?<br><br>Ini akan mengisi profil, layanan, skills, pendidikan, pengalaman, proyek, dan artikel blog."
+    "Sinkronkan semua data portofolio bawaan ke Cloud Firestore?<br><br>Ini akan menyimpan profil, layanan, skills, pendidikan, pengalaman, proyek, dan artikel blog ke database cloud Anda agar sinkron sempurna dengan tampilan pengguna."
   );
   if (!ok) return;
 
   const btn = document.getElementById("seed-data-btn");
+  const quickBtn = document.getElementById("quick-sync-btn");
   if (btn) btn.disabled = true;
+  if (quickBtn) quickBtn.disabled = true;
 
-  showToast("Sedang melakukan seeding data ke Firestore...", "info");
+  showToast("Sedang menyinkronkan data ke Cloud Firestore...", "info");
 
   try {
     // 1. Profile
-    await setDoc(doc(db, "profile", "main"), { ...DEFAULT_DATA.profile, updatedAt: serverTimestamp() });
+    await setDoc(doc(db, "profile", "main"), { ...DEFAULT_DATA.profile, updatedAt: serverTimestamp() }, { merge: true });
+    localStorage.setItem("portfolio_cache_profile", JSON.stringify(DEFAULT_DATA.profile));
 
-    // 2. Services
-    for (const item of DEFAULT_DATA.services) {
-      await addDoc(collection(db, "services"), { ...item, createdAt: serverTimestamp() });
-    }
+    // Helper to seed a collection
+    const seedColl = async (collName, items) => {
+      const existing = await getDocs(collection(db, collName));
+      if (existing.empty) {
+        for (const item of items) {
+          const { id, _isDefault, ...cleanItem } = item;
+          await addDoc(collection(db, collName), { ...cleanItem, createdAt: serverTimestamp() });
+        }
+      }
+      localStorage.setItem(`portfolio_cache_${collName}`, JSON.stringify(items));
+    };
 
-    // 3. Testimonials
-    for (const item of DEFAULT_DATA.testimonials) {
-      await addDoc(collection(db, "testimonials"), { ...item, createdAt: serverTimestamp() });
-    }
+    await seedColl("services", DEFAULT_DATA.services);
+    await seedColl("testimonials", DEFAULT_DATA.testimonials);
+    await seedColl("skills", DEFAULT_DATA.skills);
+    await seedColl("education", DEFAULT_DATA.education);
+    await seedColl("experience", DEFAULT_DATA.experience);
+    await seedColl("projects", DEFAULT_DATA.projects);
+    await seedColl("blog", DEFAULT_DATA.blog);
 
-    // 4. Skills
-    for (const item of DEFAULT_DATA.skills) {
-      await addDoc(collection(db, "skills"), { ...item, createdAt: serverTimestamp() });
-    }
+    showToast("Semua data berhasil disinkronkan ke Cloud Firestore & Tampilan Pengguna! 🚀", "success");
+    await loadDashboardStats();
 
-    // 5. Education
-    for (const item of DEFAULT_DATA.education) {
-      await addDoc(collection(db, "education"), { ...item, createdAt: serverTimestamp() });
-    }
-
-    // 6. Experience
-    for (const item of DEFAULT_DATA.experience) {
-      await addDoc(collection(db, "experience"), { ...item, createdAt: serverTimestamp() });
-    }
-
-    // 7. Projects
-    for (const item of DEFAULT_DATA.projects) {
-      await addDoc(collection(db, "projects"), { ...item, createdAt: serverTimestamp() });
-    }
-
-    // 8. Blog
-    for (const item of DEFAULT_DATA.blog) {
-      await addDoc(collection(db, "blog"), { ...item, createdAt: serverTimestamp() });
-    }
-
-    showToast("Berhasil! Semua data bawaan telah disimpan ke Firestore 🚀", "success");
-    loadDashboardStats();
+    const activeSec = document.querySelector(".nav-link.active")?.getAttribute("data-section") || "dashboard";
+    const refreshMap = {
+      services: loadServices,
+      skills: loadSkills,
+      education: loadEducation,
+      experience: loadExperience,
+      projects: loadProjects,
+      blog: loadBlog,
+      testimonials: loadTestimonials,
+      profile: loadProfile
+    };
+    refreshMap[activeSec]?.();
 
   } catch (err) {
     console.error("Seed error:", err);
-    showToast("Gagal melakukan seeding: " + err.message, "error");
+    showToast("Gagal menyinkronkan: " + err.message, "error");
   } finally {
     if (btn) btn.disabled = false;
+    if (quickBtn) quickBtn.disabled = false;
   }
 };
 
