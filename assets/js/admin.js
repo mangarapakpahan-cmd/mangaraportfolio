@@ -291,7 +291,10 @@ export async function loadProfile() {
     }
   }
 
-  const effective = data || DEFAULT_DATA.profile;
+  let effective = data || DEFAULT_DATA.profile;
+  if (!effective.title || effective.title.includes("Data Analyst") || effective.title.includes("Spesialist")) {
+    effective = { ...DEFAULT_DATA.profile, ...effective, title: DEFAULT_DATA.profile.title, bio: DEFAULT_DATA.profile.bio };
+  }
 
   // Clean duplicate URL prefix if exists
   if (effective.social_instagram && effective.social_instagram.includes("https://instagram.comhttps://instagram.com/")) {

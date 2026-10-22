@@ -1,21 +1,22 @@
 /**
  * default-data.js
  * Data bawaan (fallback / seed data) untuk portofolio Mangara Ferdianto Pakpahan.
- * Digunakan sebagai:
- * 1. Fallback instan jika Firestore masih kosong / offline / belum di-seed
- * 2. Sumber data 1-klik "Seed Demo Data" di Admin Dashboard CMS
+ * Diperbarui berdasarkan CV Resmi:
+ * - Mahasiswa Teknik Informatika, Institut Teknologi PLN
+ * - Minat: Media Kreatif & Manajemen Data
+ * - Kontak: 0813-1881-6058 | mangarapakpahan51@gmail.com
  */
 
 export const DEFAULT_DATA = {
   profile: {
     name: "Mangara Ferdianto Pakpahan",
-    title: "Data Analyst & Social Media Specialist",
+    title: "Mahasiswa Teknik Informatika | Media Kreatif & Manajemen Data",
     email: "mangarapakpahan51@gmail.com",
-    phone: "081318816058",
+    phone: "0813-1881-6058",
     birthday: "2005-02-13",
     location: "Jakarta, Indonesia",
     avatarUrl: "./assets/images/my-avatar.png",
-    bio: "Saya adalah seorang Data Analyst dan Social Media Specialist yang berdedikasi dalam mengubah kumpulan data kompleks menjadi wawasan strategis yang berdampak nyata bagi pertumbuhan bisnis dan organisasi.\n\nMemiliki keahlian teknis kuat dalam pengolahan data menggunakan Python, SQL, Microsoft Power BI, serta Advanced Excel. Di sisi lain, saya memiliki pemahaman mendalam tentang strategi konten digital, analisis audiens media sosial, dan tren keterlibatan (engagement) publik.\n\nFokus saya adalah menjembatani bukti kuantitatif (data-driven insights) dengan eksekusi kreatif untuk membantu pengambilan keputusan yang terukur, efisien, dan berorientasi pada hasil jangka panjang.",
+    bio: "Seorang mahasiswa Teknik Informatika dengan antusiasme tinggi terhadap pembelajaran berkelanjutan dan pengembangan diri. Memiliki minat yang kuat di bidang media kreatif dan manajemen data.\n\nTerampil dalam berbagai bahasa pemrograman dan teknologi terkait, serta selalu terbuka untuk memperdalam pengetahuan dan keahlian. Siap untuk terlibat dalam tantangan dan pengalaman belajar yang bermakna untuk mencapai potensi penuh dalam karir di bidang teknologi.",
     social_facebook: "https://facebook.com",
     social_twitter: "https://twitter.com",
     social_instagram: "https://instagram.com/mangarapakpahan_",
@@ -25,26 +26,26 @@ export const DEFAULT_DATA = {
 
   services: [
     {
-      title: "Data Analysis & Business Intelligence",
-      description: "Analisis data end-to-end mulai dari data cleaning, eksplorasi pola statistik, hingga perancangan dashboard interaktif menggunakan Power BI & Excel.",
-      iconUrl: "./assets/images/icon-dev.svg",
+      title: "Creative Media & Visual Identity Design",
+      description: "Perancangan identitas visual acara, materi branding, arahan kreatif tim desain, dan produksi konten visual berkualitas tinggi (Wisuda ITPLN ke-46, Juara 1 Poster IPB University).",
+      iconUrl: "./assets/images/icon-design.svg",
       order: 1
     },
     {
-      title: "Python Data Processing & Automation",
-      description: "Otomasi pemrosesan data, manipulasi dataset besar dengan Pandas & NumPy, serta visualisasi data berbasis Python.",
-      iconUrl: "./assets/images/icon-app.svg",
+      title: "Data Management & Analytics",
+      description: "Pengolahan dataset terstruktur, query basis data relasional dengan SQL, otomasi Python, dan analisis spreadsheet tingkat lanjut (Microsoft Office Specialist Excel 2019 Certified).",
+      iconUrl: "./assets/images/icon-dev.svg",
       order: 2
     },
     {
-      title: "Social Media Strategy & Analytics",
-      description: "Perencanaan strategi konten berbasis riset tren, manajemen kampanye digital, dan evaluasi matriks performa audiens media sosial.",
-      iconUrl: "./assets/images/icon-design.svg",
+      title: "Digital Outreach & Public Relations",
+      description: "Perencanaan strategi komunikasi publik, manajemen kemitraan media, kampanye penjangkauan digital rekrutmen, dan keterlibatan komunitas audiens (Student Ambassador ITPLN & DQLab).",
+      iconUrl: "./assets/images/icon-app.svg",
       order: 3
     },
     {
-      title: "Database Management & SQL",
-      description: "Query relational database, desain skema, ekstraksi data bisnis kompleks, dan optimasi pengelolaan basis data (PostgreSQL/MySQL).",
+      title: "Project Management & Event Support",
+      description: "Manajemen alur acara end-to-end, koordinasi tim lintas fungsi, serta dukungan teknis & operasional seminar berskala nasional dan internasional.",
       iconUrl: "./assets/images/icon-photo.svg",
       order: 4
     }
@@ -52,153 +53,180 @@ export const DEFAULT_DATA = {
 
   testimonials: [
     {
-      name: "Dosen Pembimbing Akademik",
-      date: "2024-09-15",
+      name: "Pimpinan Divisi ITPLN Media",
+      date: "2025-01-10",
       avatarUrl: "./assets/images/avatar-1.png",
-      text: "Mangara menunjukkan dedikasi yang luar biasa dalam analisis data dan metodologi kuantitatif. Mampu mengintegrasikan teori pemodelan statistik dengan visualisasi dashboard yang mudah dipahami oleh stakeholder bisnis."
+      text: "Sebagai Deputy Manager & Direktur Kreatif, Mangara selalu menunjukkan kepemimpinan yang tangguh dan kepekaan visual yang tajam. Hasil konten tim media menjadi jauh lebih konsisten, profesional, dan memperkuat identitas merek institusi."
     },
     {
-      name: "Rekan Kolaborasi Proyek",
-      date: "2024-08-20",
+      name: "Koordinator Program DQLab & Komunitas Data",
+      date: "2024-12-05",
       avatarUrl: "./assets/images/avatar-2.png",
-      text: "Kolaborasi yang sangat menyenangkan! Kemampuan Mangara dalam memadukan keahlian analitik data dengan strategi media sosial memberikan dampak nyata terhadap kenaikan engagement dan keterbacaan data proyek kami."
+      text: "Peran Mangara sebagai Student Ambassador sangat berdampak positif. Ia aktif menjembatani mahasiswa dengan materi pembelajaran data science dan menghubungkan mereka dengan para praktisi industri data."
     },
     {
-      name: "Tim Inovasi & Riset",
-      date: "2024-07-10",
+      name: "Tim Humas & Stakeholder ITPLN",
+      date: "2024-11-20",
       avatarUrl: "./assets/images/avatar-3.png",
-      text: "Karya dashboard analytics yang dibuat sangat rapi, akurat, dan intuitif. Setiap KPI divisualisasikan dengan tepat sehingga memudahkan pengambilan keputusan strategis."
+      text: "Kerja sama dengan Mangara di bidang humas dan publikasi sangat memuaskan. Komunikasi strategis dan konten digital yang dirancangnya memperkuat reputasi positif institusi di berbagai saluran resmi."
     },
     {
-      name: "Partner Eksternal",
-      date: "2024-06-05",
+      name: "Ketua Panitia Pelaksana Seminar Nasional",
+      date: "2024-10-15",
       avatarUrl: "./assets/images/avatar-4.png",
-      text: "Sangat komunikatif, profesional, dan selalu tepat waktu dalam penyelesaian tugas analisis data. Memiliki pemahaman teknis dan kreatif yang seimbang."
+      text: "Dukungan operasional dan teknis yang diberikan Mangara selama acara seminar berskala nasional dan internasional (JACOST, Mine Excellent) berjalan sangat mulus. Sangat solutif dan dapat diandalkan."
     }
   ],
 
   skills: [
-    { name: "Python (Pandas, NumPy, Matplotlib)", percentage: 90, order: 1 },
-    { name: "SQL & Relational Databases (PostgreSQL/MySQL)", percentage: 88, order: 2 },
-    { name: "Microsoft Power BI & Data Visualization", percentage: 86, order: 3 },
-    { name: "Advanced Excel (Pivot, Modeling, Analytical Functions)", percentage: 92, order: 4 },
-    { name: "Social Media Analytics & Content Strategy", percentage: 88, order: 5 },
-    { name: "Cloud Computing & Microsoft Azure Fundamentals", percentage: 80, order: 6 },
-    { name: "Statistical Data Analysis & Quantitative Modeling", percentage: 84, order: 7 }
+    { name: "Microsoft Excel (MOS Certified & Advanced Analytics)", percentage: 95, order: 1 },
+    { name: "Creative Media & Visual Identity Design (Photoshop, Canva)", percentage: 92, order: 2 },
+    { name: "Digital Outreach, PR & Community Engagement", percentage: 90, order: 3 },
+    { name: "SQL & Relational Database Management (Progate Certified)", percentage: 88, order: 4 },
+    { name: "Project & Event Management (End-to-End Planning)", percentage: 88, order: 5 },
+    { name: "Python Programming (Samsung Innovation Campus Certified)", percentage: 85, order: 6 },
+    { name: "Photography & Videography Documentation", percentage: 85, order: 7 }
   ],
 
   education: [
     {
       institution: "Institut Teknologi PLN (ITPLN)",
       period: "2023 — Sekarang",
-      description: "Program Sarjana (S1). Mendalami sistem komputasi, analitika data, transformasi digital, serta riset transisi energi dan keberlanjutan (SDGs).",
+      description: "Program Sarjana (S1) Teknik Informatika. Mendalami sistem komputasi, algoritma pemrograman, analisis data, arsitektur sistem, serta integrasi teknologi untuk media kreatif dan digitalisasi industri.",
       order: 1
     },
     {
-      institution: "Samsung Innovation Campus (SIC) Batch 5",
-      period: "2023 — 2024",
-      description: "Pelatihan intensif pengembangan solusi berbasis Python, IoT, algoritma struktur data, dan rekayasa kecerdasan buatan.",
+      institution: "SMA Negeri 1 Tebing Tinggi",
+      period: "2020 — 2023",
+      description: "Pendidikan Menengah Atas jurusan Matematika dan Ilmu Pengetahuan Alam (MIPA). Membangun landasan analitis kuantitatif, kepemimpinan organisasi siswa, dan pemecahan masalah secara logis.",
       order: 2
     },
     {
-      institution: "Microsoft Learn & IBM SkillsBuild Specialization",
+      institution: "Program Beasiswa & Pelatihan Teknologi Intensif",
       period: "2023 — 2024",
-      description: "Sertifikasi profesional dalam Cloud Computing (Azure), Data Science Fundamentals, dan Database Architecture.",
+      description: "Penerima Beasiswa Samsung Innovation Campus (SIC) Batch 5 bidang Python, Sertifikasi Kursus SQL Progate, serta sertifikasi internasional Microsoft Office Specialist (Excel 2019).",
       order: 3
     }
   ],
 
   experience: [
     {
-      position: "Data Analyst & Business Intelligence Developer",
-      company: "Proyek Independen & Riset Analitika",
+      position: "Student Ambassador",
+      company: "Institut Teknologi PLN (ITPLN)",
       period: "2024 — Sekarang",
-      description: "Membangun dashboard analitik interaktif (Kimia Farma Sales Performance, Regional Service Quality Gap), menganalisis tren performa bisnis, dan menyusun laporan berbasis data.",
+      description: "Bertindak sebagai perwakilan utama institusi dalam berbagai acara rekrutmen, berhasil meningkatkan kesadaran dan minat calon mahasiswa melalui presentasi yang informatif. Mengembangkan dan menerapkan strategi penjangkauan digital yang efektif untuk meningkatkan interaksi dengan calon mahasiswa dan orang tua.",
       order: 1
     },
     {
-      position: "Social Media Specialist & Creative Strategist",
-      company: "Digital Growth & Media Kampus",
-      period: "2023 — Sekarang",
-      description: "Mengelola strategi konten multi-platform, memonitor performa engagement audiens, melakukan A/B testing materi kreatif, dan meningkatkan visibilitas merek secara konsisten.",
+      position: "Student Ambassador",
+      company: "DQLab",
+      period: "2024 — Sekarang",
+      description: "Berhasil meningkatkan partisipasi mahasiswa dalam program pembelajaran ilmu data dengan membangun komunitas yang aktif dan suportif. Menjadi penghubung antara mahasiswa dengan para profesional di industri data, membuka peluang jejaring dan kolaborasi.",
       order: 2
     },
     {
-      position: "Student Researcher & IT Analyst Trainee",
-      company: "Laboratorium Komputasi & Studi Kuanti",
-      period: "2023 — 2024",
-      description: "Terlibat dalam pengujian dataset, eksperimen pemrosesan data dengan Python, serta riset implementasi teknologi informasi untuk inisiatif transisi energi.",
+      position: "Deputy Manager & Direktur Kreatif",
+      company: "ITPLN Media",
+      period: "2024 — Sekarang",
+      description: "Sebagai Deputi Manajer, terlibat dalam pengambilan keputusan strategis dan operasional. Sebagai Direktur Kreatif, memimpin tim desain, fotografi, dan video untuk menghasilkan konten berkualitas tinggi yang konsisten dan memperkuat identitas merek ITPLN Media.",
       order: 3
+    },
+    {
+      position: "Student Worker - Humas & Hubungan Stakeholder",
+      company: "Institut Teknologi PLN (ITPLN)",
+      period: "Sep 2024 — Nov 2024",
+      description: "Memperkuat citra positif institusi dengan mengembangkan konten digital dan mengelola komunikasi strategis dengan para pemangku kepentingan.",
+      order: 4
+    },
+    {
+      position: "Hubungan Masyarakat (Humas)",
+      company: "Musketer ITPLN",
+      period: "2024 — Sekarang",
+      description: "Membangun dan memelihara hubungan profesional dengan mitra media untuk memperluas jangkauan publisitas dan mengelola citra publik Institut Teknologi PLN.",
+      order: 5
+    },
+    {
+      position: "Ketua, Badan Pengurus Harian Pemuda",
+      company: "HKBP Maranatha Tebing Tinggi",
+      period: "2022 — 2023",
+      description: "Memimpin organisasi kepemudaan dan berhasil menyelenggarakan program-program penjangkauan yang memberikan kontribusi positif bagi masyarakat sekitar.",
+      order: 6
     }
   ],
 
   projects: [
     {
-      title: "Kimia Farma Sales & Profit Analytics Dashboard",
-      category: "data analytics",
+      title: "Desain Visual Identitas Wisuda ITPLN ke-46",
+      category: "Creative Media",
       imageUrl: "./assets/images/project-1.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Merancang dan mengimplementasikan seluruh identitas visual acara, berhasil menciptakan suasana yang khidmat dan profesional untuk salah satu acara terpenting institusi.",
       order: 1
     },
     {
-      title: "Regional Service Quality Gap Analysis",
-      category: "data analytics",
+      title: "Manajemen Proyek Family Gathering PT Adhi Guna Putera",
+      category: "Event & Management",
       imageUrl: "./assets/images/project-2.png",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Memimpin perencanaan dan eksekusi acara dari awal hingga akhir, memastikan acara berjalan sukses dan berhasil mempererat hubungan antar karyawan dan keluarga.",
       order: 2
     },
     {
-      title: "ITPLN Media & News Performance Analytics",
-      category: "social media",
+      title: "Dukungan Teknis & Operasional Seminar Nasional & Internasional",
+      category: "Event & Management",
       imageUrl: "./assets/images/project-3.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Memberikan dukungan teknis krusial yang memastikan kelancaran dan keberhasilan berbagai seminar (Mine Excellent Indonesia, JACOST, AMI Advance Metering Infrastructure), menjaga citra profesional penyelenggara di hadapan peserta nasional dan internasional.",
       order: 3
     },
     {
-      title: "Fashion Retail Sales Database & SQL Queries",
-      category: "database",
+      title: "Tim Dokumentasi Visual & Publikasi Seminar/Workshop ITPLN",
+      category: "Creative Media",
       imageUrl: "./assets/images/project-4.png",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Bertanggung jawab atas dokumentasi visual (foto & video) dan publikasi untuk berbagai acara penting, termasuk Seminar Nuklir Nasional dan Workshop Pengembangan Karir, memastikan setiap acara terekam dan terpublikasi dengan baik.",
       order: 4
     },
     {
-      title: "SDGs Sustainability Metrics Dashboard",
-      category: "data analytics",
+      title: "Juara 1 Karya Desain Poster Ocean Experience IPB University",
+      category: "Creative Media",
       imageUrl: "./assets/images/project-5.png",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Karya desain poster pemenang Juara 1 dalam ajang kompetisi nasional Ocean Experience IPB University 2025 dengan fokus visualisasi estetis konservasi ekosistem maritim.",
       order: 5
     },
     {
-      title: "Python Automated ETL & Data Cleaning Pipeline",
-      category: "python",
+      title: "Implementasi Program Kreativitas Mahasiswa (PKM) - Kemendikbud",
+      category: "Data & Technology",
       imageUrl: "./assets/images/project-6.png",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
+      description: "Proyek inovasi teknologi yang berhasil meraih pendanaan resmi DIKTI Level 1 tahun 2024, mengintegrasikan metodologi riset komputasi dan manajemen data.",
       order: 6
     }
   ],
 
   blog: [
     {
-      title: "Memaksimalkan Power BI untuk Dashboard Bisnis yang Efektif",
-      category: "Data Analytics",
-      date: "2025-01-15",
-      excerpt: "Panduan praktis merancang visualisasi data yang tidak hanya indah secara visual, tetapi juga memberikan wawasan aksi nyata (actionable insights) bagi pemangku kepentingan.",
+      title: "Juara 1 Lomba Desain Poster Nasional Ocean Experience IPB University",
+      category: "Prestasi & Desain",
+      date: "2025-01-20",
+      excerpt: "Meraih predikat Juara 1 dalam kompetisi desain poster nasional yang diselenggarakan oleh IPB University melalui karya visual edukatif pelestarian ekosistem bahari.",
       imageUrl: "./assets/images/blog-1.jpg",
       url: "#"
     },
     {
-      title: "Analisis Data Audiens untuk Strategi Media Sosial yang Berkelanjutan",
-      category: "Social Media",
-      date: "2024-12-10",
-      excerpt: "Bagaimana memanfaatkan data analitik keterlibatan untuk menyusun konten yang tepat sasaran dan meningkatkan jangkauan organik secara terukur.",
+      title: "Penerima Pendanaan DIKTI Level 1 Program Kreativitas Mahasiswa (PKM)",
+      category: "Riset & Inovasi",
+      date: "2024-11-15",
+      excerpt: "Lolos seleksi ketat dan mendapatkan pendanaan resmi dari Kemendikbudristek/DIKTI untuk merealisasikan proposal Program Kreativitas Mahasiswa berbasis sains dan teknologi komputasi.",
       imageUrl: "./assets/images/blog-2.jpg",
       url: "#"
     },
     {
-      title: "Dasar Query SQL Penting yang Wajib Dikuasai oleh Setiap Data Analyst",
-      category: "SQL",
-      date: "2024-11-05",
-      excerpt: "Eksplorasi penggunaan GROUP BY, HAVING, Window Functions, dan subqueries untuk mengekstrak informasi berharga dari jutaan baris data bisnis.",
+      title: "Sertifikasi Resmi: Microsoft Office Specialist (Excel), SQL Progate, dan SIC Python",
+      category: "Sertifikasi Profesional",
+      date: "2024-10-10",
+      excerpt: "Pencapaian sertifikasi kompetensi industri: Microsoft Office Specialist (Excel 2019), kursus database SQL Progate, dan kelulusan program beasiswa Samsung Innovation Campus (SIC) Batch 5 bidang Python.",
       imageUrl: "./assets/images/blog-3.jpg",
       url: "#"
     }
