@@ -28,6 +28,23 @@ let cachedSkills = [];
 let cachedMessages = [];
 let currentMsgTab = "all";
 
+// Invalidate obsolete local cache to match newly confirmed activities
+const CACHE_VERSION = "v4_confirmed_activities";
+if (typeof localStorage !== "undefined" && localStorage.getItem("portfolio_cache_ver") !== CACHE_VERSION) {
+  const keysToRemove = [
+    "portfolio_cache_profile",
+    "portfolio_cache_services",
+    "portfolio_cache_testimonials",
+    "portfolio_cache_skills",
+    "portfolio_cache_education",
+    "portfolio_cache_experience",
+    "portfolio_cache_projects",
+    "portfolio_cache_blog"
+  ];
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  localStorage.setItem("portfolio_cache_ver", CACHE_VERSION);
+}
+
 // ─── Toast Notification System ─────────────────────────────────
 const toastContainer = document.getElementById("toast-container");
 
