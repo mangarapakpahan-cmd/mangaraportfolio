@@ -200,7 +200,7 @@ function renderProfile(d) {
     safeSet("[data-profile-avatar]", d.name || "", "alt");
   }
   safeSet("[data-profile-name]", d.name || "Mangara Ferdianto Pakpahan");
-  safeSet("[data-profile-title]", d.title || "Mahasiswa Teknik Informatika | Media Kreatif & Manajemen Data");
+  safeSet("[data-profile-title]", d.title || "Creative Director | Live Production Specialist | Cinematographer | Visual Designer");
 
   // Fix email text & link
   const emailEl = qs("[data-profile-email]");
@@ -221,7 +221,7 @@ function renderProfile(d) {
   const waPhone = rawPhone.startsWith("0") ? "62" + rawPhone.slice(1) : rawPhone;
   const waBtn = document.getElementById("whatsapp-direct-link");
   if (waBtn) {
-    const waText = encodeURIComponent("Halo Mangara, saya melihat portfolio Anda dan tertarik untuk berdiskusi mengenai proyek Media Kreatif / Manajemen Data. Bisa luangkan waktu untuk konsultasi?");
+    const waText = encodeURIComponent("Halo Mangara, saya melihat portfolio Anda dan tertarik untuk berdiskusi mengenai proyek Creative Direction, Live Production, atau Social Media. Bisa luangkan waktu untuk konsultasi?");
     waBtn.href = `https://wa.me/${waPhone}?text=${waText}`;
   }
 
@@ -236,7 +236,7 @@ function renderProfile(d) {
     }
   }
 
-  if (d.name) document.title = `${d.name} — Portfolio | Mahasiswa Teknik Informatika | Media Kreatif & Manajemen Data`;
+  if (d.name) document.title = `${d.name} — Portfolio | Creative Director & Live Production Specialist`;
 
   if (d.social_facebook) safeSet("[data-social-facebook]", d.social_facebook, "href");
   if (d.social_twitter) safeSet("[data-social-twitter]", d.social_twitter, "href");
