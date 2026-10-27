@@ -297,7 +297,7 @@ export const DEFAULT_DATA = {
     {
       title: "Social Media Management: Instagram Resmi @itpln (Pusat Kampus)",
       category: "Social Media",
-      imageUrl: "./assets/images/project-7.png",
+      imageUrl: "./assets/images/portfolio/card-1.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Pengelolaan konten akun resmi utama @itpln: menyusun content calendar bulanan, penulisan naskah copywriting resmi, publikasi prestasi akademik, dan strategi penguatan reputasi institusi di ranah media sosial.",
       order: 1
@@ -305,7 +305,7 @@ export const DEFAULT_DATA = {
     {
       title: "Social Media Management: Instagram Resmi @vokasiitpln (Sekolah Vokasi)",
       category: "Social Media",
-      imageUrl: "./assets/images/project-7.png",
+      imageUrl: "./assets/images/portfolio/card-2.jpg",
       projectUrl: "https://instagram.com/vokasiitpln",
       description: "Pengelolaan kanal media sosial resmi Sekolah Vokasi ITPLN: konten interaktif seputar praktikum industri ketenagalistrikan, keunggulan program vokasi terapan, dan interaksi dengan calon mahasiswa vokasi.",
       order: 2
@@ -313,7 +313,7 @@ export const DEFAULT_DATA = {
     {
       title: "Social Media Management: Akun Kreatif @itplnmedia (Divisi Media Kampus)",
       category: "Social Media",
-      imageUrl: "./assets/images/project-7.png",
+      imageUrl: "./assets/images/portfolio/card-3.jpg",
       projectUrl: "https://instagram.com/itplnmedia",
       description: "Memimpin strategi dan eksekusi konten multi-format (reels, feed visual, carousel edukatif) akun @itplnmedia guna membangun komunitas kreatif mahasiswa yang aktif dan meningkatkan brand awareness divisi media kampus.",
       order: 3
@@ -321,7 +321,7 @@ export const DEFAULT_DATA = {
     {
       title: "Social Media Management: Akun Resmi PJCI (@smartgridindonesia)",
       category: "Social Media",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-4.jpg",
       projectUrl: "https://instagram.com/smartgridindonesia",
       description: "Berdasarkan SK Magang PJCI No. 026/PJCI-Magang/SMM/2026. Mengelola media sosial resmi Indonesia Smart Grid Association: publikasi agenda transisi energi, seminar dekarbonisasi, dan edukasi sistem ketenagalistrikan modern.",
       order: 4
@@ -329,7 +329,7 @@ export const DEFAULT_DATA = {
     {
       title: "Strategi Konten & Digital Campaign PMB ITPLN (Lonjakan Engagement 3x Lipat)",
       category: "Social Media",
-      imageUrl: "./assets/images/project-4.png",
+      imageUrl: "./assets/images/portfolio/card-5.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Rancangan kampanye promosi digital terpadu untuk Penerimaan Mahasiswa Baru ITPLN, memanfaatkan storytelling keunggulan ikatan kerja PLN yang sukses mendongkrak engagement interaksi hingga 300%.",
       order: 5
@@ -337,7 +337,7 @@ export const DEFAULT_DATA = {
     {
       title: "Kampanye Digital Edukatif 'Green Jobs & Transisi Energi' di Media Sosial",
       category: "Social Media",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-6.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Serial konten infografis dan reels edukasi karier ramah lingkungan, membahas prospek profesi energi terbarukan bagi lulusan teknologi energi di era dekarbonisasi.",
       order: 6
@@ -347,7 +347,7 @@ export const DEFAULT_DATA = {
     {
       title: "Pengelolaan Redaksi Portal Berita Resmi PJCI (pjci.or.id)",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-7.jpg",
       projectUrl: "https://pjci.or.id",
       description: "Pengelolaan akun redaksi website resmi PJCI: penulisan dan kurasi artikel berita seputar perkembangan smart grid di Indonesia, ringkasan seminar ketenagalistrikan, serta publikasi agenda kolaborasi asosiasi.",
       order: 7
@@ -355,7 +355,7 @@ export const DEFAULT_DATA = {
     {
       title: "Pengelolaan Portal Web & Liputan Berita Humas ITPLN (itpln.ac.id)",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-8.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Mengelola publikasi artikel portal berita resmi universitas: menyusun rilis pers kegiatan rektorat, liputan kerja sama industri, dan arsip dokumentasi pencapaian kampus secara terstruktur.",
       order: 8
@@ -363,7 +363,7 @@ export const DEFAULT_DATA = {
     {
       title: "Artikel Perusahaan: PLN Gali Peran Krusial Teknologi Geospasial",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-8.jpg",
+      imageUrl: "./assets/images/portfolio/card-9.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Penulisan artikel institusional liputan Geography Seminar Series mengenai integrasi analitik spasial dan kecerdasan data untuk mendukung keandalan sistem ketenagalistrikan nasional.",
       order: 9
@@ -371,7 +371,7 @@ export const DEFAULT_DATA = {
     {
       title: "Artikel Perusahaan: Lulusan SMA Taruna Nusantara Berebut Masuk ITPLN",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-9.png",
+      imageUrl: "./assets/images/portfolio/card-10.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Liputan jurnalisme korporat mengenai antusiasme siswa lulusan sekolah unggulan nasional mendaftar program pendidikan calon pemimpin energi masa depan di ITPLN.",
       order: 10
@@ -379,7 +379,7 @@ export const DEFAULT_DATA = {
     {
       title: "Liputan Redaksi PJCI: Modernisasi Sistem Daya Listrik dan Smart Grid Nasional",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-11.jpg",
       projectUrl: "https://pjci.or.id",
       description: "Artikel kajian mendalam di website PJCI tentang integrasi pembangkit listrik energi baru terbarukan ke dalam jaringan distribusi transmisi cerdas Indonesia.",
       order: 11
@@ -387,7 +387,7 @@ export const DEFAULT_DATA = {
     {
       title: "Publikasi Liputan Khusus: Mahasiswa Inovator Energi Bersih ITPLN",
       category: "Article & Editorial",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-12.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Liputan mendalam mengenai inovasi karya mahasiswa di bidang efisiensi energi yang berhasil meraih apresiasi dan penghargaan di tingkat nasional.",
       order: 12
@@ -397,7 +397,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Production & Broadcast Wisuda ITPLN ke-46: Innovating with Excellence",
       category: "Live Production",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-13.jpg",
       projectUrl: "https://youtube.com",
       description: "Produksi siaran langsung multi-kamera berdurasi lebih dari 3.5 jam dengan tata visual megah, switcher control, lower thirds dinamis, dan disiarkan langsung ke ribuan audiens daring.",
       order: 13
@@ -405,7 +405,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Streaming GINEST Studium Generale: Nuklir Sebagai Solusi Transisi Energi",
       category: "Live Production",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-14.jpg",
       projectUrl: "https://youtube.com",
       description: "Operasional siaran langsung seminar nasional energi nuklir hampir 3 jam dengan panel pakar industri energi dan rekayasa audio-visual tanpa jeda.",
       order: 14
@@ -413,7 +413,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Production Seremoni Penandatanganan Kontrak Program Ikatan Kerja PLN",
       category: "Live Production",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-15.jpg",
       projectUrl: "https://youtube.com",
       description: "Broadcasting dan visual switcher untuk acara penandatanganan kontrak ikatan kerja resmi mahasiswa berprestasi dengan jajaran direksi PT PLN (Persero).",
       order: 15
@@ -421,7 +421,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Broadcast Peluncuran Beasiswa APERTI BUMN 2024",
       category: "Live Production",
-      imageUrl: "./assets/images/project-4.png",
+      imageUrl: "./assets/images/portfolio/card-16.jpg",
       projectUrl: "https://youtube.com",
       description: "Produksi siaran langsung peluncuran program beasiswa gabungan perguruan tinggi BUMN di hadapan perwakilan kementerian dan pimpinan aliansi BUMN.",
       order: 16
@@ -429,7 +429,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Streaming Launching Kerjasama Program Ikatan Kerja APITU & ITPLN",
       category: "Live Production",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-17.jpg",
       projectUrl: "https://youtube.com",
       description: "Siaran langsung seremonial kemitraan vokasi pendingin dan tata udara APITU dengan program studi Teknik Mesin ITPLN.",
       order: 17
@@ -437,7 +437,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Technical & Broadcast Support: Seminar Nasional Mine Excellent Indonesia",
       category: "Live Production",
-      imageUrl: "./assets/images/project-6.png",
+      imageUrl: "./assets/images/portfolio/card-18.jpg",
       projectUrl: "https://youtube.com",
       description: "Penyediaan infrastruktur teknis visual dan live multicam pendukung seminar pertambangan dan teknologi eksplorasi nasional.",
       order: 18
@@ -445,7 +445,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Production & Streaming JACOST (Jakarta Computer Science Conference)",
       category: "Live Production",
-      imageUrl: "./assets/images/project-7.png",
+      imageUrl: "./assets/images/portfolio/card-19.jpg",
       projectUrl: "https://youtube.com",
       description: "Dukungan operasional live conference dan pemaparan paper riset teknologi komputasi di hadapan akademisi serta peneliti informatika.",
       order: 19
@@ -453,7 +453,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Broadcasting Seminar AMI (Advance Metering Infrastructure) Nasional",
       category: "Live Production",
-      imageUrl: "./assets/images/project-8.jpg",
+      imageUrl: "./assets/images/portfolio/card-20.jpg",
       projectUrl: "https://youtube.com",
       description: "Broadcasting teknis seminar modernisasi meter listrik pintar PLN dengan integrasi slide narasumber dan interaksi tanya jawab audiens online.",
       order: 20
@@ -461,7 +461,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Production & Audio Visual: Career Day Studium Generale ITPLN",
       category: "Live Production",
-      imageUrl: "./assets/images/project-9.png",
+      imageUrl: "./assets/images/portfolio/card-21.jpg",
       projectUrl: "https://youtube.com",
       description: "Pengaturan audio visual, integrasi siaran virtual, dan live documentation bagi mahasiswa tingkat akhir yang bersiap memasuki dunia kerja profesional.",
       order: 21
@@ -469,7 +469,7 @@ export const DEFAULT_DATA = {
     {
       title: "Live Streaming Seminar Nasional Dekarbonisasi Sistem Daya & Transisi Energi",
       category: "Live Production",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-22.jpg",
       projectUrl: "https://youtube.com",
       description: "Operasional live streaming forum diskusi energi hijau bersama praktisi kelistrikan dan stakeholder industri energi terbarukan.",
       order: 22
@@ -479,7 +479,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Feed Visual: Apresiasi Mahasiswa Lolos PIMNAS 37",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-23.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Perancangan grafis poster apresiasi resmi pencapaian mahasiswa ITPLN yang berhasil melaju ke babak Pekan Ilmiah Mahasiswa Nasional (PIMNAS 37).",
       order: 23
@@ -487,7 +487,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Visual Resmi Peringatan Hari Listrik Nasional (HLN)",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-6.png",
+      imageUrl: "./assets/images/portfolio/card-24.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Karya desain grafis poster ucapan Hari Listrik Nasional dengan visualisasi futuristik transmisi tenaga listrik dan semangat transisi energi.",
       order: 24
@@ -495,7 +495,7 @@ export const DEFAULT_DATA = {
     {
       title: "Rubrik Desain Visual Informasi: Jendela Negeri ITPLN",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-25.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Desain layout edukatif serial informasi kekayaan alam nusantara dan pemanfaatan potensi energi daerah untuk feed Instagram resmi.",
       order: 25
@@ -503,7 +503,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Publikasi Buletin Digital: ITPLN Sepekan Edisi 44",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-6.png",
+      imageUrl: "./assets/images/portfolio/card-26.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Layout infografis rekapitulasi agenda mingguan institusi dengan tata letak editorial modern, ringkas, dan mudah dipahami pembaca digital.",
       order: 26
@@ -511,7 +511,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Identitas Visual: Bisnis Energi Food Festival 2024",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-27.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Perancangan elemen grafis promosi, banner digital, flyer acara, dan backdrop panggung festival kewirausahaan mahasiswa bidang kuliner dan energi.",
       order: 27
@@ -519,7 +519,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Creative Kit & Kampanye Literasi: Perpustakaan ITPLN",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-6.png",
+      imageUrl: "./assets/images/portfolio/card-28.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Seri poster digital promosi fasilitas literasi modern, koleksi e-journal ilmiah, dan kampanye budaya membaca di kalangan mahasiswa.",
       order: 28
@@ -527,7 +527,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Visual Branding Program SAFF (Smart Agriculture & Future Food)",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-29.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Pengembangan materi visual promosi inisiatif pertanian cerdas berbasis elektrifikasi dan ketahanan pangan masa depan binaan kampus.",
       order: 29
@@ -535,7 +535,7 @@ export const DEFAULT_DATA = {
     {
       title: "Juara 1 Lomba Desain Poster Nasional Ocean Experience IPB University 2025",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-7.png",
+      imageUrl: "./assets/images/portfolio/card-30.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Karya desain pemenang Juara 1 tingkat nasional di IPB University dengan visualisasi artistik penyelamatan ekosistem bahari dan konservasi terumbu karang.",
       order: 30
@@ -543,7 +543,7 @@ export const DEFAULT_DATA = {
     {
       title: "Perancangan Visual Sertifikat Turnamen Badminton Dies Natalis ITPLN 2026",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-4.png",
+      imageUrl: "./assets/images/portfolio/card-31.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Perancangan identitas visual piagam penghargaan dan sertifikat juara turnamen Badminton Ganda Putra dan Putri Dies Natalis ITPLN.",
       order: 31
@@ -551,7 +551,7 @@ export const DEFAULT_DATA = {
     {
       title: "Perancangan Visual Sertifikat Turnamen Futsal Dies Natalis ITPLN 2026",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-4.png",
+      imageUrl: "./assets/images/portfolio/card-32.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Desain sertifikat resmi kejuaraan turnamen Futsal antar fakultas dengan layout modern beraksen emas kejuaraan olahraga.",
       order: 32
@@ -559,7 +559,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Identitas Visual & Poster Promosi National Creative Competition (NCC) 2025",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-33.jpg",
       projectUrl: "https://instagram.com/itplnmedia",
       description: "Konseptualisasi tema visual, logo kompetisi, poster sayembara nasional, dan aset media sosial ajang karya kreatif mahasiswa se-Indonesia.",
       order: 33
@@ -567,7 +567,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Feed Instagram Khusus Peringatan Hari Sumpah Pemuda ITPLN",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-6.png",
+      imageUrl: "./assets/images/portfolio/card-34.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Poster tematik perayaan semangat kepemudaan mahasiswa dengan perpaduan ornamen nusantara kontemporer dan filosofi kemajuan bangsa.",
       order: 34
@@ -575,7 +575,7 @@ export const DEFAULT_DATA = {
     {
       title: "Desain Template Ucapan Ulang Tahun Resmi Pejabat & Guru Besar ITPLN",
       category: "Visual Design",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-35.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Sistem template desain korporat yang elegan untuk ucapan hari lahir dan milad pimpinan rektorat, dekanat, dan guru besar institusi.",
       order: 35
@@ -585,7 +585,7 @@ export const DEFAULT_DATA = {
     {
       title: "Produksi Video Company Profile ITPLN Media (Koordinator Creative & Concept)",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-36.jpg",
       projectUrl: "https://youtube.com",
       description: "Berdasarkan SK No. 001/SK/ITPLN MEDIA/APRIL/2025, memimpin penulisan naskah storyline, storyboard visual, arahan sinematografi, dan editing akhir video profil institusi.",
       order: 36
@@ -593,7 +593,7 @@ export const DEFAULT_DATA = {
     {
       title: "Video Editing & Dokumentasi Dinamis: Program Pasca Sarjana ITPLN",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-37.jpg",
       projectUrl: "https://youtube.com",
       description: "Editing video promosi perkuliahan magister teknik, menampilkan testimoni alumni, profil dosen pakar, dan fasilitas laboratorium modern.",
       order: 37
@@ -601,7 +601,7 @@ export const DEFAULT_DATA = {
     {
       title: "Produksi Video Aftermovie Resmi Wisuda ITPLN ke-46",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-38.jpg",
       projectUrl: "https://youtube.com",
       description: "Pengambilan gambar sinematik (cinematography), color grading, penyusunan ritme audio dinamis, dan editing rangkuman prosesi wisuda yang emosional dan khidmat.",
       order: 38
@@ -609,7 +609,7 @@ export const DEFAULT_DATA = {
     {
       title: "Video Teaser & Promosi Digital National Creative Competition (NCC) 2025",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-4.png",
+      imageUrl: "./assets/images/portfolio/card-39.jpg",
       projectUrl: "https://instagram.com/itplnmedia",
       description: "Produksi video motion graphic dan teaser reels promosi pendaftaran kompetisi nasional dengan visual bertema Data Science dan Energi Nuklir.",
       order: 39
@@ -617,7 +617,7 @@ export const DEFAULT_DATA = {
     {
       title: "Video Profil Dosen & Peneliti Inovator Kampus ITPLN",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-40.jpg",
       projectUrl: "https://youtube.com",
       description: "Liputan dokumenter pendek mengenai riset dosen pembimbing, metodologi rekayasa teknologi, dan dampak akademisnya bagi masyarakat.",
       order: 40
@@ -625,7 +625,7 @@ export const DEFAULT_DATA = {
     {
       title: "Video Storytelling & Liputan Mahasiswa Baru (Penyambutan Maba ITPLN)",
       category: "Video & Cinema",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-41.jpg",
       projectUrl: "https://instagram.com/itpln",
       description: "Produksi video interaktif reels/TikTok penyambutan mahasiswa baru yang membagikan tips adaptasi kampus dan pengenalan organisasi kemahasiswaan.",
       order: 41
@@ -635,7 +635,7 @@ export const DEFAULT_DATA = {
     {
       title: "Juara 1 Inovasi IoT: LPG-SafeSense (Sensor MQ-6 & Loadcell Pintar) — MKI & ITPLN",
       category: "IoT & Tech",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-42.jpg",
       projectUrl: "https://itpln.ac.id",
       description: "Perangkat pintar pemantau keamanan gas LPG berbasis IoT dengan sensor MQ-6 dan loadcell terintegrasi smartphone untuk deteksi kebocoran dan pantauan isi gas real-time. Pemenang Juara 1 Technology Incubation Sprint Program MKI & ITPLN.",
       order: 42
@@ -643,7 +643,7 @@ export const DEFAULT_DATA = {
     {
       title: "Riset Inovasi Energi Terbarukan Berbasis IoT (Pendanaan PKM DIKTI Level 1)",
       category: "IoT & Tech",
-      imageUrl: "./assets/images/project-8.jpg",
+      imageUrl: "./assets/images/portfolio/card-43.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Prototipe sistem pemantauan generasi daya energi terbarukan berbasis mikrokontroler dan sensor IoT yang berhasil lolos pendanaan resmi Kemendikbudristek/DIKTI 2024.",
       order: 43
@@ -651,7 +651,7 @@ export const DEFAULT_DATA = {
     {
       title: "REPUTA-AI: Micro-SaaS Agregator Ulasan UMKM Berbasis Localized Generative AI",
       category: "AI & Platform",
-      imageUrl: "./assets/images/project-2.png",
+      imageUrl: "./assets/images/portfolio/card-44.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Platform cerdas Micro-SaaS bertenaga AI generatif lokal guna mengagregasi ulasan konsumen multiplatform, menganalisis sentimen, dan menghasilkan respon otomatis bagi UMKM (BNC 2026).",
       order: 44
@@ -659,7 +659,7 @@ export const DEFAULT_DATA = {
     {
       title: "BisaKerja: Platform Job Matching & Ekosistem Inklusi Disabilitas (BMC Impact 2026)",
       category: "Social Impact",
-      imageUrl: "./assets/images/project-3.jpg",
+      imageUrl: "./assets/images/portfolio/card-45.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Platform ekosistem kerja inklusif berbasis Ability Matching untuk menjembatani penyandang disabilitas dengan peluang karier ramah inklusi. Tagline: Mencocokkan Kemampuan, Bukan Keterbatasan.",
       order: 45
@@ -667,7 +667,7 @@ export const DEFAULT_DATA = {
     {
       title: "Implementasi Algoritma & Struktur Data Pemrograman Python (SIC Batch 5)",
       category: "IoT & Tech",
-      imageUrl: "./assets/images/project-8.jpg",
+      imageUrl: "./assets/images/portfolio/card-46.jpg",
       projectUrl: "https://skilvul.com",
       description: "Pengembangan solusi algoritma komputasi efisien, manipulasi struktur data kompleks, dan logika optimasi dalam program Samsung Innovation Campus bersama Skilvul (Senior Grade).",
       order: 46
@@ -675,7 +675,7 @@ export const DEFAULT_DATA = {
     {
       title: "Proyek Analisis Penjualan Retail Fashion dengan Query SQL Kompleks (Ngulik Data)",
       category: "IoT & Tech",
-      imageUrl: "./assets/images/project-9.png",
+      imageUrl: "./assets/images/portfolio/card-47.jpg",
       projectUrl: "https://ngulikdata.com/certificates/RnwoqbSzwEn9",
       description: "Penyelesaian studi kasus analisis data bisnis penjualan toko pakaian menggunakan query SQL multi-tabel, window functions, kalkulasi revenue, dan segmentasi transaksi.",
       order: 47
@@ -683,7 +683,7 @@ export const DEFAULT_DATA = {
     {
       title: "Orkestrasi Machine Learning Enterprise dengan Apache Spark & Azure Databricks",
       category: "AI & Platform",
-      imageUrl: "./assets/images/project-8.jpg",
+      imageUrl: "./assets/images/portfolio/card-48.jpg",
       projectUrl: "https://learn.microsoft.com",
       description: "Implementasi pipeline pemrosesan big data terdistribusi dan model machine learning menggunakan Azure Databricks, Apache Spark, dan model tuning MLflow.",
       order: 48
@@ -691,7 +691,7 @@ export const DEFAULT_DATA = {
     {
       title: "Prototipe IoT Smart Home & Sensor Environment Monitoring (ESP32/Arduino)",
       category: "IoT & Tech",
-      imageUrl: "./assets/images/project-1.jpg",
+      imageUrl: "./assets/images/portfolio/card-49.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Eksplorasi rekayasa hardware mikrokontroler ESP32/Arduino untuk pemantauan suhu, kelembaban, dan parameter lingkungan dengan transmisi data MQTT cloud.",
       order: 49
@@ -701,7 +701,7 @@ export const DEFAULT_DATA = {
     {
       title: "Manajer Proyek & Event Organizer: Family Gathering PT Adhi Guna Putera",
       category: "Event Management",
-      imageUrl: "./assets/images/project-5.png",
+      imageUrl: "./assets/images/portfolio/card-50.jpg",
       projectUrl: "https://github.com/mangarapakpahan-cmd",
       description: "Memimpin perencanaan dan eksekusi acara dari awal hingga akhir, mengkoordinasikan alur logistik, susunan acara, dan interaksi mempererat hubungan keluarga karyawan.",
       order: 50

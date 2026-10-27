@@ -639,7 +639,7 @@ async function syncFirestoreData() {
 
 // ─── INITIALIZATION ───────────────────────────────────────────
 (function init() {
-  const CACHE_VERSION = "v5_granularity_50plus";
+  const CACHE_VERSION = "v6_custom_covers_50";
   if (localStorage.getItem("portfolio_cache_ver") !== CACHE_VERSION) {
     const keysToRemove = [
       "portfolio_cache_profile",

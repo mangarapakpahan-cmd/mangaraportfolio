@@ -29,7 +29,7 @@ let cachedMessages = [];
 let currentMsgTab = "all";
 
 // Invalidate obsolete local cache to match newly confirmed activities
-const CACHE_VERSION = "v5_granularity_50plus";
+const CACHE_VERSION = "v6_custom_covers_50";
 if (typeof localStorage !== "undefined" && localStorage.getItem("portfolio_cache_ver") !== CACHE_VERSION) {
   const keysToRemove = [
     "portfolio_cache_profile",
