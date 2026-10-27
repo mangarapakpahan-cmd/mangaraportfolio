@@ -84,16 +84,16 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   // Active NPC Dialogue Reference
   let activeNPCIndex = 0;
 
-  // ─── 2. 7 INTERACTIVE NPCS DEFINITION ─────────────────────────
+  // ─── 2. 7 INTERACTIVE NPCS DEFINITION (CLEARANCE POSITIONED) ─
   const NPC_GUIDES = [
     {
       roomIndex: 0,
       name: "Nadia",
       role: "Front Desk & Welcome Guide",
       avatarLetter: "N",
-      pos: { x: -20.5, z: 10.5 },
+      pos: { x: -19.0, z: 17.5 },
       shirtColor: 0xff7a38,
-      greeting: "Halo! Selamat datang di Studio Virtual Mangara Ferdianto Pakpahan. Saya bisa membantu Anda mengenali profil dan kualifikasi resminya.",
+      greeting: "Halo! Selamat datang di Studio Virtual Mangara Ferdianto Pakpahan. Saya siap memandu Anda menelusuri profil dan portofolio resminya.",
       questions: [
         {
           q: "Siapa itu Mangara Ferdianto Pakpahan?",
@@ -131,7 +131,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Sarah",
       role: "Social Media Strategist",
       avatarLetter: "S",
-      pos: { x: -10.5, z: -15.5 },
+      pos: { x: -12.5, z: -15.5 },
       shirtColor: 0xa855f7,
       greeting: "Halo! Kami mengelola kanal resmi institusi @itpln dan @smartgridindonesia (PJCI) dengan strategi konten visual modern.",
       questions: [
@@ -151,7 +151,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Dimas",
       role: "Machine Learning Engineer",
       avatarLetter: "D",
-      pos: { x: 10.5, z: -15.5 },
+      pos: { x: 12.5, z: -15.5 },
       shirtColor: 0x3b82f6,
       greeting: "Selamat datang di Data Lab! Kami fokus pada riset pemodelan empiris, cloud machine learning, dan automasi database kuantitatif.",
       questions: [
@@ -191,7 +191,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Dewi",
       role: "Corporate Journalist & Editor",
       avatarLetter: "D",
-      pos: { x: 20.5, z: 10.5 },
+      pos: { x: 14.5, z: 17.0 },
       shirtColor: 0x10b981,
       greeting: "Selamat datang di ruang redaksi! Di sini terpusat 20 publikasi resmi, artikel ilmiah, dan siaran pers transisi energi.",
       questions: [
@@ -211,7 +211,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Kevin",
       role: "Talent Partner & HR Host",
       avatarLetter: "K",
-      pos: { x: 0, z: 14.5 },
+      pos: { x: -2.5, z: 17.5 },
       shirtColor: 0xff6b2b,
       greeting: "Halo Rekruter & Partner! Mangara siap berkolaborasi untuk posisi kerja penuh waktu, program magang, maupun creative direction.",
       questions: [
@@ -228,7 +228,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   ];
 
-  // ─── 3. 7 SCROLLYTELLING STEP DEFINITIONS (HORSESHOE ATRIUM LAYOUT) ─
+  // ─── 3. 7 SCROLLYTELLING STEP DEFINITIONS (ZIG-ZAG ATRIUM JOURNEY) ─
   const SCROLL_STEPS = [
     {
       stepNum: "01",
@@ -238,8 +238,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Mahasiswa S1 Teknik Informatika Institut Teknologi PLN dengan keahlian multidisipliner memadukan perancangan identitas visual korporat, produksi siaran langsung nasional, pengelolaan komunikasi digital resmi, serta riset dan analitik data empiris.",
       badgeStatus: "Tersedia untuk Kerja & Magang",
       badgeStatusColor: "green",
-      cam: { x: -20, y: 7.5, z: 17.5 },
-      look: { x: -20, y: 1.2, z: 12 }
+      cam: { x: -20, y: 7.5, z: 24.0 },
+      look: { x: -20, y: 1.2, z: 19 }
     },
     {
       stepNum: "02",
@@ -249,8 +249,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Menyediakan 10 layanan profesional yang teruji di industri: dari produksi siaran langsung multi-kamera acara protokoler nasional, creative direction identitas visual, strategi pertumbuhan media sosial 3x lipat, riset rekayasa IoT pintar, hingga pemodelan data machine learning cloud.",
       badgeStatus: "10 Layanan • 11 Skills",
       badgeStatusColor: "orange",
-      cam: { x: -24, y: 7.5, z: 3.5 },
-      look: { x: -24, y: 1.2, z: -2 }
+      cam: { x: -22, y: 7.5, z: 6.0 },
+      look: { x: -22, y: 1.2, z: 0 }
     },
     {
       stepNum: "03",
@@ -260,8 +260,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Perjalanan karir komprehensif mencakup peran strategis sebagai Social Media Manager di PJCI, Tim Humas & Komunikasi Publik ITPLN, Lead Visual Switcher Wisuda Nasional, Koordinator Kreatif ITPLN Media, Ketua Pelaksana National CAD Competition (NCC 2025), hingga Student Ambassador DQLab.",
       badgeStatus: "15 Entri Terverifikasi",
       badgeStatusColor: "green",
-      cam: { x: -12, y: 7.5, z: -9.5 },
-      look: { x: -12, y: 1.2, z: -15 }
+      cam: { x: -14, y: 7.5, z: -10.0 },
+      look: { x: -14, y: 1.2, z: -16 }
     },
     {
       stepNum: "04",
@@ -271,8 +271,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Menempuh pendidikan Sarjana (S1) Teknik Informatika di Institut Teknologi PLN dengan spesialisasi komputasi cerdas dan rekayasa data industri energi, diperkuat oleh 8 lisensi resmi: Azure Databricks Machine Learning, SEM-PLS 120 JP, MOS Excel 2019, dan IBM AI.",
       badgeStatus: "8 Lisensi Resmi Terverifikasi",
       badgeStatusColor: "green",
-      cam: { x: 12, y: 7.5, z: -9.5 },
-      look: { x: 12, y: 1.2, z: -15 }
+      cam: { x: 14, y: 7.5, z: -10.0 },
+      look: { x: 14, y: 1.2, z: -16 }
     },
     {
       stepNum: "05",
@@ -282,8 +282,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Menampilkan seluruh 50 portofolio karya nyata yang telah diselesaikan: live streaming siaran nasional, strategi konten kampanye media sosial (@itpln & @smartgridindonesia), rekayasa prototipe IoT LPG-SafeSense, perancangan identitas visual korporat, hingga sistem data dan web.",
       badgeStatus: "50 Proyek Lengkap Aktif",
       badgeStatusColor: "orange",
-      cam: { x: 24, y: 7.5, z: 3.5 },
-      look: { x: 24, y: 1.2, z: -2 }
+      cam: { x: 22, y: 7.5, z: 6.0 },
+      look: { x: 22, y: 1.2, z: 0 }
     },
     {
       stepNum: "06",
@@ -293,8 +293,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Kumpulan publikasi artikel berkala, jurnalisme korporat untuk portal resmi PJCI dan ITPLN, tulisan teknologi transisi energi bersih, serta rekam jejak inovasi peraih Juara 1 MKI dan hibah penelitian PKM DIKTI Kemendikbudristek.",
       badgeStatus: "20 Publikasi & Prestasi",
       badgeStatusColor: "orange",
-      cam: { x: 20, y: 7.5, z: 17.5 },
-      look: { x: 20, y: 1.2, z: 12 }
+      cam: { x: 14, y: 7.5, z: 24.0 },
+      look: { x: 14, y: 1.2, z: 18 }
     },
     {
       stepNum: "07",
@@ -304,8 +304,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Terbuka untuk kesempatan kerja penuh waktu, program magang, konsultasi creative direction, maupun kolaborasi proyek strategis di Jakarta, hybrid, maupun remote. Kirim pesan langsung ke database atau hubungi via WhatsApp.",
       badgeStatus: "Respons Cepat & Siap Onboarding",
       badgeStatusColor: "green",
-      cam: { x: 0, y: 7.5, z: 21.5 },
-      look: { x: 0, y: 1.2, z: 16 }
+      cam: { x: 0, y: 7.5, z: 24.0 },
+      look: { x: 0, y: 1.2, z: 18 }
     }
   ];
 
@@ -316,10 +316,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     serverLEDs = [];
 
     // 1. Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.25);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.05);
     sunLight.position.set(24, 45, 30);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -337,7 +337,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     fillLight.position.set(-20, 25, 25);
     scene.add(fillLight);
 
-    const skylight = new THREE.DirectionalLight(0xe0f2fe, 0.25);
+    const skylight = new THREE.DirectionalLight(0xe0f2fe, 0.3);
     skylight.position.set(0, 30, -25);
     scene.add(skylight);
 
@@ -387,25 +387,25 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
 
     // 3. Main Architectural Foundation Slab
-    const foundationGeo = new THREE.BoxGeometry(70, 0.6, 54);
+    const foundationGeo = new THREE.BoxGeometry(72, 0.6, 56);
     const foundation = new THREE.Mesh(foundationGeo, floorMat);
     foundation.position.set(0, -0.3, 0);
     foundation.receiveShadow = true;
     scene.add(foundation);
 
-    // 4. Central Sunken Courtyard Atrium Garden
+    // 4. Central Sunken Courtyard Atrium Garden (X: -8 to 8, Z: -6 to 6)
     buildCourtyardAtrium(floorMat, wallBodyMat, orangeTrimMat);
 
-    // 5. Architectural Outer Enclosure & Room Partitions
+    // 5. Architectural Outer Enclosure & Clear-Doorway Partitions
     buildHorseshoePartitions(wallBodyMat, glassWallMat, frameDarkMat, orangeTrimMat, oakWoodMat);
 
-    // 6. Winding Paved Guide Path connecting all 7 zones
-    createPavedSidewalkAndPath();
-
-    // 7. DISTINCT ARCHITECTURAL ROOM CARPET INLAYS & ZONING
+    // 6. Distinct Architectural Carpet Inlays for 7 Rooms
     buildRoomZoneInlays();
 
-    // 8. BUILD 7 DETAILED, BUSTLING ROOMS (PACKED WITH AUTHENTIC GEAR & 20+ CREW)
+    // 7. Winding Zig-Zag Paved Guide Path connecting all 7 zones
+    createPavedSidewalkAndPath();
+
+    // 8. BUILD 7 DETAILED, BUSTLING ROOMS (OFFSET CLEARANCE FOR ZERO CLIPPING)
     buildRoom1FoyerDetailed(wallBodyMat, orangeTrimMat, oakWoodMat);
     buildRoom2BroadcastDetailed(screenGlowMat, orangeTrimMat, frameDarkMat);
     buildRoom3NewsroomDetailed(orangeTrimMat, oakWoodMat);
@@ -414,13 +414,13 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     buildRoom6PressHallDetailed(orangeTrimMat, oakWoodMat);
     buildRoom7RecruiterLoungeDetailed(orangeTrimMat, oakWoodMat);
 
-    // 8. 7 Interactive NPCs placed across rooms
+    // 9. 7 Interactive NPCs placed across rooms
     buildInteractive3DNPCS();
 
-    // 9. Mobile Patrolling Office Workers across 3 wings
+    // 10. 4 Mobile Patrolling Office Workers across corridors
     buildPatrollingOfficeWorkers();
 
-    // 10. Animated Walking Hero (Mangara) in Formal Office Dresscode
+    // 11. Animated Walking Hero (Mangara) in Formal Office Dresscode
     createWalkingHeroWithIndicator();
   }
 
@@ -430,20 +430,20 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     // Sunken zen garden base
     const pebbleBorder = new THREE.Mesh(
-      new THREE.BoxGeometry(18.4, 0.04, 14.4),
+      new THREE.BoxGeometry(16.4, 0.04, 12.4),
       new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.9 })
     );
     pebbleBorder.position.set(0, 0.02, 0);
     atriumGrp.add(pebbleBorder);
 
     const sandBase = new THREE.Mesh(
-      new THREE.BoxGeometry(17.6, 0.06, 13.6),
+      new THREE.BoxGeometry(15.6, 0.06, 11.6),
       new THREE.MeshStandardMaterial({ color: 0xdad7ce, roughness: 0.95 })
     );
     sandBase.position.set(0, 0.03, 0);
     atriumGrp.add(sandBase);
 
-    // Reflecting Pool
+    // Central Reflecting Pool
     const poolBorder = new THREE.Mesh(
       new THREE.BoxGeometry(5.2, 0.12, 3.8),
       new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5 })
@@ -466,10 +466,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     // 4 Modern Planter Boxes with Lush Architectural Trees
     const planterCoords = [
-      { x: -5.5, z: -4.5 },
-      { x: 5.5, z: -4.5 },
-      { x: -5.5, z: 4.5 },
-      { x: 5.5, z: 4.5 }
+      { x: -5.0, z: -3.8 },
+      { x: 5.0, z: -3.8 },
+      { x: -5.0, z: 3.8 },
+      { x: 5.0, z: 3.8 }
     ];
 
     const leafMat1 = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8, flatShading: true });
@@ -478,55 +478,50 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const planterMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.6 });
 
     planterCoords.forEach((p, idx) => {
-      // Terrazzo Planter Cube
-      const box = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.45, 2.0), planterMat);
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.45, 1.8), planterMat);
       box.position.set(p.x, 0.22, p.z);
       box.castShadow = true;
       box.receiveShadow = true;
       atriumGrp.add(box);
 
-      // Soil
       const soil = new THREE.Mesh(
-        new THREE.BoxGeometry(1.8, 0.05, 1.8),
+        new THREE.BoxGeometry(1.6, 0.05, 1.6),
         new THREE.MeshStandardMaterial({ color: 0x271c16, roughness: 1.0 })
       );
       soil.position.set(p.x, 0.44, p.z);
       atriumGrp.add(soil);
 
-      // Trunk
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 1.8, 8), trunkMat);
       trunk.position.set(p.x, 1.3, p.z);
       trunk.castShadow = true;
       atriumGrp.add(trunk);
 
-      // Faceted Lush Canopy
-      const crown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.0, 1), idx % 2 === 0 ? leafMat1 : leafMat2);
-      crown1.position.set(p.x, 2.6, p.z);
+      const crown1 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.95, 1), idx % 2 === 0 ? leafMat1 : leafMat2);
+      crown1.position.set(p.x, 2.5, p.z);
       crown1.castShadow = true;
       atriumGrp.add(crown1);
 
-      const crown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.7, 1), leafMat2);
-      crown2.position.set(p.x + 0.2, 3.2, p.z - 0.2);
+      const crown2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.65, 1), leafMat2);
+      crown2.position.set(p.x + 0.2, 3.1, p.z - 0.2);
       crown2.castShadow = true;
       atriumGrp.add(crown2);
 
-      // Uplight spotlight
-      const uplight = new THREE.PointLight(0xfef08a, 0.6, 7);
+      const uplight = new THREE.PointLight(0xfef08a, 0.6, 6);
       uplight.position.set(p.x, 0.5, p.z);
       atriumGrp.add(uplight);
     });
 
     // 2 Teak Garden Benches
     const benchMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.7 });
-    const bench1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.4, 0.55), benchMat);
-    bench1.position.set(0, 0.22, -3.2);
+    const bench1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.38, 0.5), benchMat);
+    bench1.position.set(0, 0.22, -2.8);
     atriumGrp.add(bench1);
 
-    const bench2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.4, 0.55), benchMat);
-    bench2.position.set(0, 0.22, 3.2);
+    const bench2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.38, 0.5), benchMat);
+    bench2.position.set(0, 0.22, 2.8);
     atriumGrp.add(bench2);
 
-    // Perimeter Glass Balustrade around Courtyard Opening
+    // Perimeter Glass Balustrade with Metal Handrail
     const glassRailMat = new THREE.MeshStandardMaterial({
       color: 0x93c5fd,
       transparent: true,
@@ -535,24 +530,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
     const handrailMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
 
-    // North & South glass rails
-    [-7.2, 7.2].forEach(z => {
-      const gRail = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.9, 0.05), glassRailMat);
+    [-6.2, 6.2].forEach(z => {
+      const gRail = new THREE.Mesh(new THREE.BoxGeometry(16.2, 0.9, 0.05), glassRailMat);
       gRail.position.set(0, 0.48, z);
       atriumGrp.add(gRail);
 
-      const hRail = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.05, 0.08), handrailMat);
+      const hRail = new THREE.Mesh(new THREE.BoxGeometry(16.2, 0.05, 0.08), handrailMat);
       hRail.position.set(0, 0.95, z);
       atriumGrp.add(hRail);
     });
 
-    // West & East glass rails
-    [-9.2, 9.2].forEach(x => {
-      const gRail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.9, 14.2), glassRailMat);
+    [-8.2, 8.2].forEach(x => {
+      const gRail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.9, 12.2), glassRailMat);
       gRail.position.set(x, 0.48, 0);
       atriumGrp.add(gRail);
 
-      const hRail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 14.2), handrailMat);
+      const hRail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 12.2), handrailMat);
       hRail.position.set(x, 0.95, 0);
       atriumGrp.add(hRail);
     });
@@ -560,138 +553,172 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.add(atriumGrp);
   }
 
-  // ─── HORSESHOE ATRIUM ARCHITECTURAL PARTITIONS ────────────────
+  // ─── HORSESHOE PARTITIONS WITH CLEAR ARCHED DOORWAYS ──────────
   function buildHorseshoePartitions(wallMat, glassMat, frameMat, orangeMat, woodMat) {
     const partGrp = new THREE.Group();
 
     // 1. Exterior Perimeter Walls with Large Windows
-    // North Wall (Z = -23)
-    const nWall = new THREE.Mesh(new THREE.BoxGeometry(68, 2.8, 0.4), wallMat);
-    nWall.position.set(0, 1.4, -23);
+    // North Wall (Z = -25)
+    const nWall = new THREE.Mesh(new THREE.BoxGeometry(70, 2.8, 0.4), wallMat);
+    nWall.position.set(0, 1.4, -25);
     nWall.receiveShadow = true;
     partGrp.add(nWall);
 
-    const nCap = new THREE.Mesh(new THREE.BoxGeometry(68, 0.12, 0.46), orangeMat);
-    nCap.position.set(0, 2.86, -23);
+    const nCap = new THREE.Mesh(new THREE.BoxGeometry(70, 0.12, 0.46), orangeMat);
+    nCap.position.set(0, 2.86, -25);
     partGrp.add(nCap);
 
-    // North Wall Windows
     const winMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
     for (let wx = -28; wx <= 28; wx += 4) {
       const win = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), winMat);
-      win.position.set(wx, 1.7, -22.78);
+      win.position.set(wx, 1.7, -24.78);
       partGrp.add(win);
     }
 
-    // West Wall (X = -31)
-    const wWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.8, 48), wallMat);
-    wWall.position.set(-31, 1.4, 0);
+    // West Wall (X = -33)
+    const wWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.8, 50), wallMat);
+    wWall.position.set(-33, 1.4, 0);
     wWall.receiveShadow = true;
     partGrp.add(wWall);
 
-    const wCap = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.12, 48), orangeMat);
-    wCap.position.set(-31, 2.86, 0);
+    const wCap = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.12, 50), orangeMat);
+    wCap.position.set(-33, 2.86, 0);
     partGrp.add(wCap);
 
-    for (let wz = -18; wz <= 18; wz += 4) {
+    for (let wz = -20; wz <= 20; wz += 4) {
       const win = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), winMat);
-      win.position.set(-30.78, 1.7, wz);
+      win.position.set(-32.78, 1.7, wz);
       win.rotation.y = Math.PI / 2;
       partGrp.add(win);
     }
 
-    // East Wall (X = 31)
-    const eWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.8, 48), wallMat);
-    eWall.position.set(31, 1.4, 0);
+    // East Wall (X = 33)
+    const eWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.8, 50), wallMat);
+    eWall.position.set(33, 1.4, 0);
     eWall.receiveShadow = true;
     partGrp.add(eWall);
 
-    const eCap = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.12, 48), orangeMat);
-    eCap.position.set(31, 2.86, 0);
+    const eCap = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.12, 50), orangeMat);
+    eCap.position.set(33, 2.86, 0);
     partGrp.add(eCap);
 
-    for (let wz = -18; wz <= 18; wz += 4) {
+    for (let wz = -20; wz <= 20; wz += 4) {
       const win = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), winMat);
-      win.position.set(30.78, 1.7, wz);
+      win.position.set(32.78, 1.7, wz);
       win.rotation.y = -Math.PI / 2;
       partGrp.add(win);
     }
 
-    // South Wall (Z = 23)
+    // South Wall (Z = 25)
     const sWallL = new THREE.Mesh(new THREE.BoxGeometry(26, 2.8, 0.4), wallMat);
-    sWallL.position.set(-20, 1.4, 23);
+    sWallL.position.set(-20, 1.4, 25);
     partGrp.add(sWallL);
     const sWallR = new THREE.Mesh(new THREE.BoxGeometry(26, 2.8, 0.4), wallMat);
-    sWallR.position.set(20, 1.4, 23);
+    sWallR.position.set(20, 1.4, 25);
     partGrp.add(sWallR);
 
-    // 2. Interior Zone Dividers (Glass & Wood Acoustic Fins)
-    // Divider 1: Separates Bilik 1 (Foyer) & Bilik 2 (Broadcast Studio) along Z = 5
-    const div1 = new THREE.Mesh(new THREE.BoxGeometry(14, 2.6, 0.3), wallMat);
-    div1.position.set(-24, 1.3, 5);
-    partGrp.add(div1);
-    const div1Cap = new THREE.Mesh(new THREE.BoxGeometry(14, 0.08, 0.36), woodMat);
-    div1Cap.position.set(-24, 2.64, 5);
-    partGrp.add(div1Cap);
+    // 2. Interior Partitions with WIDE CLEAR DOORWAY OPENINGS (ZERO CLIPPING!)
+    // Partition A: Bilik 1 (Foyer) / Bilik 2 (Broadcast) along Z = 10
+    // Wall segment west of doorway: X from -33 to -21 (len 12)
+    const pA1 = new THREE.Mesh(new THREE.BoxGeometry(12, 2.6, 0.3), wallMat);
+    pA1.position.set(-27, 1.3, 10);
+    partGrp.add(pA1);
+    // Wall segment east of doorway: X from -15 to -8.5 (len 6.5)
+    const pA2 = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.6, 0.3), wallMat);
+    pA2.position.set(-11.75, 1.3, 10);
+    partGrp.add(pA2);
+    // Overhead Doorway Header Beam (Open below Y=2.4 from X=-21 to -15, width=6m!)
+    const pAHeader = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.35, 0.35), woodMat);
+    pAHeader.position.set(-18, 2.5, 10);
+    partGrp.add(pAHeader);
 
-    // Divider 2: Separates Bilik 2 (Broadcast) & Bilik 3 (Newsroom) along X = -18
-    const div2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.6, 14), wallMat);
-    div2.position.set(-18, 1.3, -16);
-    partGrp.add(div2);
-    const div2Cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 14), woodMat);
-    div2Cap.position.set(-18, 2.64, -16);
-    partGrp.add(div2Cap);
+    // Partition B: Bilik 2 (Broadcast) / Bilik 3 (Newsroom) along Z = -10
+    // Wall segment west of doorway: X from -33 to -21 (len 12)
+    const pB1 = new THREE.Mesh(new THREE.BoxGeometry(12, 2.6, 0.3), wallMat);
+    pB1.position.set(-27, 1.3, -10);
+    partGrp.add(pB1);
+    // Wall segment east of doorway: X from -15 to -8.5 (len 6.5)
+    const pB2 = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.6, 0.3), wallMat);
+    pB2.position.set(-11.75, 1.3, -10);
+    partGrp.add(pB2);
+    // Overhead Doorway Header Beam (Open below Y=2.4 from X=-21 to -15, width=6m!)
+    const pBHeader = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.35, 0.35), woodMat);
+    pBHeader.position.set(-18, 2.5, -10);
+    partGrp.add(pBHeader);
 
-    // Divider 3: Separates Bilik 3 (Newsroom) & Bilik 4 (Data Lab) along X = 0 (North Wing)
-    // Framed Glass partition with double doors opening
-    const div3Glass = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.5, 10), glassMat);
-    div3Glass.position.set(0, 1.25, -17.5);
-    partGrp.add(div3Glass);
-    const div3Post1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.6, 0.2), frameMat);
-    div3Post1.position.set(0, 1.3, -22.5);
-    partGrp.add(div3Post1);
-    const div3Post2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.6, 0.2), frameMat);
-    div3Post2.position.set(0, 1.3, -12.5);
-    partGrp.add(div3Post2);
+    // Partition C: North Wing Corridor Portal (Newsroom to Data Lab) along X = 0
+    // Open glass portal from X=-3.5 to 3.5 (width 7m!)
+    const pCGlassL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.5, 5.5), glassMat);
+    pCGlassL.position.set(0, 1.25, -22.0);
+    partGrp.add(pCGlassL);
+    const pCGlassR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.5, 4.0), glassMat);
+    pCGlassR.position.set(0, 1.25, -9.0);
+    partGrp.add(pCGlassR);
+    const pCHeader = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.35, 7.0), frameMat);
+    pCHeader.position.set(0, 2.5, -14.5);
+    partGrp.add(pCHeader);
 
-    // Divider 4: Separates Bilik 4 (Data Lab) & Bilik 5 (IoT Workshop) along X = 18
-    const div4 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.6, 14), wallMat);
-    div4.position.set(18, 1.3, -16);
-    partGrp.add(div4);
-    const div4Cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 14), woodMat);
-    div4Cap.position.set(18, 2.64, -16);
-    partGrp.add(div4Cap);
+    // Partition D: Bilik 4 (Data Lab) / Bilik 5 (IoT Workshop) along Z = -10
+    const pD1 = new THREE.Mesh(new THREE.BoxGeometry(12, 2.6, 0.3), wallMat);
+    pD1.position.set(27, 1.3, -10);
+    partGrp.add(pD1);
+    const pD2 = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.6, 0.3), wallMat);
+    pD2.position.set(11.75, 1.3, -10);
+    partGrp.add(pD2);
+    const pDHeader = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.35, 0.35), woodMat);
+    pDHeader.position.set(18, 2.5, -10);
+    partGrp.add(pDHeader);
 
-    // Divider 5: Separates Bilik 5 (IoT Workshop) & Bilik 6 (Press Hall) along Z = 5
-    const div5 = new THREE.Mesh(new THREE.BoxGeometry(14, 2.6, 0.3), wallMat);
-    div5.position.set(24, 1.3, 5);
-    partGrp.add(div5);
-    const div5Cap = new THREE.Mesh(new THREE.BoxGeometry(14, 0.08, 0.36), woodMat);
-    div5Cap.position.set(24, 2.64, 5);
-    partGrp.add(div5Cap);
+    // Partition E: Bilik 5 (IoT Workshop) / Bilik 6 (Press Hall) along Z = 10
+    const pE1 = new THREE.Mesh(new THREE.BoxGeometry(12, 2.6, 0.3), wallMat);
+    pE1.position.set(27, 1.3, 10);
+    partGrp.add(pE1);
+    const pE2 = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.6, 0.3), wallMat);
+    pE2.position.set(11.75, 1.3, 10);
+    partGrp.add(pE2);
+    const pEHeader = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.35, 0.35), woodMat);
+    pEHeader.position.set(18, 2.5, 10);
+    partGrp.add(pEHeader);
 
-    // Bilik 7 (Executive Penthouse Suite): Framing Walls at South Center (X = 0, Z = 16)
-    const suiteWallL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.6, 8), wallMat);
-    suiteWallL.position.set(-8.5, 1.3, 17);
-    partGrp.add(suiteWallL);
-    const suiteWallR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.6, 8), wallMat);
-    suiteWallR.position.set(8.5, 1.3, 17);
-    partGrp.add(suiteWallR);
-
-    // High-level Architectural Perimeter Beams (Above eye/camera level at Y=5.5)
-    [-23, 23].forEach(tz => {
-      const beam = new THREE.Mesh(
-        new THREE.BoxGeometry(64, 0.15, 0.2),
-        new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6 })
-      );
-      beam.position.set(0, 5.2, tz);
-      partGrp.add(beam);
-    });
+    // Partition F: Recruiter Penthouse Suite (South Center, X = 0, Z = 18)
+    const pFLeft = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.6, 9), wallMat);
+    pFLeft.position.set(-8.5, 1.3, 18);
+    partGrp.add(pFLeft);
+    const pFRight = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.6, 9), wallMat);
+    pFRight.position.set(8.5, 1.3, 18);
+    partGrp.add(pFRight);
 
     scene.add(partGrp);
   }
 
-  // ─── CURVED HORSESHOE GUIDE PATH & SIDEWALK ───────────────────
+  // ─── ARCHITECTURAL SIGNATURE CARPET INLAYS ───────────────────
+  function buildRoomZoneInlays() {
+    const zones = [
+      { x: -21, z: 19, w: 18, d: 11, color: 0xe2e8f0, roughness: 0.8 }, // 01 Foyer (Warm Sand Cream)
+      { x: -25, z: 0, w: 15, d: 18, color: 0x18181b, roughness: 0.9 },  // 02 Broadcast MCR (Dark Acoustic Studio)
+      { x: -20, z: -17, w: 18, d: 14, color: 0x1e3a8a, roughness: 0.7 },// 03 Newsroom (Corporate Navy Carpet)
+      { x: 20, z: -17, w: 18, d: 14, color: 0x0f172a, roughness: 0.6 }, // 04 Data Lab (Deep Slate Tech Grid)
+      { x: 25, z: 0, w: 15, d: 18, color: 0x334155, roughness: 0.8 },   // 05 IoT Workshop (Industrial Slate)
+      { x: 21, z: 19, w: 18, d: 11, color: 0x881337, roughness: 0.75 }, // 06 Press Hall (Executive Crimson Velvet)
+      { x: 0, z: 19, w: 16, d: 10, color: 0xffffff, roughness: 0.25 }    // 07 Recruiter Suite (White Carrara Marble)
+    ];
+
+    zones.forEach(z => {
+      const carpet = new THREE.Mesh(
+        new THREE.BoxGeometry(z.w, 0.015, z.d),
+        new THREE.MeshStandardMaterial({
+          color: z.color,
+          roughness: z.roughness,
+          metalness: z.color === 0xffffff ? 0.3 : 0.05
+        })
+      );
+      carpet.position.set(z.x, 0.01, z.z);
+      carpet.receiveShadow = true;
+      scene.add(carpet);
+    });
+  }
+
+  // ─── 20-POINT ZIG-ZAG PATHWAY (GUARANTEED ZERO CLIPPING!) ────
   function createPavedSidewalkAndPath() {
     const trackMat = new THREE.MeshStandardMaterial({
       color: 0xff6b2b,
@@ -705,19 +732,26 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
 
     const points = [
-      new THREE.Vector3(-20, 0.02, 13), // 1. Foyer
-      new THREE.Vector3(-22, 0.02, 6),
-      new THREE.Vector3(-24, 0.02, -2), // 2. Broadcast Studio
-      new THREE.Vector3(-21, 0.02, -10),
-      new THREE.Vector3(-12, 0.02, -15), // 3. Newsroom
-      new THREE.Vector3(0, 0.02, -15.5), // North central corridor
-      new THREE.Vector3(12, 0.02, -15), // 4. Data Lab
-      new THREE.Vector3(21, 0.02, -10),
-      new THREE.Vector3(24, 0.02, -2), // 5. IoT Workshop
-      new THREE.Vector3(22, 0.02, 6),
-      new THREE.Vector3(20, 0.02, 12), // 6. Press Hall
-      new THREE.Vector3(10, 0.02, 16),
-      new THREE.Vector3(0, 0.02, 16)   // 7. Executive Recruiter Penthouse
+      new THREE.Vector3(-24, 0.02, 24), // 1. Entrance Vestibule
+      new THREE.Vector3(-20, 0.02, 19), // 2. Bilik 01: Foyer Reception Area
+      new THREE.Vector3(-16, 0.02, 13), // 3. Turning Corner through Foyer Doorway
+      new THREE.Vector3(-18, 0.02, 7),  // 4. Entering West Wing Corridor
+      new THREE.Vector3(-22, 0.02, 0),  // 5. Bilik 02: In Front of Broadcast MCR Studio
+      new THREE.Vector3(-18, 0.02, -7), // 6. West Corridor to North Wing
+      new THREE.Vector3(-15, 0.02, -13),// 7. Bilik 03: Newsroom Entry Aisle
+      new THREE.Vector3(-12, 0.02, -17),// 8. Newsroom Center Gallery
+      new THREE.Vector3(-6, 0.02, -14), // 9. North Wing Garden Overlook Bridge
+      new THREE.Vector3(0, 0.02, -14),  // 10. Central North Hub / Glass Archway
+      new THREE.Vector3(6, 0.02, -14),  // 11. North Wing Garden Overlook East
+      new THREE.Vector3(12, 0.02, -17), // 12. Bilik 04: Data Analyst & ML Lab Center
+      new THREE.Vector3(15, 0.02, -13), // 13. Data Lab to East Corridor
+      new THREE.Vector3(18, 0.02, -7),  // 14. Entering East Wing Corridor
+      new THREE.Vector3(22, 0.02, 0),   // 15. Bilik 05: In Front of IoT Workshop Bench
+      new THREE.Vector3(18, 0.02, 7),   // 16. East Corridor to South Wing
+      new THREE.Vector3(15, 0.02, 13),  // 17. Bilik 06: Press Conference Gallery Aisle
+      new THREE.Vector3(12, 0.02, 18),  // 18. Beside Boardroom Conference Table
+      new THREE.Vector3(6, 0.02, 16),   // 19. Approaching Recruiter Suite
+      new THREE.Vector3(0, 0.02, 18)    // 20. Bilik 07: Recruiter Penthouse Lounge Center
     ];
 
     const CurveClass = THREE.CatmullRomCurve3;
@@ -726,7 +760,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     if (CurveClass) {
       try {
         orangeCurve = new CurveClass(points);
-        curvePoints = orangeCurve.getPoints(160);
+        curvePoints = orangeCurve.getPoints(200);
       } catch (err) {
         curvePoints = points;
       }
@@ -754,7 +788,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  // ─── 5. REALISTIC 3D HUMAN CHARACTER BUILDER WITH OFFICE ATTIRE ─
+  // ─── REALISTIC 3D HUMAN WITH ANATOMY & OFFICE DRESSCODE ──────
   function createOfficeHuman(config) {
     const grp = new THREE.Group();
     const skinColor = config.skinColor || 0xe8beac;
@@ -769,21 +803,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const buckleMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.2 });
     const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
 
-    // 1. HEAD & FACE
+    // 1. HEAD & DETAILED FACE
     const headGrp = new THREE.Group();
     headGrp.position.y = 1.52;
 
-    // Jaw / Cranium
     const headMesh = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.32, 0.28), skinMat);
     headMesh.position.y = 0;
     headGrp.add(headMesh);
 
-    // Nose
     const nose = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.06), skinMat);
     nose.position.set(0, -0.01, 0.16);
     headGrp.add(nose);
 
-    // Eyes
+    // Eyes with Pupils
     const eyeGeo = new THREE.PlaneGeometry(0.05, 0.035);
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
     const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
@@ -811,7 +843,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     earR.position.set(0.14, 0, 0);
     headGrp.add(earR);
 
-    // 3D Sculpted Hair with volume
+    // 3D Volume Hair
     const hairTop = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, 0.3), hairMat);
     hairTop.position.set(0, 0.17, 0);
     headGrp.add(hairTop);
@@ -820,7 +852,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     hairBack.position.set(0, 0.05, -0.12);
     headGrp.add(hairBack);
 
-    // Side fade
     const hairSideL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.18, 0.22), hairMat);
     hairSideL.position.set(-0.135, 0.08, -0.01);
     headGrp.add(hairSideL);
@@ -828,7 +859,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     hairSideR.position.set(0.135, 0.08, -0.01);
     headGrp.add(hairSideR);
 
-    // Optional Glasses
     if (config.hasGlasses) {
       const glassMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
       const glassFrame = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.05, 0.02), glassMat);
@@ -843,13 +873,11 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     neck.position.y = 1.33;
     grp.add(neck);
 
-    // Crisp dress shirt collar
     const collarMat = config.whiteCollar ? whiteMat : shirtMat;
     const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.095, 0.06, 8), collarMat);
     collar.position.y = 1.28;
     grp.add(collar);
 
-    // Folded collar points
     const pointGeo = new THREE.BoxGeometry(0.07, 0.06, 0.02);
     const colPtL = new THREE.Mesh(pointGeo, collarMat);
     colPtL.position.set(-0.06, 1.25, 0.09);
@@ -865,12 +893,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     torsoMesh.position.y = 0.98;
     grp.add(torsoMesh);
 
-    // Button Placket seam
     const placket = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.01), collarMat);
     placket.position.set(0, 0.98, 0.125);
     grp.add(placket);
 
-    // Optional Tie
     if (config.hasTie) {
       const knot = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.03), tieMat);
       knot.position.set(0, 1.22, 0.12);
@@ -880,13 +906,11 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       tieBlade.position.set(0, 1.03, 0.13);
       grp.add(tieBlade);
 
-      // Tie clip
       const tieClip = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.01, 0.01), buckleMat);
       tieClip.position.set(0, 1.08, 0.14);
       grp.add(tieClip);
     }
 
-    // Official Lanyard Badge
     if (config.hasLanyard !== false) {
       const lanyardMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
       const strapL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.28, 0.01), lanyardMat);
@@ -899,7 +923,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       strapR.rotation.z = 0.15;
       grp.add(strapR);
 
-      // Card Badge holder
       const badgeHolder = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.11, 0.01), whiteMat);
       badgeHolder.position.set(0, 0.94, 0.14);
       grp.add(badgeHolder);
@@ -909,7 +932,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       grp.add(badgePhoto);
     }
 
-    // Belt & Buckle
     const belt = new THREE.Mesh(new THREE.BoxGeometry(0.39, 0.05, 0.25), beltMat);
     belt.position.y = 0.72;
     grp.add(belt);
@@ -925,14 +947,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     const legGeo = new THREE.BoxGeometry(0.14, 0.6, 0.17);
 
-    // Left Leg
     const legPivotL = new THREE.Group();
     legPivotL.position.set(-0.11, 0.58, 0);
     const legL = new THREE.Mesh(legGeo, pantsMat);
     legL.position.y = -0.28;
     legPivotL.add(legL);
 
-    // Left Shoe (Oxfords with heel and welt)
     const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.24), shoeMat);
     shoeL.position.set(0, -0.58, 0.03);
     legPivotL.add(shoeL);
@@ -942,14 +962,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     grp.add(legPivotL);
 
-    // Right Leg
     const legPivotR = new THREE.Group();
     legPivotR.position.set(0.11, 0.58, 0);
     const legR = new THREE.Mesh(legGeo, pantsMat);
     legR.position.y = -0.28;
     legPivotR.add(legR);
 
-    // Right Shoe
     const shoeR = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.24), shoeMat);
     shoeR.position.set(0, -0.58, 0.03);
     legPivotR.add(shoeR);
@@ -959,28 +977,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     grp.add(legPivotR);
 
-    // 5. ARMS & HANDS (WITH SMOOTH SHOULDER CAPS & SHIRT CUFFS)
+    // 5. ARMS & HANDS
     const armGeo = new THREE.BoxGeometry(0.11, 0.52, 0.12);
     const shoulderGeo = new THREE.SphereGeometry(0.08, 8, 8);
 
-    // Left Arm
     const armPivotL = new THREE.Group();
     armPivotL.position.set(-0.24, 1.2, 0);
-
     const shoulderL = new THREE.Mesh(shoulderGeo, shirtMat);
-    shoulderL.position.set(0, 0, 0);
     armPivotL.add(shoulderL);
-
     const armL = new THREE.Mesh(armGeo, shirtMat);
     armL.position.y = -0.22;
     armPivotL.add(armL);
 
-    // Left Hand
     const handL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.1, 0.08), skinMat);
     handL.position.set(0, -0.48, 0);
     armPivotL.add(handL);
 
-    // Smartwatch on Left Wrist
     const watchBand = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.03, 0.125), new THREE.MeshBasicMaterial({ color: 0x0f172a }));
     watchBand.position.set(0, -0.42, 0);
     armPivotL.add(watchBand);
@@ -990,24 +1002,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     grp.add(armPivotL);
 
-    // Right Arm
     const armPivotR = new THREE.Group();
     armPivotR.position.set(0.24, 1.2, 0);
-
     const shoulderR = new THREE.Mesh(shoulderGeo, shirtMat);
-    shoulderR.position.set(0, 0, 0);
     armPivotR.add(shoulderR);
-
     const armR = new THREE.Mesh(armGeo, shirtMat);
     armR.position.y = -0.22;
     armPivotR.add(armR);
 
-    // Right Hand
     const handR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.1, 0.08), skinMat);
     handR.position.set(0, -0.48, 0);
     armPivotR.add(handR);
 
-    // Handheld Accessory
     if (config.accessory === 'tablet') {
       const tablet = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.3, 0.22), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 }));
       tablet.position.set(0.06, -0.45, 0.05);
@@ -1028,7 +1034,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     grp.add(armPivotR);
 
-    // If Seated Configuration
     if (config.isSeated) {
       legPivotL.rotation.x = -Math.PI / 2;
       legPivotR.rotation.x = -Math.PI / 2;
@@ -1047,7 +1052,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     };
   }
 
-  // Helper to create an active seated worker in office attire
   function createDeskWorker(x, y, z, ry, shirtColor, isTyping = true, hasTie = false) {
     const human = createOfficeHuman({
       shirtColor: shirtColor,
@@ -1063,7 +1067,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     grp.rotation.y = ry;
     grp.add(human.group);
 
-    // Ergonomic Office Chair
     const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
     const seat = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.08, 0.52), chairMat);
     seat.position.set(0, 0.45, 0);
@@ -1098,236 +1101,181 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     return grp;
   }
 
-  // ─── BILIK 1: FOYER & WELCOME RECEPTION ───────────────────────
-    // Architectural Signature Carpet Inlays for 7 Rooms
-  function buildRoomZoneInlays() {
-    const zones = [
-      { x: -20, z: 12, w: 14, d: 14, color: 0xe2e8f0, roughness: 0.8 }, // 01 Foyer (Warm Sand Cream)
-      { x: -24, z: -2, w: 12, d: 12, color: 0x18181b, roughness: 0.9 }, // 02 Broadcast MCR (Dark Acoustic Studio)
-      { x: -12, z: -15, w: 13, d: 11, color: 0x1e3a8a, roughness: 0.7 }, // 03 Newsroom (Corporate Navy Carpet)
-      { x: 12, z: -15, w: 13, d: 11, color: 0x0f172a, roughness: 0.6 }, // 04 Data Lab (Deep Slate Tech Grid)
-      { x: 24, z: -2, w: 12, d: 12, color: 0x334155, roughness: 0.8 }, // 05 IoT Workshop (Industrial Workshop Slate)
-      { x: 20, z: 12, w: 14, d: 14, color: 0x881337, roughness: 0.75 }, // 06 Press Hall (Executive Crimson Velvet)
-      { x: 0, z: 16, w: 14, d: 10, color: 0xffffff, roughness: 0.25 }   // 07 Recruiter Suite (White Carrara Marble)
-    ];
-
-    zones.forEach(z => {
-      const carpet = new THREE.Mesh(
-        new THREE.BoxGeometry(z.w, 0.015, z.d),
-        new THREE.MeshStandardMaterial({ color: z.color, roughness: z.roughness, metalness: z.color === 0xffffff ? 0.3 : 0.05 })
-      );
-      carpet.position.set(z.x, 0.01, z.z);
-      carpet.receiveShadow = true;
-      scene.add(carpet);
-    });
-  }
-
+  // ─── BILIK 1: FOYER & WELCOME RECEPTION (ZERO CLIPPING OFFSET) ─
   function buildRoom1FoyerDetailed(wallMat, trimMat, woodMat) {
-    const rx = -20;
-    const rz = 12;
-
-    // Curved Reception Counter Desk
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.05, 1.4), wallMat);
-    desk.position.set(rx, 0.52, rz - 3);
+    // Reception Counter Desk placed at X = -25, Z = 18 (facing East toward path)
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.05, 4.2), wallMat);
+    desk.position.set(-25, 0.52, 18);
     scene.add(desk);
 
-    const deskTop = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.08, 1.55), woodMat);
-    deskTop.position.set(rx, 1.08, rz - 3);
+    const deskTop = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.08, 4.4), woodMat);
+    deskTop.position.set(-25, 1.08, 18);
     scene.add(deskTop);
 
-    // Dual Monitors on Reception Desk
+    // Dual Monitors on Reception Desk facing West
     const monMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
     const scrMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-    [-0.8, 0.8].forEach(mx => {
-      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.55, 0.05), monMat);
-      mon.position.set(rx + mx, 1.45, rz - 3.2);
+    [-0.8, 0.8].forEach(mz => {
+      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.55, 0.9), monMat);
+      mon.position.set(-25.1, 1.45, 18 + mz);
       scene.add(mon);
 
       const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 0.48), scrMat);
-      scr.position.set(rx + mx, 1.45, rz - 3.17);
-      scr.rotation.y = Math.PI;
+      scr.position.set(-25.14, 1.45, 18 + mz);
+      scr.rotation.y = -Math.PI / 2;
       scene.add(scr);
     });
 
-    // Sign-in Digital Tablet Kiosk
+    // Digital Guest Sign-in Kiosk at X = -24, Z = 22
     const kioskStand = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 1.1, 8), monMat);
-    kioskStand.position.set(rx + 2.6, 0.55, rz - 1.5);
+    kioskStand.position.set(-24, 0.55, 22);
     scene.add(kioskStand);
-
     const kioskTab = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.03), monMat);
-    kioskTab.position.set(rx + 2.6, 1.12, rz - 1.5);
+    kioskTab.position.set(-24, 1.12, 22);
     kioskTab.rotation.x = -0.4;
     scene.add(kioskTab);
 
-    // Water Dispenser with 19L Blue Gallon Bottle
+    // Water Dispenser with 19L Blue Gallon at X = -28, Z = 15
     const dispBody = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.95, 0.45), wallMat);
-    dispBody.position.set(rx - 2.8, 0.48, rz - 3.2);
+    dispBody.position.set(-28, 0.48, 15);
     scene.add(dispBody);
-
     const bottle = new THREE.Mesh(
       new THREE.CylinderGeometry(0.18, 0.18, 0.45, 12),
       new THREE.MeshStandardMaterial({ color: 0x0284c7, transparent: true, opacity: 0.75, roughness: 0.1 })
     );
-    bottle.position.set(rx - 2.8, 1.18, rz - 3.2);
+    bottle.position.set(-28, 1.18, 15);
     scene.add(bottle);
 
-    // Waiting Lounge: Designer Rug & Terracotta Armchairs
-    const rug = new THREE.Mesh(
-      new THREE.BoxGeometry(4.0, 0.02, 3.2),
-      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.9 })
-    );
-    rug.position.set(rx, 0.02, rz + 2.5);
-    scene.add(rug);
-
+    // Waiting Lounge: Sofas & Marble Table at X = -14, Z = 22 (Clear of path!)
     const chairMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.7 });
-    [-1.2, 1.2].forEach(cx => {
+    [-1.2, 1.2].forEach(cz => {
       const seat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.35, 0.9), chairMat);
-      seat.position.set(rx + cx, 0.25, rz + 2.5);
+      seat.position.set(-14, 0.25, 22 + cz);
       scene.add(seat);
-
-      const back = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.55, 0.15), chairMat);
-      back.position.set(rx + cx, 0.65, rz + 2.9);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.55, 0.9), chairMat);
+      back.position.set(-13.5, 0.65, 22 + cz);
       scene.add(back);
     });
 
-    // Coffee Table in waiting lounge
     const cTable = new THREE.Mesh(
-      new THREE.BoxGeometry(1.2, 0.35, 0.8),
+      new THREE.BoxGeometry(0.8, 0.35, 1.2),
       new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
     );
-    cTable.position.set(rx, 0.18, rz + 2.5);
+    cTable.position.set(-14, 0.18, 22);
     scene.add(cTable);
 
-    // Branded Feature Wall Backdrop
-    const brandWall = new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.2, 0.15), woodMat);
-    brandWall.position.set(rx, 1.4, rz - 5.0);
+    // Branded Wood-slat Wall Backdrop behind desk
+    const brandWall = new THREE.Mesh(new THREE.BoxGeometry(0.15, 2.4, 6.0), woodMat);
+    brandWall.position.set(-27.5, 1.4, 18);
     scene.add(brandWall);
 
-    // Seated Receptionist (Nadia) behind counter in office dresscode
-    createDeskWorker(rx, 0, rz - 3.9, 0, 0xff7a38, true, false);
-
-    // Seated Visitor in lounge armchair
-    createDeskWorker(rx - 1.2, 0, rz + 2.4, 0, 0x0284c7, false, true);
+    // People in Bilik 1:
+    // Seated Receptionist (Nadia) behind desk facing East
+    createDeskWorker(-25.9, 0, 18, Math.PI / 2, 0xff7a38, true, false);
+    // Seated Visitor in Lounge
+    createDeskWorker(-14, 0, 20.8, 0, 0x0284c7, false, true);
+    // Standing Visitor at kiosk
+    createDeskWorker(-23.4, 0, 22, -Math.PI / 2, 0x1e293b, false, false);
   }
 
-  // ─── BILIK 2: BROADCASTING & LIVE PRODUCTION MCR STUDIO ──────
+  // ─── BILIK 2: BROADCASTING & LIVE PRODUCTION STUDIO ──────────
   function buildRoom2BroadcastDetailed(screenMat, trimMat, frameMat) {
-    const rx = -24;
-    const rz = -2;
+    const rx = -27;
+    const rz = 0;
 
-    // Industrial Overhead Box Truss Grid
-    const trussMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9 });
-    const trussH = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.25, 0.25), trussMat);
-    trussH.position.set(rx, 3.1, rz);
-    scene.add(trussH);
-
-    // 6-Screen Broadcast Multiview Wall mounted on truss
+    // 6-Screen Multiview Video Wall mounted against West Wall at X = -32.5
     const wallScrMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 3; col++) {
-        const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.65), wallScrMat);
-        scr.position.set(rx - 1.3 + col * 1.3, 2.2 - row * 0.8, rz - 4.8);
+        const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.75), wallScrMat);
+        scr.position.set(-32.6, 2.3 - row * 0.9, rz - 1.5 + col * 1.5);
+        scr.rotation.y = Math.PI / 2;
         scene.add(scr);
 
-        const border = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.7, 0.05), frameMat);
-        border.position.set(rx - 1.3 + col * 1.3, 2.2 - row * 0.8, rz - 4.84);
+        const border = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.8, 1.25), frameMat);
+        border.position.set(-32.64, 2.3 - row * 0.9, rz - 1.5 + col * 1.5);
         scene.add(border);
       }
     }
 
-    // Master Control Room Desk
-    const mcrDesk = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.9, 1.4), frameMat);
-    mcrDesk.position.set(rx, 0.45, rz - 3.2);
+    // MCR Switcher Desk placed at X = -29.5, Z = 0
+    const mcrDesk = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, 5.2), frameMat);
+    mcrDesk.position.set(-29.5, 0.45, rz);
     scene.add(mcrDesk);
 
-    // ATEM Television Switcher Console with lit buttons
+    // ATEM Television Switcher Panel
     const atem = new THREE.Mesh(
-      new THREE.BoxGeometry(1.4, 0.1, 0.5),
+      new THREE.BoxGeometry(0.5, 0.1, 1.4),
       new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 })
     );
-    atem.position.set(rx - 0.8, 0.95, rz - 3.2);
+    atem.position.set(-29.5, 0.95, rz - 0.9);
     scene.add(atem);
 
     // Audio Mixing Console with faders
     const audioMixer = new THREE.Mesh(
-      new THREE.BoxGeometry(1.2, 0.08, 0.55),
+      new THREE.BoxGeometry(0.55, 0.08, 1.2),
       new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 })
     );
-    audioMixer.position.set(rx + 0.9, 0.94, rz - 3.2);
+    audioMixer.position.set(-29.5, 0.94, rz + 0.9);
     scene.add(audioMixer);
 
-    // Broadcast Camera with Teleprompter on Heavy Wheeled Pedestal Tripod
-    const camGrp = new THREE.Group();
-    camGrp.position.set(rx - 1.5, 0, rz + 1.8);
+    // 2 Broadcast Cameras on Pedestal Tripods pointing West toward MCR/Presenter
+    [-3.2, 3.2].forEach(cz => {
+      const camGrp = new THREE.Group();
+      camGrp.position.set(-25, 0, rz + cz);
 
-    const pedBase = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.1, 6), frameMat);
-    pedBase.position.y = 0.05;
-    camGrp.add(pedBase);
+      const pedBase = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.1, 6), frameMat);
+      pedBase.position.y = 0.05;
+      camGrp.add(pedBase);
 
-    const pedCol = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2, 8), frameMat);
-    pedCol.position.y = 0.7;
-    camGrp.add(pedCol);
+      const pedCol = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2, 8), frameMat);
+      pedCol.position.y = 0.7;
+      camGrp.add(pedCol);
 
-    const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.35, 0.7), frameMat);
-    camBody.position.set(0, 1.4, 0);
-    camGrp.add(camBody);
+      const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.3), frameMat);
+      camBody.position.set(0, 1.4, 0);
+      camGrp.add(camBody);
 
-    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.35, 12), frameMat);
-    lens.position.set(0, 1.4, -0.45);
-    lens.rotation.x = Math.PI / 2;
-    camGrp.add(lens);
+      const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.35, 12), frameMat);
+      lens.position.set(-0.45, 1.4, 0);
+      lens.rotation.z = Math.PI / 2;
+      camGrp.add(lens);
 
-    // Teleprompter Hood & Glass
-    const prompter = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.35, 0.35), frameMat);
-    prompter.position.set(0, 1.5, -0.55);
-    camGrp.add(prompter);
+      const tally = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.1), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+      tally.position.set(0.15, 1.62, 0);
+      camGrp.add(tally);
 
-    // Glowing Red Tally Light
-    const tally = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-    tally.position.set(0, 1.62, 0.2);
-    camGrp.add(tally);
-
-    scene.add(camGrp);
-
-    // 2 Softbox Studio Lights on Black Stands
-    [-3.2, 3.2].forEach(lx => {
-      const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 2.2, 8), frameMat);
-      stand.position.set(rx + lx, 1.1, rz);
-      scene.add(stand);
-
-      const softbox = new THREE.Mesh(
-        new THREE.BoxGeometry(0.8, 1.1, 0.35),
-        new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 })
-      );
-      softbox.position.set(rx + lx, 2.2, rz);
-      softbox.rotation.y = lx < 0 ? 0.5 : -0.5;
-      scene.add(softbox);
-
-      const diffuser = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 1.0), new THREE.MeshBasicMaterial({ color: 0xffedd5 }));
-      diffuser.position.set(rx + lx, 2.2, rz - 0.18);
-      diffuser.rotation.y = lx < 0 ? 0.5 : -0.5;
-      scene.add(diffuser);
+      scene.add(camGrp);
     });
 
-    // 4 Crew Members in Studio Attire
-    createDeskWorker(rx - 0.8, 0, rz - 3.9, 0, 0x0f172a, true, false); // Switcher Op
-    createDeskWorker(rx + 0.9, 0, rz - 3.9, 0, 0x1e293b, true, false); // Audio Engineer
-    createDeskWorker(rx - 1.5, 0, rz + 2.7, Math.PI, 0x0284c7, false, false); // Cameraman
-    createDeskWorker(rx + 2.2, 0, rz - 1.2, -Math.PI / 2, 0xff7a38, false, true); // Director
+    // 2 Softbox Studio Lights
+    [-5.5, 5.5].forEach(lz => {
+      const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 2.2, 8), frameMat);
+      stand.position.set(-27, 1.1, rz + lz);
+      scene.add(stand);
+
+      const softbox = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.1, 0.8), frameMat);
+      softbox.position.set(-27, 2.2, rz + lz);
+      scene.add(softbox);
+    });
+
+    // Crew Members (Behind desk & cameras, CLEAR of walkway at X=-22):
+    createDeskWorker(-30.2, 0, rz - 0.9, -Math.PI / 2, 0x0f172a, true, false); // Switcher Op
+    createDeskWorker(-30.2, 0, rz + 0.9, -Math.PI / 2, 0x1e293b, true, false); // Audio Engineer
+    createDeskWorker(-24.2, 0, rz - 3.2, -Math.PI / 2, 0x0284c7, false, false);// Cameraman 1
+    createDeskWorker(-24.2, 0, rz + 3.2, -Math.PI / 2, 0x0284c7, false, false);// Cameraman 2
+    createDeskWorker(-28.0, 0, rz - 3.5, 0, 0xff7a38, false, true);             // Director
   }
 
   // ─── BILIK 3: NEWSROOM & MEDIA EDITORIAL HUB ─────────────────
   function buildRoom3NewsroomDetailed(trimMat, woodMat) {
-    const rx = -12;
-    const rz = -15;
-
-    // Modular 4-Desk Cluster Pod
+    // Modular Workstation Pod placed at X = -23, Z = -18 (Clear of walkway at X=-12)
     const podMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.6 });
     const deskPod = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.85, 2.6), podMat);
-    deskPod.position.set(rx, 0.42, rz);
+    deskPod.position.set(-23, 0.42, -18);
     scene.add(deskPod);
 
-    // 4 Widescreen Dell/HP Monitors
+    // 4 Widescreen Monitors
     const monMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
     const scrMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
     const deskOffset = [
@@ -1339,331 +1287,275 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     deskOffset.forEach(m => {
       const mon = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.5, 0.04), monMat);
-      mon.position.set(rx + m.x, 1.2, rz + m.z);
+      mon.position.set(-23 + m.x, 1.2, -18 + m.z);
       mon.rotation.y = m.ry;
       scene.add(mon);
 
       const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.78, 0.44), scrMat);
-      scr.position.set(rx + m.x, 1.2, rz + m.z + (m.ry === 0 ? 0.025 : -0.025));
+      scr.position.set(-23 + m.x, 1.2, -18 + m.z + (m.ry === 0 ? 0.025 : -0.025));
       scr.rotation.y = m.ry;
       scene.add(scr);
     });
 
-    // Large Wall Kanban Board with colorful sticky notes
+    // Wall Kanban Board on North Wall at X = -23, Z = -24.5
     const board = new THREE.Mesh(
-      new THREE.BoxGeometry(3.6, 1.8, 0.08),
+      new THREE.BoxGeometry(4.2, 1.8, 0.08),
       new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 })
     );
-    board.position.set(rx, 1.8, rz - 6.8);
+    board.position.set(-23, 1.8, -24.5);
     scene.add(board);
 
-    // Sticky notes
+    // Sticky Notes
     const noteColors = [0xfef08a, 0x86efac, 0x93c5fd, 0xfca5a5];
     for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 5; c++) {
+      for (let c = 0; c < 6; c++) {
         const note = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.25, 0.25),
+          new THREE.PlaneGeometry(0.24, 0.24),
           new THREE.MeshBasicMaterial({ color: noteColors[(r + c) % noteColors.length] })
         );
-        note.position.set(rx - 1.2 + c * 0.6, 2.2 - r * 0.45, rz - 6.74);
+        note.position.set(-24.5 + c * 0.6, 2.2 - r * 0.45, -24.44);
         scene.add(note);
       }
     }
 
-    // Heavy Multifunction Office Copier / Laser Printer
+    // Heavy Office Laser Photocopier/Printer at X = -28, Z = -13
     const printer = new THREE.Mesh(
       new THREE.BoxGeometry(1.1, 1.15, 0.9),
       new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 })
     );
-    printer.position.set(rx - 3.8, 0.58, rz - 3.5);
+    printer.position.set(-28, 0.58, -13);
     scene.add(printer);
 
-    // Mobile Dry-Erase Whiteboard with editorial flowchart
-    const wb = new THREE.Mesh(
-      new THREE.BoxGeometry(2.2, 1.4, 0.06),
-      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
-    );
-    wb.position.set(rx + 3.4, 1.3, rz - 3.0);
-    wb.rotation.y = -0.3;
-    scene.add(wb);
+    // Espresso Coffee Credenza at X = -28, Z = -22
+    const credenza = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 1.8), woodMat);
+    credenza.position.set(-28, 0.45, -22);
+    scene.add(credenza);
 
-    // Active Journalists in office attire
-    createDeskWorker(rx - 1.2, 0, rz - 1.6, 0, 0x2563eb, true, true);
-    createDeskWorker(rx + 1.2, 0, rz - 1.6, 0, 0xa855f7, true, false);
-    createDeskWorker(rx - 1.2, 0, rz + 1.6, Math.PI, 0x10b981, true, false);
+    // Active Journalists seated at pod (Clear of walkway!)
+    createDeskWorker(-24.2, 0, -19.6, 0, 0x2563eb, true, true);
+    createDeskWorker(-21.8, 0, -19.6, 0, 0xa855f7, true, false);
+    createDeskWorker(-24.2, 0, -16.4, Math.PI, 0x10b981, true, false);
+    createDeskWorker(-21.8, 0, -16.4, Math.PI, 0x0284c7, true, true);
+    // Reporter at printer
+    createDeskWorker(-27.0, 0, -13, Math.PI / 2, 0xff7a38, false, false);
   }
 
   // ─── BILIK 4: DATA ANALYST & MACHINE LEARNING AI LAB ──────────
   function buildRoom4DataLabDetailed(trimMat, frameMat) {
-    const rx = 12;
-    const rz = -15;
-
-    // 2 Full-Height 42U Enterprise Server Racks with Animated LEDs
+    // 2 Full-Height 42U Server Racks at X = 24, Z = -23 (Against North Wall)
     [-1.2, 1.2].forEach(sx => {
       const rack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.4, 0.95), frameMat);
-      rack.position.set(rx + sx, 1.2, rz - 5.5);
+      rack.position.set(24 + sx, 1.2, -23);
       scene.add(rack);
 
       const rackGlass = new THREE.Mesh(
         new THREE.PlaneGeometry(1.1, 2.2),
         new THREE.MeshStandardMaterial({ color: 0x0284c7, transparent: true, opacity: 0.45 })
       );
-      rackGlass.position.set(rx + sx, 1.2, rz - 5.0);
+      rackGlass.position.set(24 + sx, 1.2, -22.5);
       scene.add(rackGlass);
 
-      // Blinking server LED arrays
       for (let ly = 0; ly < 6; ly++) {
         const ledGeo = new THREE.SphereGeometry(0.025, 6, 6);
         const ledMat = new THREE.MeshBasicMaterial({ color: ly % 2 === 0 ? 0x22c55e : 0x06b6d4 });
         const led = new THREE.Mesh(ledGeo, ledMat);
-        led.position.set(rx + sx - 0.4 + (ly % 3) * 0.4, 0.5 + ly * 0.3, rz - 4.95);
+        led.position.set(24 + sx - 0.4 + (ly % 3) * 0.4, 0.5 + ly * 0.3, -22.45);
         scene.add(led);
         serverLEDs.push(led);
       }
     });
 
-    // High-Performance Developer Workstation Desk
+    // Developer Workstations at X = 23, Z = -16 (Clear of walkway at X=12)
     const devDesk = new THREE.Mesh(
       new THREE.BoxGeometry(4.5, 0.85, 1.4),
       new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 })
     );
-    devDesk.position.set(rx, 0.42, rz - 0.8);
+    devDesk.position.set(23, 0.42, -16);
     scene.add(devDesk);
 
-    // 34-Inch Curved Ultrawide Monitor + Vertical Monitor
+    // 34" Curved Ultrawide Monitor + Vertical Monitor
     const monMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2 });
     const scrMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
 
     const wideMon = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.65, 0.08), monMat);
-    wideMon.position.set(rx - 0.4, 1.35, rz - 0.8);
+    wideMon.position.set(22.6, 1.35, -16);
     scene.add(wideMon);
-
     const wideScr = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.58), scrMat);
-    wideScr.position.set(rx - 0.4, 1.35, rz - 0.75);
+    wideScr.position.set(22.6, 1.35, -15.95);
     scene.add(wideScr);
 
     const vertMon = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.95, 0.06), monMat);
-    vertMon.position.set(rx + 1.2, 1.45, rz - 0.8);
+    vertMon.position.set(24.2, 1.45, -16);
     scene.add(vertMon);
-
     const vertScr = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.88), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
-    vertScr.position.set(rx + 1.2, 1.45, rz - 0.76);
+    vertScr.position.set(24.2, 1.45, -15.96);
     scene.add(vertScr);
 
-    // Transparent Glass Whiteboard with SEM-PLS & ML Formulas
+    // Transparent Glass Whiteboard at X = 13, Z = -22
     const glassWb = new THREE.Mesh(
       new THREE.BoxGeometry(3.4, 1.6, 0.05),
       new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.45, roughness: 0.1 })
     );
-    glassWb.position.set(rx - 3.6, 1.5, rz - 2.8);
-    glassWb.rotation.y = 0.5;
+    glassWb.position.set(13, 1.5, -22);
+    glassWb.rotation.y = 0.3;
     scene.add(glassWb);
 
-    // Beverage Mini-Fridge
-    const fridge = new THREE.Mesh(
-      new THREE.BoxGeometry(0.65, 0.9, 0.65),
-      new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5 })
-    );
-    fridge.position.set(rx + 3.4, 0.45, rz - 4.5);
-    scene.add(fridge);
-
-    // Active Data Scientists in office dresscode
-    createDeskWorker(rx - 0.4, 0, rz - 1.7, 0, 0x0284c7, true, true);
-    createDeskWorker(rx + 1.4, 0, rz - 1.7, 0, 0x10b981, true, false);
+    // Active Data Scientists (Clear of walkway!)
+    createDeskWorker(22.6, 0, -17.2, 0, 0x0284c7, true, true);
+    createDeskWorker(24.2, 0, -17.2, 0, 0x10b981, true, false);
+    // Architect standing at glass whiteboard
+    createDeskWorker(13, 0, -21.2, Math.PI, 0x2563eb, false, true);
   }
 
   // ─── BILIK 5: IOT HARDWARE INNOVATION WORKSHOP ───────────────
   function buildRoom5IoTWorkshopDetailed(trimMat, frameMat) {
-    const rx = 24;
-    const rz = -2;
+    const rx = 28;
+    const rz = 0;
 
-    // Heavy Industrial Electronics Workbench with Anti-Static Green ESD Mat
+    // Heavy Industrial ESD Workbench placed against East Wall at X = 29.5, Z = 0
     const benchMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.9, 1.5), benchMat);
-    bench.position.set(rx, 0.45, rz - 3.2);
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.9, 5.2), benchMat);
+    bench.position.set(29.5, 0.45, rz);
     scene.add(bench);
 
     const esdMat = new THREE.Mesh(
-      new THREE.BoxGeometry(5.0, 0.02, 1.3),
+      new THREE.BoxGeometry(1.3, 0.02, 5.0),
       new THREE.MeshStandardMaterial({ color: 0x059669, roughness: 0.7 })
     );
-    esdMat.position.set(rx, 0.91, rz - 3.2);
+    esdMat.position.set(29.5, 0.91, rz);
     scene.add(esdMat);
 
-    // Dual-Channel Digital Oscilloscope with animated sine wave
-    const oscBody = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.45, 0.35), frameMat);
-    oscBody.position.set(rx - 1.5, 1.15, rz - 3.2);
+    // Oscilloscope with animated sine wave
+    const oscBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.7), frameMat);
+    oscBody.position.set(29.5, 1.15, rz - 1.5);
     scene.add(oscBody);
 
     const oscScr = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.35), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
-    oscScr.position.set(rx - 1.5, 1.15, rz - 3.02);
+    oscScr.position.set(29.32, 1.15, rz - 1.5);
+    oscScr.rotation.y = -Math.PI / 2;
     scene.add(oscScr);
 
-    // Temperature-Controlled Soldering Station
-    const solder = new THREE.Mesh(
-      new THREE.BoxGeometry(0.4, 0.25, 0.3),
-      new THREE.MeshStandardMaterial({ color: 0x0284c7 })
-    );
-    solder.position.set(rx - 0.7, 1.05, rz - 3.2);
-    scene.add(solder);
-
-    // Working 3D Printer with Extruder & PLA Filament Spool
-    const printerFrame = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.0, 0.8), frameMat);
-    printerFrame.position.set(rx + 1.6, 1.42, rz - 3.2);
+    // Working 3D Printer at X = 29.5, Z = -3.5
+    const printerFrame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 0.9), frameMat);
+    printerFrame.position.set(29.5, 1.42, rz - 3.5);
     scene.add(printerFrame);
 
-    const printBed = new THREE.Mesh(
-      new THREE.BoxGeometry(0.65, 0.05, 0.65),
-      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 })
-    );
-    printBed.position.set(rx + 1.6, 1.05, rz - 3.2);
-    scene.add(printBed);
-
-    // IoT LPG-SafeSense Hardware Prototype (Juara 1 MKI PLN)
+    // IoT LPG-SafeSense Hardware Prototype (Juara 1 MKI)
     const protoGrp = new THREE.Group();
-    protoGrp.position.set(rx + 0.3, 0.92, rz - 3.1);
+    protoGrp.position.set(29.4, 0.92, rz + 0.3);
 
-    // 3kg LPG Cylinder replica
     const lpgCylinder = new THREE.Mesh(
       new THREE.CylinderGeometry(0.16, 0.16, 0.42, 12),
       new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.6 })
     );
-    lpgCylinder.position.set(-0.25, 0.22, 0);
+    lpgCylinder.position.set(0, 0.22, -0.25);
     protoGrp.add(lpgCylinder);
 
-    // Breadboard with sensor circuit
     const bb = new THREE.Mesh(
-      new THREE.BoxGeometry(0.35, 0.04, 0.22),
+      new THREE.BoxGeometry(0.22, 0.04, 0.35),
       new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 })
     );
-    bb.position.set(0.15, 0.03, 0);
+    bb.position.set(0, 0.03, 0.15);
     protoGrp.add(bb);
 
-    // 16x2 Blue LCD Display
     const lcd = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.08), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
-    lcd.position.set(0.15, 0.06, 0.05);
-    lcd.rotation.x = -0.3;
+    lcd.position.set(-0.06, 0.06, 0.15);
+    lcd.rotation.y = -Math.PI / 2;
     protoGrp.add(lcd);
 
     scene.add(protoGrp);
 
-    // Illuminated Gold Trophy Pedestal (Juara 1 SafeSense)
+    // Illuminated Trophy Pedestal at X = 24, Z = 5.5 (Clear of walkway!)
     const ped = new THREE.Mesh(
       new THREE.CylinderGeometry(0.45, 0.5, 1.0, 16),
       new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 })
     );
-    ped.position.set(rx - 3.2, 0.5, rz + 1.2);
+    ped.position.set(24, 0.5, rz + 5.5);
     scene.add(ped);
 
     const trophy = new THREE.Mesh(
       new THREE.CylinderGeometry(0.18, 0.08, 0.45, 12),
       new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 })
     );
-    trophy.position.set(rx - 3.2, 1.25, rz + 1.2);
+    trophy.position.set(24, 1.25, rz + 5.5);
     scene.add(trophy);
 
     const trophyLight = new THREE.PointLight(0xfef08a, 0.8, 5);
-    trophyLight.position.set(rx - 3.2, 1.6, rz + 1.2);
+    trophyLight.position.set(24, 1.6, rz + 5.5);
     scene.add(trophyLight);
 
-    // Active Hardware Engineers in office dresscode
-    createDeskWorker(rx - 0.4, 0, rz - 4.1, 0, 0xf97316, true, false);
-    createDeskWorker(rx + 1.6, 0, rz - 4.1, 0, 0x0284c7, true, false);
+    // Active Engineers (Clear of walkway at X=22!)
+    createDeskWorker(28.7, 0, rz - 0.4, -Math.PI / 2, 0xf97316, true, false);
+    createDeskWorker(28.7, 0, rz + 1.4, -Math.PI / 2, 0x0284c7, true, false);
+    createDeskWorker(28.0, 0, rz - 3.5, 0, 0x10b981, false, false); // 3D print maker
   }
 
   // ─── BILIK 6: PRESS CONFERENCE & BRIEFING AUDITORIUM ──────────
   function buildRoom6PressHallDetailed(trimMat, woodMat) {
-    const rx = 20;
-    const rz = 12;
+    const rx = 22;
+    const rz = 20;
 
-    // Boardroom Executive Conference Table
-    const confTable = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.85, 2.2), woodMat);
-    confTable.position.set(rx, 0.42, rz - 1.2);
+    // Boardroom Conference Table at X = 23, Z = 20 (East side, clear of path at X=12)
+    const confTable = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.85, 5.2), woodMat);
+    confTable.position.set(23, 0.42, rz);
     scene.add(confTable);
 
-    // Tabletop Gooseneck Microphones
-    [-1.6, 0, 1.6].forEach(mx => {
+    // Tabletop Microphones
+    [-1.6, 0, 1.6].forEach(mz => {
       const mic = new THREE.Mesh(
         new THREE.CylinderGeometry(0.015, 0.02, 0.25, 6),
         new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 })
       );
-      mic.position.set(rx + mx, 0.98, rz - 1.2);
+      mic.position.set(23, 0.98, rz + mz);
       scene.add(mic);
     });
 
-    // Presentation Lectern / Podium with Official Seal
+    // Presentation Lectern / Podium at X = 23, Z = 14 (South of path)
     const podium = new THREE.Mesh(
       new THREE.BoxGeometry(0.9, 1.25, 0.7),
       new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
     );
-    podium.position.set(rx - 3.4, 0.62, rz - 4.2);
+    podium.position.set(23, 0.62, 14);
     scene.add(podium);
 
-    // Giant 4.2-Meter Widescreen Projection Screen
+    // Giant 4.2-Meter Widescreen Projection Screen on South Wall at Z = 24.5
     const projScr = new THREE.Mesh(
       new THREE.PlaneGeometry(4.2, 2.3),
       new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
-    projScr.position.set(rx, 2.1, rz - 5.8);
+    projScr.position.set(23, 2.1, 24.6);
+    projScr.rotation.y = Math.PI;
     scene.add(projScr);
 
-    const projBorder = new THREE.Mesh(
-      new THREE.BoxGeometry(4.3, 2.4, 0.08),
-      new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.7 })
-    );
-    projBorder.position.set(rx, 2.1, rz - 5.85);
-    scene.add(projBorder);
-
-    // Official Press Conference Backdrop Banner
-    const banner = new THREE.Mesh(
-      new THREE.PlaneGeometry(5.5, 2.6),
-      new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.8 })
-    );
-    banner.position.set(rx, 1.8, rz + 5.2);
-    banner.rotation.y = Math.PI;
-    scene.add(banner);
-
-    // Active Attendees around the table
-    createDeskWorker(rx - 1.6, 0, rz - 2.8, 0, 0x1e293b, true, true);
-    createDeskWorker(rx + 1.6, 0, rz - 2.8, 0, 0x0f172a, true, true);
-    createDeskWorker(rx - 1.6, 0, rz + 0.4, Math.PI, 0x2563eb, true, true);
-    createDeskWorker(rx + 1.6, 0, rz + 0.4, Math.PI, 0xa855f7, true, false);
+    // Active Attendees around table (Clear of walkway at X=12!)
+    createDeskWorker(24.2, 0, rz - 1.6, -Math.PI / 2, 0x1e293b, true, true);
+    createDeskWorker(24.2, 0, rz + 1.6, -Math.PI / 2, 0x0f172a, true, true);
+    createDeskWorker(21.8, 0, rz - 1.6, Math.PI / 2, 0x2563eb, true, true);
+    createDeskWorker(21.8, 0, rz + 1.6, Math.PI / 2, 0xa855f7, true, false);
 
     // Speaker standing at podium
-    createDeskWorker(rx - 3.4, 0, rz - 4.9, 0, 0xff7a38, false, true);
+    createDeskWorker(23, 0, 13.2, 0, 0xff7a38, false, true);
   }
 
   // ─── BILIK 7: EXECUTIVE RECRUITER PENTHOUSE LOUNGE ────────────
   function buildRoom7RecruiterLoungeDetailed(trimMat, woodMat) {
     const rx = 0;
-    const rz = 16;
+    const rz = 20;
 
-    // Designer Italian L-Shaped Sectional Sofa (Grey Leather)
+    // L-Shaped Italian Leather Sofa placed at X = -2, Z = 22 (Clear of center path at Z=18)
     const sofaMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.65 });
     const sofaMain = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.42, 1.2), sofaMat);
-    sofaMain.position.set(rx - 0.4, 0.28, rz + 1.8);
+    sofaMain.position.set(-2, 0.28, 22);
     scene.add(sofaMain);
 
     const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.55, 0.25), sofaMat);
-    sofaBack.position.set(rx - 0.4, 0.68, rz + 2.3);
+    sofaBack.position.set(-2, 0.68, 22.5);
     scene.add(sofaBack);
 
-    const sofaL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.42, 2.4), sofaMat);
-    sofaL.position.set(rx + 1.2, 0.28, rz + 0.6);
-    scene.add(sofaL);
-
-    // Orange Accent Throw Pillows
-    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xff6b2b, roughness: 0.7 });
-    [-1.2, 0.2, 1.2].forEach(px => {
-      const pil = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.15), pillowMat);
-      pil.position.set(rx + px, 0.62, rz + 2.1);
-      scene.add(pil);
-    });
-
-    // White Carrara Marble Coffee Table with Orchids
+    // White Marble Coffee Table at X = -2, Z = 20.5
     const marbleMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
-    const marbleTable = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.35, 1.1), marbleMat);
-    marbleTable.position.set(rx - 0.4, 0.18, rz + 0.4);
+    const marbleTable = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.35, 1.0), marbleMat);
+    marbleTable.position.set(-2, 0.18, 20.5);
     scene.add(marbleTable);
 
     // Orchid Vase
@@ -1671,63 +1563,59 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       new THREE.CylinderGeometry(0.08, 0.06, 0.3, 12),
       new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 })
     );
-    vase.position.set(rx - 0.4, 0.48, rz + 0.4);
+    vase.position.set(-2, 0.48, 20.5);
     scene.add(vase);
 
-    // Executive Walnut Desk with iMac
-    const execDesk = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.85, 1.2), woodMat);
-    execDesk.position.set(rx - 4.2, 0.42, rz + 0.8);
+    // Executive Walnut Desk with iMac at X = 5.5, Z = 19 (East side)
+    const execDesk = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.85, 1.2), woodMat);
+    execDesk.position.set(5.5, 0.42, 19);
     scene.add(execDesk);
 
     const imacMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.9 });
     const imacStand = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.35, 0.18), imacMat);
-    imacStand.position.set(rx - 4.2, 1.05, rz + 0.8);
+    imacStand.position.set(5.5, 1.05, 19);
     scene.add(imacStand);
 
     const imacScr = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.7, 0.04), imacMat);
-    imacScr.position.set(rx - 4.2, 1.45, rz + 0.8);
+    imacScr.position.set(5.5, 1.45, 19);
     scene.add(imacScr);
 
-    // Brass Arched Designer Floor Lamp
+    // Brass Arched Floor Lamp
     const lampMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9, roughness: 0.2 });
     const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 2.6, 8), lampMat);
-    lampPole.position.set(rx + 2.4, 1.3, rz + 2.2);
+    lampPole.position.set(0.5, 1.3, 22.5);
     scene.add(lampPole);
 
-    const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.3, 12), lampMat);
-    lampShade.position.set(rx + 1.8, 2.5, rz + 1.5);
-    lampShade.rotation.x = 0.4;
-    scene.add(lampShade);
-
     const lampLight = new THREE.PointLight(0xfef08a, 0.9, 8);
-    lampLight.position.set(rx + 1.8, 2.4, rz + 1.5);
+    lampLight.position.set(0, 2.4, 21.5);
     scene.add(lampLight);
 
-    // Tall Indoor Potted Plants (Monstera Deliciosa)
-    [-5.6, 5.6].forEach(px => {
+    // Indoor Tall Potted Plants at corners
+    [-6.5, 6.5].forEach(px => {
       const pot = new THREE.Mesh(
         new THREE.CylinderGeometry(0.35, 0.28, 0.6, 12),
         new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 })
       );
-      pot.position.set(rx + px, 0.3, rz + 2.2);
+      pot.position.set(px, 0.3, 23);
       scene.add(pot);
 
       const leaf = new THREE.Mesh(
         new THREE.DodecahedronGeometry(0.65, 1),
         new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 })
       );
-      leaf.position.set(rx + px, 1.0, rz + 2.2);
+      leaf.position.set(px, 1.0, 23);
       scene.add(leaf);
     });
 
-    // 2 Senior HR Talent Executives in business suits
-    createDeskWorker(rx - 4.2, 0, rz + 1.7, 0, 0x0f172a, true, true);
-    createDeskWorker(rx + 0.2, 0, rz + 1.5, -0.4, 0x2563eb, false, true);
+    // 3 Senior HR Talent Executives (Clear of path at X=0, Z=18!)
+    createDeskWorker(-3.0, 0, 22, 0, 0x0f172a, true, true);
+    createDeskWorker(-1.0, 0, 22, 0, 0x2563eb, false, true);
+    createDeskWorker(5.5, 0, 19.8, Math.PI, 0x1e293b, true, true); // at iMac
   }
 
-  // ─── 6. MOBILE PATROLLING EMPLOYEES (THE BUSTLING OFFICE!) ───
+  // ─── 4 MOBILE PATROLLING EMPLOYEES ACROSS CORRIDORS ──────────
   function buildPatrollingOfficeWorkers() {
-    // Worker 1: West Wing Corridor (Foyer to Broadcast, Z: 10 to -3 at X = -19)
+    // Worker 1: West Wing Corridor (Z: 7 to -7 at X = -17)
     const w1 = createOfficeHuman({
       shirtColor: 0x2563eb,
       pantsColor: 0x1e293b,
@@ -1743,16 +1631,16 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       armL: w1.armPivotL,
       armR: w1.armPivotR,
       axis: 'z',
-      x: -19,
-      currentZ: 9,
-      minZ: -3,
-      maxZ: 10,
+      x: -17,
+      currentZ: 5,
+      minZ: -7,
+      maxZ: 7,
       speed: 0.024,
       dir: -1,
       stepPhase: 0
     });
 
-    // Worker 2: North Wing Corridor (Newsroom to Data Lab, X: -12 to 12 at Z = -12.5)
+    // Worker 2: North Wing Corridor (X: -10 to 10 at Z = -13.5)
     const w2 = createOfficeHuman({
       shirtColor: 0x10b981,
       pantsColor: 0x1e293b,
@@ -1768,16 +1656,16 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       armL: w2.armPivotL,
       armR: w2.armPivotR,
       axis: 'x',
-      z: -12.5,
-      currentX: -10,
-      minX: -12,
-      maxX: 12,
+      z: -13.5,
+      currentX: -8,
+      minX: -10,
+      maxX: 10,
       speed: 0.022,
       dir: 1,
       stepPhase: 0
     });
 
-    // Worker 3: East Wing Corridor (IoT Workshop to Press Hall, Z: -3 to 10 at X = 19)
+    // Worker 3: East Wing Corridor (Z: -7 to 7 at X = 17)
     const w3 = createOfficeHuman({
       shirtColor: 0xa855f7,
       pantsColor: 0x1e293b,
@@ -1793,17 +1681,42 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       armL: w3.armPivotL,
       armR: w3.armPivotR,
       axis: 'z',
-      x: 19,
-      currentZ: -2,
-      minZ: -3,
-      maxZ: 10,
+      x: 17,
+      currentZ: -5,
+      minZ: -7,
+      maxZ: 7,
       speed: 0.024,
       dir: 1,
       stepPhase: 0
     });
+
+    // Worker 4: South Wing Corridor (X: 10 to -4 at Z = 16)
+    const w4 = createOfficeHuman({
+      shirtColor: 0x0284c7,
+      pantsColor: 0x1e293b,
+      hasTie: true,
+      whiteCollar: true,
+      accessory: 'tablet'
+    });
+    scene.add(w4.group);
+    patrollingStaff.push({
+      group: w4.group,
+      legL: w4.legPivotL,
+      legR: w4.legPivotR,
+      armL: w4.armPivotL,
+      armR: w4.armPivotR,
+      axis: 'x',
+      z: 16,
+      currentX: 8,
+      minX: -4,
+      maxX: 10,
+      speed: 0.020,
+      dir: -1,
+      stepPhase: 0
+    });
   }
 
-  // ─── 7. INTERACTIVE 3D NPCS (OFFICE GUIDES) ───────────────────
+  // ─── 7 INTERACTIVE 3D NPCS (OFFICE GUIDES AT STATIONS) ───────
   function buildInteractive3DNPCS() {
     NPC_GUIDES.forEach((npc, idx) => {
       const guideHuman = createOfficeHuman({
@@ -1819,7 +1732,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       grp.position.set(npc.pos.x, 0, npc.pos.z);
       grp.userData = { isNPC: true, npcIndex: idx };
 
-      // Floating Dialogue Icon Badge
       const canvasIcon = document.createElement('canvas');
       canvasIcon.width = 128;
       canvasIcon.height = 128;
@@ -1845,7 +1757,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
   }
 
-  // ─── 8. ANIMATED WALKING HERO (MANGARA FERDIANTO PAKPAHAN) ─────
+  // ─── ANIMATED WALKING HERO (MANGARA FERDIANTO PAKPAHAN) ───────
   function createWalkingHeroWithIndicator() {
     walkingHero = new THREE.Group();
 
@@ -1895,7 +1807,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     walkingHero.add(heroHuman.group);
 
-    walkingHero.position.set(-20, 0, 13);
+    walkingHero.position.set(-24, 0, 24);
     scene.add(walkingHero);
   }
 
