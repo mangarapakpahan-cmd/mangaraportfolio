@@ -1169,12 +1169,49 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     brandWall.position.set(-27.5, 1.4, 18);
     scene.add(brandWall);
 
-    // People in Bilik 1:
+    // 3 Speed Gate Security Access Turnstiles at X = -20, Z = 23 (Clear of walkway)
+    const gateFrameMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.3 });
+    const gateGlassMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.7 });
+    [-1.0, 0, 1.0].forEach(gx => {
+      const stanchion = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.95, 1.1), gateFrameMat);
+      stanchion.position.set(-20 + gx * 1.1, 0.48, 23.5);
+      scene.add(stanchion);
+
+      const glassFlap = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.65, 0.04), gateGlassMat);
+      glassFlap.position.set(-20 + gx * 1.1 + 0.3, 0.55, 23.5);
+      scene.add(glassFlap);
+
+      const rfidLed = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+      rfidLed.position.set(-20 + gx * 1.1, 0.96, 23.1);
+      scene.add(rfidLed);
+    });
+
+    // 65-Inch Vertical Digital Directory Totem at X = -27, Z = 23
+    const totemBase = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.1, 0.5), gateFrameMat);
+    totemBase.position.set(-27, 0.05, 23);
+    scene.add(totemBase);
+    const totemPillar = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.85, 0.12), gateFrameMat);
+    totemPillar.position.set(-27, 0.95, 23);
+    scene.add(totemPillar);
+    const totemScr = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.65, 1.3),
+      new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+    );
+    totemScr.position.set(-27, 1.15, 22.93);
+    scene.add(totemScr);
+
+    // People in Bilik 1 (Bustling Corporate Entrance):
     // Seated Receptionist (Nadia) behind desk facing East
     createDeskWorker(-25.9, 0, 18, Math.PI / 2, 0xff7a38, true, false);
-    // Seated Visitor in Lounge
+    // Security Officer standing near speed gates with smart blazer & ID
+    createDeskWorker(-21.8, 0, 23.8, Math.PI, 0x0f172a, false, true);
+    // Employee scanning badge to pass through turnstile
+    createDeskWorker(-20.0, 0, 22.8, -Math.PI / 2, 0x2563eb, false, false);
+    // Seated Visitor 1 in Lounge reading proposal folder
     createDeskWorker(-14, 0, 20.8, 0, 0x0284c7, false, true);
-    // Standing Visitor at kiosk
+    // Seated Visitor 2 in Lounge
+    createDeskWorker(-14, 0, 23.2, 0, 0x3b82f6, false, false);
+    // Standing Visitor at touch kiosk
     createDeskWorker(-23.4, 0, 22, -Math.PI / 2, 0x1e293b, false, false);
   }
 
@@ -1259,12 +1296,56 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       scene.add(softbox);
     });
 
-    // Crew Members (Behind desk & cameras, CLEAR of walkway at X=-22):
-    createDeskWorker(-30.2, 0, rz - 0.9, -Math.PI / 2, 0x0f172a, true, false); // Switcher Op
-    createDeskWorker(-30.2, 0, rz + 0.9, -Math.PI / 2, 0x1e293b, true, false); // Audio Engineer
-    createDeskWorker(-24.2, 0, rz - 3.2, -Math.PI / 2, 0x0284c7, false, false);// Cameraman 1
-    createDeskWorker(-24.2, 0, rz + 3.2, -Math.PI / 2, 0x0284c7, false, false);// Cameraman 2
-    createDeskWorker(-28.0, 0, rz - 3.5, 0, 0xff7a38, false, true);             // Director
+    // Genelec-Style Nearfield Audio Studio Monitors on Desk
+    const spkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
+    [-1.7, 1.7].forEach(sz => {
+      const spk = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.35, 0.22), spkMat);
+      spk.position.set(-29.5, 1.1, rz + sz);
+      scene.add(spk);
+
+      const spkLed = new THREE.Mesh(new THREE.SphereGeometry(0.015, 6, 6), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+      spkLed.position.set(-29.38, 0.98, rz + sz);
+      scene.add(spkLed);
+    });
+
+    // Yellow Floor Cable Protection Ramps along Studio Edges
+    const rampMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.6 });
+    [-4.5, 4.5].forEach(rz_pos => {
+      const ramp = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.04, 3.2), rampMat);
+      ramp.position.set(-27, 0.02, rz + rz_pos * 0.5);
+      scene.add(ramp);
+    });
+
+    // Broadcast Teleprompter Screen in front of talent area at X = -24.5, Z = 0
+    const tpStand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 1.3, 6), frameMat);
+    tpStand.position.set(-24.5, 0.65, 0);
+    scene.add(tpStand);
+    const tpScreen = new THREE.Mesh(
+      new THREE.BoxGeometry(0.45, 0.35, 0.04),
+      new THREE.MeshBasicMaterial({ color: 0x22c55e })
+    );
+    tpScreen.position.set(-24.5, 1.35, 0);
+    tpScreen.rotation.y = Math.PI / 2;
+    scene.add(tpScreen);
+
+    // RGB Tube Accent Lights on Rear Wall (Astera style glowing cyan/amber)
+    [-3.8, 3.8].forEach(tz => {
+      const tube = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.03, 1.8, 8),
+        new THREE.MeshBasicMaterial({ color: tz < 0 ? 0x06b6d4 : 0xf97316 })
+      );
+      tube.position.set(-32.6, 1.6, rz + tz);
+      scene.add(tube);
+    });
+
+    // Broadcast Crew Members (Behind desk & cameras, CLEAR of walkway at X=-22):
+    createDeskWorker(-30.2, 0, rz - 0.9, -Math.PI / 2, 0x0f172a, true, false); // Lead Switcher Op
+    createDeskWorker(-30.2, 0, rz + 0.9, -Math.PI / 2, 0x1e293b, true, false); // Sound Engineer
+    createDeskWorker(-24.2, 0, rz - 3.2, -Math.PI / 2, 0x0284c7, false, false);// Camera 1 Op
+    createDeskWorker(-24.2, 0, rz + 3.2, -Math.PI / 2, 0x0284c7, false, false);// Camera 2 Op
+    createDeskWorker(-28.0, 0, rz - 3.5, 0, 0xff7a38, false, true);             // Floor Director giving cues
+    createDeskWorker(-25.2, 0, 0, -Math.PI / 2, 0x1e293b, false, true);         // News Anchor in Smart Suit
+    createDeskWorker(-30.2, 0, rz - 2.2, -Math.PI / 2, 0x2563eb, true, false); // GFX / CG Operator
   }
 
   // ─── BILIK 3: NEWSROOM & MEDIA EDITORIAL HUB ─────────────────
@@ -1331,13 +1412,40 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     credenza.position.set(-28, 0.45, -22);
     scene.add(credenza);
 
-    // Active Journalists seated at pod (Clear of walkway!)
-    createDeskWorker(-24.2, 0, -19.6, 0, 0x2563eb, true, true);
-    createDeskWorker(-21.8, 0, -19.6, 0, 0xa855f7, true, false);
-    createDeskWorker(-24.2, 0, -16.4, Math.PI, 0x10b981, true, false);
-    createDeskWorker(-21.8, 0, -16.4, Math.PI, 0x0284c7, true, true);
-    // Reporter at printer
-    createDeskWorker(-27.0, 0, -13, Math.PI / 2, 0xff7a38, false, false);
+    // Second Collaborative Desk Pod at X = -28, Z = -18 (Along West wall, clear of walkway)
+    const pod2 = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.85, 3.2), podMat);
+    pod2.position.set(-29.5, 0.42, -18);
+    scene.add(pod2);
+
+    [-0.8, 0.8].forEach(pz => {
+      const mon2 = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.5, 0.04), monMat);
+      mon2.position.set(-29.5, 1.2, -18 + pz);
+      mon2.rotation.y = Math.PI / 2;
+      scene.add(mon2);
+
+      const scr2 = new THREE.Mesh(new THREE.PlaneGeometry(0.78, 0.44), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
+      scr2.position.set(-29.47, 1.2, -18 + pz);
+      scr2.rotation.y = Math.PI / 2;
+      scene.add(scr2);
+    });
+
+    // Mobile Glass Editorial Standup Board on Wheels at X = -17, Z = -22.5
+    const mobWb = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 1.5, 0.05),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+    );
+    mobWb.position.set(-17, 1.45, -22.5);
+    scene.add(mobWb);
+
+    // Active Journalists & Media Team (Clear of walkway!):
+    createDeskWorker(-24.2, 0, -19.6, 0, 0x2563eb, true, true);  // Senior Editor
+    createDeskWorker(-21.8, 0, -19.6, 0, 0xa855f7, true, false); // Social Media Specialist
+    createDeskWorker(-24.2, 0, -16.4, Math.PI, 0x10b981, true, false); // Copywriter
+    createDeskWorker(-21.8, 0, -16.4, Math.PI, 0x0284c7, true, true);  // Visual Designer
+    createDeskWorker(-29.5, 0, -18.8, Math.PI / 2, 0xec4899, true, false); // Video Content Creator
+    createDeskWorker(-29.5, 0, -17.2, Math.PI / 2, 0x3b82f6, true, false); // Motion Graphic Artist
+    createDeskWorker(-17.0, 0, -21.5, Math.PI, 0x0f172a, false, true);      // Art Director presenting
+    createDeskWorker(-27.0, 0, -13, Math.PI / 2, 0xff7a38, false, false);   // Reporter at laser printer
   }
 
   // ─── BILIK 4: DATA ANALYST & MACHINE LEARNING AI LAB ──────────
@@ -1400,11 +1508,53 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     glassWb.rotation.y = 0.3;
     scene.add(glassWb);
 
-    // Active Data Scientists (Clear of walkway!)
-    createDeskWorker(22.6, 0, -17.2, 0, 0x0284c7, true, true);
-    createDeskWorker(24.2, 0, -17.2, 0, 0x10b981, true, false);
-    // Architect standing at glass whiteboard
-    createDeskWorker(13, 0, -21.2, Math.PI, 0x2563eb, false, true);
+    // 3rd High-Density Server Rack at X = 27.5, Z = -23
+    const rack3 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.4, 0.95), frameMat);
+    rack3.position.set(27.5, 1.2, -23);
+    scene.add(rack3);
+
+    const rack3Glass = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.1, 2.2),
+      new THREE.MeshStandardMaterial({ color: 0x0284c7, transparent: true, opacity: 0.45 })
+    );
+    rack3Glass.position.set(27.5, 1.2, -22.5);
+    scene.add(rack3Glass);
+
+    for (let ly = 0; ly < 6; ly++) {
+      const ledGeo = new THREE.SphereGeometry(0.025, 6, 6);
+      const ledMat = new THREE.MeshBasicMaterial({ color: ly % 2 === 0 ? 0xef4444 : 0x22c55e });
+      const led = new THREE.Mesh(ledGeo, ledMat);
+      led.position.set(27.5 - 0.4 + (ly % 3) * 0.4, 0.5 + ly * 0.3, -22.45);
+      scene.add(led);
+      serverLEDs.push(led);
+    }
+
+    // Overhead Cable Raceway Ladder bridging racks
+    const ladderMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.4 });
+    const ladder = new THREE.Mesh(new THREE.BoxGeometry(7.0, 0.1, 0.45), ladderMat);
+    ladder.position.set(24.5, 2.45, -23);
+    scene.add(ladder);
+
+    // Wall-Mounted Big Data / Grafana Cloud Dashboard Display at X = 28.5, Z = -16
+    const grafanaWall = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.4, 2.8), frameMat);
+    grafanaWall.position.set(32.6, 1.6, -16);
+    scene.add(grafanaWall);
+
+    const grafanaScr = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.7, 1.3),
+      new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+    );
+    grafanaScr.position.set(32.55, 1.6, -16);
+    grafanaScr.rotation.y = -Math.PI / 2;
+    scene.add(grafanaScr);
+
+    // Active Data Scientists & ML Engineers (Clear of walkway!):
+    createDeskWorker(22.6, 0, -17.2, 0, 0x0284c7, true, true);  // Lead Data Scientist
+    createDeskWorker(24.2, 0, -17.2, 0, 0x10b981, true, false); // Machine Learning Engineer
+    createDeskWorker(21.0, 0, -17.2, 0, 0x3b82f6, true, false); // Cloud Databricks Analyst
+    createDeskWorker(27.5, 0, -21.8, 0, 0x334155, false, false);// Sysadmin inspecting 3rd server rack
+    createDeskWorker(13, 0, -21.2, Math.PI, 0x2563eb, false, true); // AI Solution Architect at whiteboard
+    createDeskWorker(14.5, 0, -21.0, -Math.PI / 2, 0xa855f7, false, false); // Colleague taking notes
   }
 
   // ─── BILIK 5: IOT HARDWARE INNOVATION WORKSHOP ───────────────
@@ -1527,14 +1677,37 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     projScr.rotation.y = Math.PI;
     scene.add(projScr);
 
-    // Active Attendees around table (Clear of walkway at X=12!)
-    createDeskWorker(24.2, 0, rz - 1.6, -Math.PI / 2, 0x1e293b, true, true);
-    createDeskWorker(24.2, 0, rz + 1.6, -Math.PI / 2, 0x0f172a, true, true);
-    createDeskWorker(21.8, 0, rz - 1.6, Math.PI / 2, 0x2563eb, true, true);
-    createDeskWorker(21.8, 0, rz + 1.6, Math.PI / 2, 0xa855f7, true, false);
+    // Media Broadcast Tripod in the Rear at X = 28.5, Z = 16
+    const pressCamTripod = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.25, 1.4, 6), frameMat);
+    pressCamTripod.position.set(28.5, 0.7, 16);
+    scene.add(pressCamTripod);
+    const pressCam = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.25, 0.2), frameMat);
+    pressCam.position.set(28.5, 1.45, 16);
+    scene.add(pressCam);
 
-    // Speaker standing at podium
-    createDeskWorker(23, 0, 13.2, 0, 0xff7a38, false, true);
+    // Twin Institutional Roll-up Banners flanking the presentation stage
+    [-2.6, 2.6].forEach(bx => {
+      const bStand = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.08, 0.2), frameMat);
+      bStand.position.set(23 + bx, 0.04, 13.5);
+      scene.add(bStand);
+      const bBanner = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.8, 2.0),
+        new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+      );
+      bBanner.position.set(23 + bx, 1.05, 13.52);
+      scene.add(bBanner);
+    });
+
+    // Active Press Delegates & Correspondents (Clear of walkway at X=12!):
+    createDeskWorker(24.2, 0, rz - 1.6, -Math.PI / 2, 0x1e293b, true, true);  // Corporate Executive
+    createDeskWorker(24.2, 0, rz + 1.6, -Math.PI / 2, 0x0f172a, true, true);  // Government Liaison
+    createDeskWorker(21.8, 0, rz - 1.6, Math.PI / 2, 0x2563eb, true, true);   // Lead Editor
+    createDeskWorker(21.8, 0, rz + 1.6, Math.PI / 2, 0xa855f7, true, false);  // PR Manager
+    createDeskWorker(24.2, 0, rz, -Math.PI / 2, 0x10b981, true, false);       // National Media Journalist
+    createDeskWorker(21.8, 0, rz, Math.PI / 2, 0x3b82f6, true, false);        // Tech Correspondent
+    createDeskWorker(23, 0, 13.2, 0, 0xff7a38, false, true);                   // Keynote Presenter at Podium
+    createDeskWorker(28.5, 0, 15.2, 0, 0x334155, false, false);               // Camera Operator in the back
+    createDeskWorker(21.0, 0, 14.5, -0.6, 0x0f172a, false, false);             // Press Photographer capturing shots
   }
 
   // ─── BILIK 7: EXECUTIVE RECRUITER PENTHOUSE LOUNGE ────────────
@@ -1713,6 +1886,106 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       speed: 0.020,
       dir: -1,
       stepPhase: 0
+    });
+
+    // Worker 5: Facilities & Maintenance Specialist along West Outer Wing (X = -21, Z: 5 to -5)
+    const w5 = createOfficeHuman({
+      shirtColor: 0x334155,
+      pantsColor: 0x1e293b,
+      hasTie: false,
+      whiteCollar: false,
+      accessory: 'clipboard'
+    });
+    scene.add(w5.group);
+    patrollingStaff.push({
+      group: w5.group,
+      legL: w5.legPivotL,
+      legR: w5.legPivotR,
+      armL: w5.armPivotL,
+      armR: w5.armPivotR,
+      axis: 'z',
+      x: -21,
+      currentZ: -2,
+      minZ: -6,
+      maxZ: 6,
+      speed: 0.018,
+      dir: 1,
+      stepPhase: 1.5
+    });
+
+    // Worker 6: Senior Cloud Architect walking across North Bridge (Z = -14.2, X: -6 to 6)
+    const w6 = createOfficeHuman({
+      shirtColor: 0x2563eb,
+      pantsColor: 0x1e293b,
+      hasTie: true,
+      whiteCollar: true,
+      accessory: 'coffee'
+    });
+    scene.add(w6.group);
+    patrollingStaff.push({
+      group: w6.group,
+      legL: w6.legPivotL,
+      legR: w6.legPivotR,
+      armL: w6.armPivotL,
+      armR: w6.armPivotR,
+      axis: 'x',
+      z: -14.2,
+      currentX: 2,
+      minX: -6,
+      maxX: 6,
+      speed: 0.02,
+      dir: -1,
+      stepPhase: 2.0
+    });
+
+    // Worker 7: Hardware & IoT QA Engineer along East Wing (X = 21, Z: -5 to 5)
+    const w7 = createOfficeHuman({
+      shirtColor: 0xf97316,
+      pantsColor: 0x1e293b,
+      hasTie: false,
+      whiteCollar: true,
+      accessory: 'tablet'
+    });
+    scene.add(w7.group);
+    patrollingStaff.push({
+      group: w7.group,
+      legL: w7.legPivotL,
+      legR: w7.legPivotR,
+      armL: w7.armPivotL,
+      armR: w7.armPivotR,
+      axis: 'z',
+      x: 21,
+      currentZ: 3,
+      minZ: -5,
+      maxZ: 5,
+      speed: 0.021,
+      dir: -1,
+      stepPhase: 0.8
+    });
+
+    // Worker 8: Strategic Talent Partner along South Courtyard Promenade (Z = 15.5, X: -2 to 8)
+    const w8 = createOfficeHuman({
+      shirtColor: 0xff7a38,
+      pantsColor: 0x1e293b,
+      hasTie: true,
+      whiteCollar: true,
+      accessory: 'clipboard'
+    });
+    scene.add(w8.group);
+    patrollingStaff.push({
+      group: w8.group,
+      legL: w8.legPivotL,
+      legR: w8.legPivotR,
+      armL: w8.armPivotL,
+      armR: w8.armPivotR,
+      axis: 'x',
+      z: 15.5,
+      currentX: 0,
+      minX: -2,
+      maxX: 8,
+      speed: 0.019,
+      dir: 1,
+      stepPhase: 3.1
     });
   }
 
@@ -2807,7 +3080,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  function jumpToStep(idx) {
+  function jumpToStep(idx, instant = false) {
     if (!scrollyTrack) return;
     const clampedIdx = Math.max(0, Math.min(SCROLL_STEPS.length - 1, idx));
     const trackTop = scrollyTrack.offsetTop;
@@ -2817,9 +3090,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     window.scrollTo({
       top: targetScroll,
-      behavior: 'smooth'
+      behavior: instant ? 'auto' : 'smooth'
     });
+    if (instant) {
+      handleScroll();
+      currentProgress = targetProgress;
+    }
   }
+  window.jumpToStep = jumpToStep;
 
   // ─── 14. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
   function initThreeDiorama() {
