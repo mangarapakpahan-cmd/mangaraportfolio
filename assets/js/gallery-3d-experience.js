@@ -49,6 +49,146 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   // Blinking Server LEDs & Studio Props
   let serverLEDs = [];
 
+  // Dynamic Animated Canvas Textures & Props References
+  let mcrCanvas = null, mcrCtx = null, mcrTexture = null;
+  let grafanaCanvas = null, grafanaCtx = null, grafanaTexture = null;
+  let totemCanvas = null, totemCtx = null, totemTexture = null;
+  let printerExtruder = null;
+  let dustParticles = null;
+  let dynamicFrameCounter = 0;
+
+  // ─── PROCEDURAL WEB AUDIO SYNTHESIZER (ZERO EXTERNAL ASSETS) ──
+  class ProceduralAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.isEnabled = false;
+      this.ambientGain = null;
+    }
+
+    init() {
+      if (this.ctx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      this.ctx = new AudioContext();
+
+      // Filtered pink room presence (soft air conditioning & space acoustics)
+      const bufferSize = this.ctx.sampleRate * 2;
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        output[i] = (b0 + b1 + b2) * 0.025;
+      }
+
+      const whiteNoise = this.ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(160, this.ctx.currentTime);
+
+      this.ambientGain = this.ctx.createGain();
+      this.ambientGain.gain.setValueAtTime(0, this.ctx.currentTime);
+
+      whiteNoise.connect(filter);
+      filter.connect(this.ambientGain);
+      this.ambientGain.connect(this.ctx.destination);
+      whiteNoise.start(0);
+    }
+
+    toggle() {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+      this.isEnabled = !this.isEnabled;
+      if (this.ambientGain) {
+        const now = this.ctx.currentTime;
+        this.ambientGain.gain.cancelScheduledValues(now);
+        this.ambientGain.gain.linearRampToValueAtTime(this.isEnabled ? 0.35 : 0, now + 0.4);
+      }
+      if (this.isEnabled) this.playChime();
+      return this.isEnabled;
+    }
+
+    playClick() {
+      if (!this.isEnabled || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(250, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    }
+
+    playStepTransition() {
+      if (!this.isEnabled || !this.ctx) return;
+      const notes = [523.25, 659.25];
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.06);
+        gain.gain.setValueAtTime(0, this.ctx.currentTime + i * 0.06);
+        gain.gain.linearRampToValueAtTime(0.07, this.ctx.currentTime + i * 0.06 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.06 + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.06);
+        osc.stop(this.ctx.currentTime + i * 0.06 + 0.28);
+      });
+    }
+
+    playChime() {
+      if (!this.isEnabled || !this.ctx) return;
+      const chord = [523.25, 659.25, 783.99];
+      chord.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.08);
+        gain.gain.setValueAtTime(0, this.ctx.currentTime + i * 0.08);
+        gain.gain.linearRampToValueAtTime(0.09, this.ctx.currentTime + i * 0.08 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.08 + 0.6);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.08);
+        osc.stop(this.ctx.currentTime + i * 0.08 + 0.65);
+      });
+    }
+
+    playOutroCelebration() {
+      if (!this.isEnabled || !this.ctx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.1);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.1 + 0.8);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.1);
+        osc.stop(this.ctx.currentTime + i * 0.1 + 0.85);
+      });
+    }
+  }
+
+  const audioEngine = new ProceduralAudioEngine();
+  window.audioEngine = audioEngine;
+
+
   // Camera flight interpolation vectors
   let currentCamPos = null;
   let currentLookAt = null;
@@ -310,14 +450,304 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   ];
 
   // ─── 4. BUSTLING & DETAILED ARCHITECTURAL DIORAMA BUILDER ─────
+
+  // ─── DYNAMIC CANVAS TEXTURES (BROADCAST VIDEO WALL, GRAFANA & TOTEM) ───
+  function initDynamicCanvasTextures() {
+    // 1. MCR Video Wall Canvas (512x256)
+    mcrCanvas = document.createElement('canvas');
+    mcrCanvas.width = 512;
+    mcrCanvas.height = 256;
+    mcrCtx = mcrCanvas.getContext('2d');
+    mcrTexture = new THREE.CanvasTexture(mcrCanvas);
+    mcrTexture.minFilter = THREE.LinearFilter;
+
+    // 2. Grafana Dashboard Canvas (512x256)
+    grafanaCanvas = document.createElement('canvas');
+    grafanaCanvas.width = 512;
+    grafanaCanvas.height = 256;
+    grafanaCtx = grafanaCanvas.getContext('2d');
+    grafanaTexture = new THREE.CanvasTexture(grafanaCanvas);
+    grafanaTexture.minFilter = THREE.LinearFilter;
+
+    // 3. Foyer Totem Directory Canvas (256x512)
+    totemCanvas = document.createElement('canvas');
+    totemCanvas.width = 256;
+    totemCanvas.height = 512;
+    totemCtx = totemCanvas.getContext('2d');
+    totemTexture = new THREE.CanvasTexture(totemCanvas);
+    totemTexture.minFilter = THREE.LinearFilter;
+  }
+
+  function updateDynamicCanvasTextures(time) {
+    dynamicFrameCounter++;
+    if (dynamicFrameCounter % 2 !== 0) return; // 30 FPS update for silky performance
+
+    // --- A. Render MCR Video Wall ---
+    if (mcrCtx && mcrTexture) {
+      mcrCtx.fillStyle = '#070b14';
+      mcrCtx.fillRect(0, 0, 512, 256);
+
+      const tileW = 166;
+      const tileH = 122;
+      const gapX = 3;
+      const gapY = 3;
+
+      // Tile 1 (Cam 1 - PGM Live)
+      mcrCtx.fillStyle = '#0f172a';
+      mcrCtx.fillRect(gapX, gapY, tileW, tileH);
+      mcrCtx.fillStyle = '#ef4444';
+      mcrCtx.fillRect(gapX + 6, gapY + 6, 8, 8);
+      mcrCtx.fillStyle = '#ffffff';
+      mcrCtx.font = 'bold 9px monospace';
+      mcrCtx.fillText('● REC PGM LIVE', gapX + 18, gapY + 13);
+      const grad = mcrCtx.createLinearGradient(gapX, gapY, gapX + tileW, gapY + tileH);
+      grad.addColorStop(0, '#1e293b');
+      grad.addColorStop(0.5, '#0284c7');
+      grad.addColorStop(1, '#0f172a');
+      mcrCtx.fillStyle = grad;
+      mcrCtx.fillRect(gapX + 8, gapY + 22, tileW - 16, tileH - 32);
+      mcrCtx.fillStyle = '#f8fafc';
+      mcrCtx.font = 'bold 10px sans-serif';
+      mcrCtx.fillText('WISUDA NASIONAL ITPLN', gapX + 12, gapY + 74);
+
+      // Tile 2 (Cam 2 - Presenter)
+      mcrCtx.fillStyle = '#0f172a';
+      mcrCtx.fillRect(gapX + tileW + gapX, gapY, tileW, tileH);
+      mcrCtx.fillStyle = '#22c55e';
+      mcrCtx.font = 'bold 9px monospace';
+      mcrCtx.fillText('CAM 02 • TALENT DESK', gapX + tileW + gapX + 6, gapY + 13);
+      mcrCtx.fillStyle = '#38bdf8';
+      mcrCtx.beginPath();
+      mcrCtx.arc(gapX + tileW + gapX + tileW / 2, gapY + 58, 22, 0, Math.PI * 2);
+      mcrCtx.fill();
+
+      // Tile 3 (Cam 3 - Stage Wide)
+      mcrCtx.fillStyle = '#0f172a';
+      mcrCtx.fillRect(gapX + (tileW + gapX) * 2, gapY, tileW, tileH);
+      mcrCtx.fillStyle = '#94a3b8';
+      mcrCtx.font = 'bold 9px monospace';
+      mcrCtx.fillText('CAM 03 • WIDE AUDITORIUM', gapX + (tileW + gapX) * 2 + 6, gapY + 13);
+
+      // Tile 4 (Switcher Status & Timecode)
+      const r2Y = gapY + tileH + gapY;
+      mcrCtx.fillStyle = '#0b1120';
+      mcrCtx.fillRect(gapX, r2Y, tileW, tileH);
+      mcrCtx.fillStyle = '#f59e0b';
+      mcrCtx.font = 'bold 10px monospace';
+      mcrCtx.fillText('ATEM 4K CONSTELLATION', gapX + 6, r2Y + 16);
+      mcrCtx.fillStyle = '#22c55e';
+      mcrCtx.font = 'bold 13px monospace';
+      const tcSeconds = Math.floor(time * 2) % 60;
+      const tcFrames = Math.floor(time * 50) % 30;
+      mcrCtx.fillText(`01:42:${tcSeconds < 10 ? '0' : ''}${tcSeconds}:${tcFrames < 10 ? '0' : ''}${tcFrames}`, gapX + 6, r2Y + 42);
+      mcrCtx.fillStyle = '#94a3b8';
+      mcrCtx.font = '9px sans-serif';
+      mcrCtx.fillText('PGM: CAM 01 | PVW: CAM 02', gapX + 6, r2Y + 68);
+      mcrCtx.fillText('FPS: 59.94 | BITRATE: 18 Mbps', gapX + 6, r2Y + 84);
+
+      // Tile 5 (Audio Mixer 8-Channel Peak VU Meters)
+      mcrCtx.fillStyle = '#0b1120';
+      mcrCtx.fillRect(gapX + tileW + gapX, r2Y, tileW, tileH);
+      mcrCtx.fillStyle = '#38bdf8';
+      mcrCtx.font = 'bold 9px monospace';
+      mcrCtx.fillText('AUDIO MASTER VU (8-CH)', gapX + tileW + gapX + 6, r2Y + 16);
+      for (let ch = 0; ch < 8; ch++) {
+        const barX = gapX + tileW + gapX + 8 + ch * 18;
+        const vuVal = Math.sin(time * 8 + ch * 1.3) * 0.4 + 0.55;
+        const barH = vuVal * 72;
+        mcrCtx.fillStyle = '#22c55e';
+        mcrCtx.fillRect(barX, r2Y + 104 - barH, 12, barH);
+        if (vuVal > 0.65) {
+          mcrCtx.fillStyle = '#facc15';
+          mcrCtx.fillRect(barX, r2Y + 104 - barH, 12, 14);
+        }
+        if (vuVal > 0.82) {
+          mcrCtx.fillStyle = '#ef4444';
+          mcrCtx.fillRect(barX, r2Y + 104 - barH, 12, 6);
+        }
+      }
+
+      // Tile 6 (Network Stream Telemetry)
+      mcrCtx.fillStyle = '#0b1120';
+      mcrCtx.fillRect(gapX + (tileW + gapX) * 2, r2Y, tileW, tileH);
+      mcrCtx.fillStyle = '#38bdf8';
+      mcrCtx.font = 'bold 9px monospace';
+      mcrCtx.fillText('SRT / RTMP STREAM ENGINE', gapX + (tileW + gapX) * 2 + 6, r2Y + 16);
+      mcrCtx.fillStyle = '#22c55e';
+      mcrCtx.fillText('STATUS: EXCELLENT (0 DROPS)', gapX + (tileW + gapX) * 2 + 6, r2Y + 38);
+      mcrCtx.fillStyle = '#94a3b8';
+      mcrCtx.fillText('YOUTUBE: LIVE 2.4K WATCHERS', gapX + (tileW + gapX) * 2 + 6, r2Y + 58);
+      mcrCtx.fillText('ZOOM ISO: CONNECTED 1080p', gapX + (tileW + gapX) * 2 + 6, r2Y + 76);
+
+      mcrTexture.needsUpdate = true;
+    }
+
+    // --- B. Render Grafana Big Data Dashboard ---
+    if (grafanaCtx && grafanaTexture) {
+      grafanaCtx.fillStyle = '#0b0f19';
+      grafanaCtx.fillRect(0, 0, 512, 256);
+
+      // Header bar
+      grafanaCtx.fillStyle = '#1e293b';
+      grafanaCtx.fillRect(0, 0, 512, 28);
+      grafanaCtx.fillStyle = '#ff6b2b';
+      grafanaCtx.fillRect(10, 8, 12, 12);
+      grafanaCtx.fillStyle = '#f8fafc';
+      grafanaCtx.font = 'bold 11px sans-serif';
+      grafanaCtx.fillText('GRAFANA • AZURE DATABRICKS & SEM-PLS BIG DATA PIPELINE', 30, 18);
+
+      // Metrics Row
+      const metrics = [
+        { label: 'CLUSTER NODES', val: '16 ACTIVE', color: '#22c55e' },
+        { label: 'THROUGHPUT', val: '4.8 GB/s', color: '#38bdf8' },
+        { label: 'SEM-PLS R²', val: '0.942', color: '#f59e0b' },
+        { label: 'MODEL LATENCY', val: '14.2 ms', color: '#a855f7' }
+      ];
+      metrics.forEach((m, i) => {
+        const mx = 12 + i * 124;
+        grafanaCtx.fillStyle = '#111827';
+        grafanaCtx.fillRect(mx, 36, 116, 44);
+        grafanaCtx.fillStyle = '#94a3b8';
+        grafanaCtx.font = 'bold 8px sans-serif';
+        grafanaCtx.fillText(m.label, mx + 8, 49);
+        grafanaCtx.fillStyle = m.color;
+        grafanaCtx.font = 'bold 15px monospace';
+        grafanaCtx.fillText(m.val, mx + 8, 70);
+      });
+
+      // Chart Area
+      grafanaCtx.fillStyle = '#111827';
+      grafanaCtx.fillRect(12, 88, 488, 156);
+      grafanaCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+      grafanaCtx.lineWidth = 1;
+      for (let y = 110; y < 240; y += 30) {
+        grafanaCtx.beginPath();
+        grafanaCtx.moveTo(12, y);
+        grafanaCtx.lineTo(500, y);
+        grafanaCtx.stroke();
+      }
+
+      // Draw scrolling curves
+      const drawCurve = (color, freq, amp, yBase) => {
+        grafanaCtx.strokeStyle = color;
+        grafanaCtx.lineWidth = 2;
+        grafanaCtx.beginPath();
+        for (let x = 12; x < 500; x += 10) {
+          const cy = yBase + Math.sin((x * 0.03) + time * freq) * amp + Math.cos((x * 0.05) - time) * (amp * 0.4);
+          if (x === 12) grafanaCtx.moveTo(x, cy);
+          else grafanaCtx.lineTo(x, cy);
+        }
+        grafanaCtx.stroke();
+      };
+
+      drawCurve('#38bdf8', 3, 22, 155);
+      drawCurve('#ff6b2b', 2.2, 18, 175);
+      drawCurve('#22c55e', 4, 14, 195);
+
+      grafanaTexture.needsUpdate = true;
+    }
+
+    // --- C. Render Foyer Totem Directory ---
+    if (totemCtx && totemTexture) {
+      totemCtx.fillStyle = '#090d16';
+      totemCtx.fillRect(0, 0, 256, 512);
+
+      totemCtx.fillStyle = '#ff6b2b';
+      totemCtx.fillRect(0, 0, 256, 48);
+      totemCtx.fillStyle = '#ffffff';
+      totemCtx.font = 'bold 12px sans-serif';
+      totemCtx.fillText('ITPLN DIGITAL HQ', 20, 24);
+      totemCtx.font = '9px sans-serif';
+      totemCtx.fillText('MANGARA PAKPAHAN EXHIBITION', 20, 38);
+
+      const rooms = [
+        '01 FOYER & KUALIFIKASI',
+        '02 MCR LIVE BROADCAST',
+        '03 REDAKSI & HUMAS',
+        '04 DATA LAB & AI CLOUD',
+        '05 IOT WORKSHOP SAFESENSE',
+        '06 PRESS HALL & PUBLIKASI',
+        '07 RECRUITER FAST-TRACK'
+      ];
+      rooms.forEach((rm, i) => {
+        const ry = 62 + i * 58;
+        const isCurrent = i === currentStepIndex;
+        totemCtx.fillStyle = isCurrent ? 'rgba(255, 107, 43, 0.22)' : '#111827';
+        totemCtx.fillRect(12, ry, 232, 50);
+        totemCtx.strokeStyle = isCurrent ? '#ff6b2b' : 'rgba(255,255,255,0.08)';
+        totemCtx.lineWidth = 1;
+        totemCtx.strokeRect(12, ry, 232, 50);
+
+        totemCtx.fillStyle = isCurrent ? '#22c55e' : '#64748b';
+        totemCtx.beginPath();
+        totemCtx.arc(26, ry + 25, 4.5, 0, Math.PI * 2);
+        totemCtx.fill();
+
+        totemCtx.fillStyle = isCurrent ? '#ffffff' : '#94a3b8';
+        totemCtx.font = isCurrent ? 'bold 10px sans-serif' : '9px sans-serif';
+        totemCtx.fillText(rm, 38, ry + 29);
+      });
+
+      totemTexture.needsUpdate = true;
+    }
+  }
+
   function buildMiniatureDioramaScene() {
     patrollingStaff = [];
     activeWorkers = [];
     serverLEDs = [];
 
+    // Initialize Canvas Textures
+    initDynamicCanvasTextures();
+
     // 1. Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.25);
+    const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.22);
     scene.add(ambientLight);
+
+    // Architectural Key Downlights on Major Zones
+    const spotAtrium = new THREE.SpotLight(0xffcaa0, 1.5, 22, Math.PI / 4, 0.5, 1);
+    spotAtrium.position.set(0, 9, 0);
+    spotAtrium.target.position.set(0, 0, 0);
+    scene.add(spotAtrium);
+    scene.add(spotAtrium.target);
+
+    const spotMCR = new THREE.SpotLight(0xc7d2fe, 1.6, 20, Math.PI / 4, 0.4, 1);
+    spotMCR.position.set(-25, 7, 0);
+    spotMCR.target.position.set(-32.5, 1.8, 0);
+    scene.add(spotMCR);
+    scene.add(spotMCR.target);
+
+    const spotData = new THREE.SpotLight(0x7dd3fc, 1.6, 20, Math.PI / 4, 0.4, 1);
+    spotData.position.set(20, 7, -16);
+    spotData.target.position.set(28, 1.5, -16);
+    scene.add(spotData);
+    scene.add(spotData.target);
+
+    const spotIoT = new THREE.SpotLight(0x86efac, 1.5, 20, Math.PI / 4, 0.4, 1);
+    spotIoT.position.set(20, 7, 0);
+    spotIoT.target.position.set(28, 0.8, 0);
+    scene.add(spotIoT);
+    scene.add(spotIoT.target);
+
+    // Floating Sunbeam Dust Particles in Sunken Courtyard Atrium
+    const particleCount = 40;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pPos[i * 3 + 0] = (Math.random() - 0.5) * 14;
+      pPos[i * 3 + 1] = 0.5 + Math.random() * 4.5;
+      pPos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({
+      color: 0xfef08a,
+      size: 0.16,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending
+    });
+    dustParticles = new THREE.Points(pGeo, pMat);
+    scene.add(dustParticles);
 
     const sunLight = new THREE.DirectionalLight(0xffffff, 1.05);
     sunLight.position.set(24, 45, 30);
@@ -1195,7 +1625,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.add(totemPillar);
     const totemScr = new THREE.Mesh(
       new THREE.PlaneGeometry(0.65, 1.3),
-      new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+      new THREE.MeshBasicMaterial({ map: totemTexture || undefined, color: totemTexture ? 0xffffff : 0x0284c7 })
     );
     totemScr.position.set(-27, 1.15, 22.93);
     scene.add(totemScr);
@@ -1220,20 +1650,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const rx = -27;
     const rz = 0;
 
-    // 6-Screen Multiview Video Wall mounted against West Wall at X = -32.5
-    const wallScrMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
-    for (let row = 0; row < 2; row++) {
-      for (let col = 0; col < 3; col++) {
-        const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.75), wallScrMat);
-        scr.position.set(-32.6, 2.3 - row * 0.9, rz - 1.5 + col * 1.5);
-        scr.rotation.y = Math.PI / 2;
-        scene.add(scr);
+    // High-Resolution 6-Monitor Broadcast Multiview Video Wall at X = -32.55
+    const videoWallFrame = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.95, 3.85), frameMat);
+    videoWallFrame.position.set(-32.62, 1.85, rz);
+    scene.add(videoWallFrame);
 
-        const border = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.8, 1.25), frameMat);
-        border.position.set(-32.64, 2.3 - row * 0.9, rz - 1.5 + col * 1.5);
-        scene.add(border);
-      }
-    }
+    const videoWallDisplay = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.7, 1.8),
+      new THREE.MeshBasicMaterial({ map: mcrTexture || undefined, color: mcrTexture ? 0xffffff : 0x0284c7 })
+    );
+    videoWallDisplay.position.set(-32.56, 1.85, rz);
+    videoWallDisplay.rotation.y = Math.PI / 2;
+    scene.add(videoWallDisplay);
 
     // MCR Switcher Desk placed at X = -29.5, Z = 0
     const mcrDesk = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, 5.2), frameMat);
@@ -1542,7 +1970,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     const grafanaScr = new THREE.Mesh(
       new THREE.PlaneGeometry(2.7, 1.3),
-      new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+      new THREE.MeshBasicMaterial({ map: grafanaTexture || undefined, color: grafanaTexture ? 0xffffff : 0x0284c7 })
     );
     grafanaScr.position.set(32.55, 1.6, -16);
     grafanaScr.rotation.y = -Math.PI / 2;
@@ -1589,6 +2017,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const printerFrame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 0.9), frameMat);
     printerFrame.position.set(29.5, 1.42, rz - 3.5);
     scene.add(printerFrame);
+
+    const printerBed = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.04, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, emissive: 0x0284c7, emissiveIntensity: 0.3 })
+    );
+    printerBed.position.set(29.5, 1.05, rz - 3.5);
+    scene.add(printerBed);
+
+    const extruder = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.12, 0.12),
+      new THREE.MeshStandardMaterial({ color: 0xff6b2b, roughness: 0.4, emissive: 0xff6b2b, emissiveIntensity: 0.6 })
+    );
+    extruder.position.set(29.5, 1.35, rz - 3.5);
+    scene.add(extruder);
+    printerExtruder = extruder;
 
     // IoT LPG-SafeSense Hardware Prototype (Juara 1 MKI)
     const protoGrp = new THREE.Group();
@@ -1644,6 +2087,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   function buildRoom6PressHallDetailed(trimMat, woodMat) {
     const rx = 22;
     const rz = 20;
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
 
     // Boardroom Conference Table at X = 23, Z = 20 (East side, clear of path at X=12)
     const confTable = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.85, 5.2), woodMat);
@@ -2116,6 +2560,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
 
             <div class="nadi-nav-actions">
+              <button class="nadi-btn-audio" id="nadi-btn-audio-toggle" title="Suara Ambience Kantor (Web Audio)">
+                <ion-icon name="volume-mute-outline" id="nadi-audio-icon"></ion-icon>
+                <span id="nadi-audio-text">Audio: Off</span>
+              </button>
               <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Data Analyst">
                 <ion-icon name="document-text-outline"></ion-icon>
                 <span>CV Data Analyst</span>
@@ -2130,13 +2578,17 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </header>
 
-          <!-- PURE FREE ORBIT 360 HUD (USER: HAPUS SEMUA POV, HANYA ORBIT BEBAS) -->
+          <!-- PURE FREE ORBIT 360 HUD & RESET CONTROLS -->
           <div class="nadi-orbit-hud-wrap">
             <div class="nadi-orbit-hud-pill" id="nadi-orbit-hud-pill" title="Tahan klik & geser di layar untuk memutar 360°, scroll untuk zoom">
               <ion-icon name="sync-outline" class="nadi-orbit-spin-icon"></ion-icon>
               <span class="nadi-orbit-pill-title">Orbit Bebas 360°</span>
               <span class="nadi-orbit-pill-sub">&bull; Tahan & Geser Layar</span>
             </div>
+            <button class="nadi-hud-action-btn" id="nadi-btn-reset-orbit" title="Kembalikan Sudut Pandang Kamera ke Posisi Ideal">
+              <ion-icon name="scan-outline"></ion-icon>
+              <span>Reset POV</span>
+            </button>
           </div>
 
           <!-- FLOATING NPC INTERACTION BUTTON -->
@@ -2174,6 +2626,81 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               <!-- DYNAMIC MINIMALIST TABLE CONTENT -->
               <div class="nadi-card-dynamic-container" id="nadi-card-dynamic-container">
                 <!-- Injected via renderStoryStep() -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 2D ARCHITECTURAL FLOOR PLAN MINI-MAP HUD -->
+          <div class="nadi-floorplan-widget" id="nadi-floorplan-widget">
+            <div class="nadi-floorplan-header" id="nadi-floorplan-header">
+              <div class="nadi-floorplan-title-box">
+                <span class="nadi-floorplan-pulse"></span>
+                <span class="nadi-floorplan-title">DENAH STUDIO 3D</span>
+              </div>
+              <div style="display: flex; gap: 5px; align-items: center;">
+                <span class="nadi-floorplan-step-indicator" id="nadi-floorplan-step-indicator">Bilik 01</span>
+                <button class="nadi-floorplan-toggle-btn" id="nadi-floorplan-toggle-btn" title="Kecilkan / Buka Denah">
+                  <ion-icon name="chevron-down-outline" id="nadi-floorplan-toggle-icon"></ion-icon>
+                </button>
+              </div>
+            </div>
+            <div class="nadi-floorplan-body" id="nadi-floorplan-body">
+              <svg viewBox="0 0 320 280" class="nadi-floorplan-svg" id="nadi-floorplan-svg">
+                <defs>
+                  <pattern id="fp-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+                  </pattern>
+                </defs>
+                <rect x="8" y="8" width="304" height="264" rx="12" fill="url(#fp-grid)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+
+                <!-- Central Sunken Courtyard Atrium -->
+                <rect x="105" y="85" width="110" height="110" rx="8" class="fp-atrium" />
+                <text x="160" y="136" text-anchor="middle" class="fp-atrium-label">ATRIUM KOPI</text>
+                <text x="160" y="150" text-anchor="middle" class="fp-atrium-sub">Courtyard & Barista</text>
+
+                <!-- 7 Rooms -->
+                <g class="fp-room active" data-room="0" id="fp-room-0">
+                  <rect x="18" y="180" width="82" height="82" rx="6" />
+                  <text x="59" y="215" text-anchor="middle" class="fp-num">01 FOYER</text>
+                  <text x="59" y="230" text-anchor="middle" class="fp-name">Profil & Tamu</text>
+                </g>
+                <g class="fp-room" data-room="1" id="fp-room-1">
+                  <rect x="18" y="90" width="82" height="85" rx="6" />
+                  <text x="59" y="127" text-anchor="middle" class="fp-num">02 MCR</text>
+                  <text x="59" y="142" text-anchor="middle" class="fp-name">Live Broadcast</text>
+                </g>
+                <g class="fp-room" data-room="2" id="fp-room-2">
+                  <rect x="18" y="18" width="88" height="68" rx="6" />
+                  <text x="62" y="50" text-anchor="middle" class="fp-num">03 REDAKSI</text>
+                  <text x="62" y="65" text-anchor="middle" class="fp-name">Humas & Sosmed</text>
+                </g>
+                <g class="fp-room" data-room="3" id="fp-room-3">
+                  <rect x="214" y="18" width="88" height="68" rx="6" />
+                  <text x="258" y="50" text-anchor="middle" class="fp-num">04 DATA LAB</text>
+                  <text x="258" y="65" text-anchor="middle" class="fp-name">AI & Cloud</text>
+                </g>
+                <g class="fp-room" data-room="4" id="fp-room-4">
+                  <rect x="220" y="90" width="82" height="85" rx="6" />
+                  <text x="261" y="127" text-anchor="middle" class="fp-num">05 IOT LAB</text>
+                  <text x="261" y="142" text-anchor="middle" class="fp-name">SafeSense 50</text>
+                </g>
+                <g class="fp-room" data-room="5" id="fp-room-5">
+                  <rect x="220" y="180" width="82" height="82" rx="6" />
+                  <text x="261" y="215" text-anchor="middle" class="fp-num">06 PERS</text>
+                  <text x="261" y="230" text-anchor="middle" class="fp-name">Publikasi Riset</text>
+                </g>
+                <g class="fp-room" data-room="6" id="fp-room-6">
+                  <rect x="108" y="202" width="104" height="60" rx="6" />
+                  <text x="160" y="228" text-anchor="middle" class="fp-num">07 REKRUTER</text>
+                  <text x="160" y="243" text-anchor="middle" class="fp-name">Fast-Track Hub</text>
+                </g>
+
+                <!-- Player 1 Real-time Radar Blip -->
+                <circle id="fp-radar-pulse" cx="59" cy="222" r="12" class="fp-radar-pulse" />
+                <circle id="fp-radar-blip" cx="59" cy="222" r="5" class="fp-radar-blip" />
+              </svg>
+              <div class="nadi-floorplan-hint">
+                <span>Klik bilik di atas untuk langsung beralih</span>
               </div>
             </div>
           </div>
@@ -2426,6 +2953,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       cardStatus.textContent = step.badgeStatus;
       cardStatus.className = `nadi-card-badge-status ${step.badgeStatusColor || 'green'}`;
     }
+
+    // Update Floor Plan Mini-Map active room and indicator
+    document.querySelectorAll('.fp-room').forEach((el, rIdx) => {
+      if (rIdx === index) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+    const fpIndicator = document.getElementById('nadi-floorplan-step-indicator');
+    if (fpIndicator && SCROLL_STEPS[index]) fpIndicator.textContent = `Bilik ${SCROLL_STEPS[index].stepNum}`;
 
     // Update active segmented dock step and auto-center into view on mobile
     document.querySelectorAll('.nadi-step-item').forEach((item, idx) => {
@@ -3202,7 +3737,117 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       introProgress = 0;
     }
 
-    document.getElementById('nadi-intro-btn')?.addEventListener('click', startIntroExperience);
+    // Reset POV Button & Double Click
+    function resetCameraToIdealPOV() {
+      orbitYaw = 0.42;
+      orbitPitch = 0.52;
+      orbitDistance = 13.0;
+      if (window.audioEngine) window.audioEngine.playClick();
+      const btn = document.getElementById('nadi-btn-reset-orbit');
+      if (btn) {
+        btn.style.borderColor = 'var(--nadi-orange)';
+        btn.style.color = 'var(--nadi-orange)';
+        setTimeout(() => {
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 300);
+      }
+    }
+
+    document.getElementById('nadi-btn-reset-orbit')?.addEventListener('click', resetCameraToIdealPOV);
+    canvas.addEventListener('dblclick', resetCameraToIdealPOV);
+
+    // Audio Ambience Toggle
+    const audioBtn = document.getElementById('nadi-btn-audio-toggle');
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => {
+        const isNowActive = window.audioEngine.toggle();
+        const icon = document.getElementById('nadi-audio-icon');
+        const text = document.getElementById('nadi-audio-text');
+        if (isNowActive) {
+          audioBtn.classList.add('active');
+          if (icon) icon.setAttribute('name', 'volume-high-outline');
+          if (text) text.textContent = 'Audio: On';
+        } else {
+          audioBtn.classList.remove('active');
+          if (icon) icon.setAttribute('name', 'volume-mute-outline');
+          if (text) text.textContent = 'Audio: Off';
+        }
+      });
+    }
+
+    // Floor Plan Mini-Map Room Jump Handlers
+    document.querySelectorAll('.fp-room').forEach(rm => {
+      rm.addEventListener('click', () => {
+        const rIdx = parseInt(rm.dataset.room, 10);
+        jumpToStep(rIdx);
+        if (window.audioEngine) window.audioEngine.playClick();
+        document.getElementById('nadi-floorplan-widget')?.classList.remove('mobile-expanded');
+      });
+    });
+
+    const fpToggleBtn = document.getElementById('nadi-floorplan-toggle-btn');
+    const fpHeader = document.getElementById('nadi-floorplan-header');
+    const fpWidget = document.getElementById('nadi-floorplan-widget');
+
+    const toggleFloorPlan = (e) => {
+      e.stopPropagation();
+      if (window.innerWidth <= 768) {
+        fpWidget?.classList.toggle('mobile-expanded');
+      } else {
+        fpWidget?.classList.toggle('collapsed');
+      }
+      if (window.audioEngine) window.audioEngine.playClick();
+    };
+
+    fpToggleBtn?.addEventListener('click', toggleFloorPlan);
+    fpHeader?.addEventListener('click', toggleFloorPlan);
+
+    // Mobile Touch Gestures on Story Sheet (Swipe down to minimize, swipe up to expand, swipe left/right to navigate)
+    const storyLayer = document.getElementById('nadi-story-layer');
+    if (storyLayer) {
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      storyLayer.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      storyLayer.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        if (Math.abs(diffY) > 40 && Math.abs(diffY) > Math.abs(diffX) * 1.3) {
+          if (diffY > 0) {
+            if (!storyLayer.classList.contains('nadi-minimized')) {
+              window.toggleStoryLayerMobile();
+              if (window.audioEngine) window.audioEngine.playClick();
+            }
+          } else {
+            if (storyLayer.classList.contains('nadi-minimized')) {
+              window.toggleStoryLayerMobile();
+              if (window.audioEngine) window.audioEngine.playClick();
+            }
+          }
+        } else if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+          if (diffX < 0) {
+            const nextIdx = Math.min(SCROLL_STEPS.length - 1, currentStepIndex + 1);
+            jumpToStep(nextIdx);
+          } else {
+            const prevIdx = Math.max(0, currentStepIndex - 1);
+            jumpToStep(prevIdx);
+          }
+        }
+      }, { passive: true });
+    }
+
+    document.getElementById('nadi-intro-btn')?.addEventListener('click', () => {
+      startIntroExperience();
+      if (window.audioEngine) window.audioEngine.playStepTransition();
+    });
 
     // Outro Modal Handlers
     function openOutroModal() {
@@ -3513,6 +4158,41 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     serverLEDs.forEach((led, idx) => {
       led.visible = Math.sin(time * 6 + idx) > -0.2;
     });
+
+    // 4B. ANIMATE DYNAMIC CANVAS TEXTURES (MCR, GRAFANA, TOTEM)
+    updateDynamicCanvasTextures(time);
+
+    // 4C. ANIMATE IOT 3D PRINTER HEAD
+    if (printerExtruder) {
+      printerExtruder.position.x = 29.5 + Math.sin(time * 3.5) * 0.12;
+      printerExtruder.position.z = -3.5 + Math.cos(time * 4.2) * 0.10;
+    }
+
+    // 4D. ANIMATE ATRIUM SUNBEAM PARTICLES
+    if (dustParticles) {
+      const pArr = dustParticles.geometry.attributes.position.array;
+      for (let i = 0; i < 40; i++) {
+        pArr[i * 3 + 1] += 0.005;
+        if (pArr[i * 3 + 1] > 5.0) pArr[i * 3 + 1] = 0.5;
+      }
+      dustParticles.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // 4E. SYNC LIVE PLAYER RADAR BLIP ON FLOOR PLAN MINI-MAP
+    if (walkingHero) {
+      const radarBlip = document.getElementById('fp-radar-blip');
+      const radarPulse = document.getElementById('fp-radar-pulse');
+      if (radarBlip && radarPulse) {
+        const hx = walkingHero.position.x;
+        const hz = walkingHero.position.z;
+        const svgX = 160 + (hx / 28.0) * 115.0;
+        const svgY = 140 + (hz / 24.0) * 95.0;
+        radarBlip.setAttribute('cx', svgX.toFixed(1));
+        radarBlip.setAttribute('cy', svgY.toFixed(1));
+        radarPulse.setAttribute('cx', svgX.toFixed(1));
+        radarPulse.setAttribute('cy', svgY.toFixed(1));
+      }
+    }
 
     // 5. CINEMATIC INTRO FLY-IN ANIMATION
     if (isIntroAnimating) {
