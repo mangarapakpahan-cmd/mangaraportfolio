@@ -2110,7 +2110,42 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const cardStatus = document.getElementById('nadi-card-status');
     const container = document.getElementById('nadi-card-dynamic-container');
 
-    if (lbl) lbl.innerHTML = `<span>${step.category.split('•')[0]}</span> &bull; ${step.category.split('•')[1] || ''}`;
+    window.toggleStoryLayerMobile = function() {
+      const layer = document.getElementById('nadi-story-layer');
+      if (!layer) return;
+      const isMin = layer.classList.toggle('nadi-minimized');
+      const toggleBtn = document.getElementById('nadi-mobile-sheet-toggle');
+      if (toggleBtn) {
+        const textSpan = toggleBtn.querySelector('.toggle-text');
+        if (textSpan) textSpan.textContent = isMin ? 'Buka Detail' : '3D Penuh';
+        const icon = toggleBtn.querySelector('ion-icon');
+        if (icon) icon.setAttribute('name', isMin ? 'chevron-up-outline' : 'eye-outline');
+      }
+    };
+
+    if (lbl) {
+      const cat = step.category || '';
+      const sep = cat.includes('•') ? '•' : (cat.includes('&bull;') ? '&bull;' : ' ');
+      const parts = cat.split(sep);
+      const stepPrefix = (parts[0] || 'LANGKAH').trim();
+      const stepName = (parts.slice(1).join(' ') || '').trim();
+      const isMin = document.getElementById('nadi-story-layer')?.classList.contains('nadi-minimized');
+      lbl.innerHTML = `
+        <div class="nadi-step-label-text">
+          <span>${stepPrefix}</span> &bull; ${stepName}
+        </div>
+        <button class="nadi-mobile-sheet-toggle" id="nadi-mobile-sheet-toggle" type="button" aria-label="Toggle Mode 3D">
+          <span class="toggle-text">${isMin ? 'Buka Detail' : '3D Penuh'}</span>
+          <ion-icon name="${isMin ? 'chevron-up-outline' : 'eye-outline'}"></ion-icon>
+        </button>
+      `;
+
+      document.getElementById('nadi-mobile-sheet-toggle')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.toggleStoryLayerMobile();
+      });
+    }
+
     if (h1) h1.innerHTML = step.title;
     if (desc) desc.textContent = step.desc;
 
@@ -2119,10 +2154,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       cardStatus.className = `nadi-card-badge-status ${step.badgeStatusColor || 'green'}`;
     }
 
-    // Update active segmented dock step
+    // Update active segmented dock step and auto-center into view on mobile
     document.querySelectorAll('.nadi-step-item').forEach((item, idx) => {
-      if (idx === index) item.classList.add('active');
-      else item.classList.remove('active');
+      if (idx === index) {
+        item.classList.add('active');
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      } else {
+        item.classList.remove('active');
+      }
     });
 
     if (!container) return;
@@ -2804,7 +2843,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.fog = new THREE.FogExp2(0xfcfbf7, 0.012);
 
     // Camera
-    camera = new THREE.PerspectiveCamera(52, width / height, 0.1, 150);
+    camera = new THREE.PerspectiveCamera(width <= 768 ? 62 : 52, width / height, 0.1, 150);
     camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
     camera.lookAt(currentLookAt);
 
@@ -2956,13 +2995,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       orbitDistance = Math.max(5.5, Math.min(24.0, orbitDistance + e.deltaY * 0.012));
     }, { passive: true });
 
-    // Touch 360° Orbit Drag Controls
+    // Touch 360° Orbit Drag & Two-Finger Pinch-Zoom Controls
     let touchStartX = 0;
     let touchStartY = 0;
+    let initialPinchDistance = 0;
+    let initialOrbitDistance = orbitDistance;
+
     canvas.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialPinchDistance = Math.hypot(dx, dy);
+        initialOrbitDistance = orbitDistance;
       }
     }, { passive: true });
 
@@ -2975,6 +3022,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
         orbitYaw -= dx * 0.008;
         orbitPitch = Math.max(0.12, Math.min(1.42, orbitPitch + dy * 0.008));
+      } else if (e.touches.length === 2 && initialPinchDistance > 0) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+        if (currentDist > 5) {
+          const factor = initialPinchDistance / currentDist;
+          orbitDistance = Math.max(5.5, Math.min(26.0, initialOrbitDistance * factor));
+        }
       }
     }, { passive: true });
 
@@ -3035,6 +3090,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const width = stickyViewport.clientWidth;
     const height = stickyViewport.clientHeight;
     camera.aspect = width / height;
+    camera.fov = width <= 768 ? 62 : 52;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
   }
@@ -3065,12 +3121,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       heroPos.z = walkingHero.position.z;
     }
 
-    // PURE FREE ORBIT 360° (USER REQUEST: HAPUS SEMUA POV, HANYA ORBIT BEBAS)
-    pos.x = heroPos.x + Math.sin(orbitYaw) * orbitDistance * Math.cos(orbitPitch);
-    pos.y = Math.sin(orbitPitch) * orbitDistance + 1.2;
-    pos.z = heroPos.z + Math.cos(orbitYaw) * orbitDistance * Math.cos(orbitPitch);
+    // PURE FREE ORBIT 360° WITH ERGONOMIC MOBILE FRAMING
+    const isMobile = window.innerWidth <= 768;
+    const effectiveDist = isMobile ? Math.min(18.0, orbitDistance * 1.15) : orbitDistance;
+    pos.x = heroPos.x + Math.sin(orbitYaw) * effectiveDist * Math.cos(orbitPitch);
+    pos.y = Math.sin(orbitPitch) * effectiveDist + (isMobile ? 1.6 : 1.2);
+    pos.z = heroPos.z + Math.cos(orbitYaw) * effectiveDist * Math.cos(orbitPitch);
     look.x = heroPos.x;
-    look.y = 1.2;
+    look.y = isMobile ? 0.35 : 1.2; // Slightly lower look target elevates diorama into visible upper screen!
     look.z = heroPos.z;
 
     // If Outro is active, pull back camera into celebratory sky overview of entire courtyard
