@@ -21,6 +21,12 @@
   --nadi-font-title: 'Space Grotesk', var(--nadi-font);
 }
 
+/* ─── ENSURE POSITION: STICKY DOES NOT BREAK ─────────────────── */
+html, body {
+  overflow-x: clip !important;
+  scroll-behavior: smooth;
+}
+
 /* ─── PARENT CONTAINER & WRAPPER ─────────────────────────────── */
 #contemporary-gallery-experience {
   width: 100% !important;
@@ -62,6 +68,7 @@
   height: 100%;
   z-index: 1;
   display: block;
+  pointer-events: none; /* Allows all scroll, drag, and touch gestures to pass through cleanly */
 }
 
 /* ─── 1. TOP NAVBAR (CLEAN LIKE NADI.) ───────────────────────── */
@@ -400,7 +407,7 @@
   color: #ffffff;
 }
 
-/* ─── 3. BOTTOM SCROLLYTELLING PROGRESS BAR (EXACT NADI. STYLE) ─ */
+/* ─── 3. BOTTOM SCROLLYTELLING PROGRESS BAR & ARROW CONTROLS ─── */
 .nadi-bottom-timeline {
   position: relative;
   z-index: 20;
@@ -417,12 +424,53 @@
   }
 }
 
-.nadi-steps-bar {
+.nadi-timeline-left-wrap {
   pointer-events: auto;
   display: flex;
   align-items: center;
+  gap: 20px;
+}
+
+/* PREV / NEXT ROOM ARROWS */
+.nadi-nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nadi-arrow-btn {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  font-size: 18px;
+}
+
+.nadi-arrow-btn:hover {
+  background: var(--nadi-orange);
+  color: #ffffff;
+  border-color: var(--nadi-orange);
+  transform: scale(1.06);
+  box-shadow: 0 6px 18px rgba(255, 107, 43, 0.3);
+}
+
+.nadi-arrow-btn:active {
+  transform: scale(0.95);
+}
+
+.nadi-steps-bar {
+  display: flex;
+  align-items: center;
   gap: 24px;
-  max-width: calc(100% - 140px);
   overflow-x: auto;
   padding-bottom: 4px;
 }
@@ -494,24 +542,25 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: 100px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .nadi-skip-btn:hover {
   background: #ffffff;
   color: var(--nadi-orange);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 /* ─── SCROLL HINT (MOUSE WHEEL INDICATOR) ─────────────────────── */
 .nadi-scroll-cue {
   position: absolute;
-  bottom: 84px;
+  bottom: 88px;
   left: 48px;
   z-index: 10;
   display: flex;

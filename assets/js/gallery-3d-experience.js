@@ -6,7 +6,7 @@
  * - Cutaway diorama architecture with signature orange guide path & wall trims
  * - 6 Curated Stations: Profil -> Live Broadcast -> Sosmed & Humas -> Data & AI -> IoT Inovasi -> Rekrutmen
  * - Synchronized Floating Data Cards with real portfolio metrics
- * - Bottom step timeline with jump-to-step navigation & Skip button
+ * - Prev / Next Arrow Controls, Keyboard Navigation, Clickable Step Pills, & Mouse Drag
  * - Preserves all existing portfolio data, Firebase, and full document view
  */
 
@@ -21,13 +21,15 @@ import { DEFAULT_DATA } from './default-data.js';
   let animFrameId = null;
   let textureLoader = null;
 
-  // Camera flight interpolation targets
+  // Camera flight interpolation vectors (initialized safely in initThreeDiorama)
+  let currentCamPos = null;
+  let currentLookAt = null;
+  let tempTargetPos = null;
+  let tempTargetLook = null;
+
   let targetProgress = 0;
   let currentProgress = 0;
   let currentStepIndex = 0;
-
-  const currentCamPos = new THREE.Vector3(-20, 8.5, 12.5);
-  const currentLookAt = new THREE.Vector3(-20, 1.2, 0);
 
   // ─── 2. SCROLLYTELLING STEP DEFINITIONS ─────────────────────────
   const SCROLL_STEPS = [
@@ -185,7 +187,6 @@ import { DEFAULT_DATA } from './default-data.js';
     sunLight.shadow.bias = -0.0004;
     scene.add(sunLight);
 
-    // Fill soft light from front
     const fillLight = new THREE.DirectionalLight(0xffedd5, 0.4);
     fillLight.position.set(-15, 20, 25);
     scene.add(fillLight);
@@ -252,10 +253,10 @@ import { DEFAULT_DATA } from './default-data.js';
     frontRail.position.set(0, 0.2, 9.8);
     scene.add(frontRail);
 
-    // D. SIGNATURE CONTINUOUS ORANGE GUIDE LINE (Persis seperti gambar Nadi!)
+    // D. SIGNATURE CONTINUOUS ORANGE GUIDE LINE (Nadi. Signature)
     createOrangeGuideTrack();
 
-    // E. ROOM PARTITION WALLS & ROOM-BY-ROOM MINIATURES
+    // E. ROOM PARTITION WALLS & MINIATURE FURNITURE
     buildRoomPartitions(wallBodyMat, orangeTrimMat);
     buildRoom1Foyer(wallBodyMat, orangeTrimMat, chairOrangeMat);
     buildRoom2MCR(screenGlowMat, orangeTrimMat, darkWoodMat);
@@ -273,7 +274,6 @@ import { DEFAULT_DATA } from './default-data.js';
       metalness: 0.1
     });
 
-    // Curved sequence of track segments
     const points = [
       new THREE.Vector3(-24, 0.015, 3),
       new THREE.Vector3(-20, 0.015, 1),
@@ -290,8 +290,17 @@ import { DEFAULT_DATA } from './default-data.js';
       new THREE.Vector3(24, 0.015, 2)
     ];
 
-    const curve = new THREE.CatmullRomCurve3D(points);
-    const curvePoints = curve.getPoints(120);
+    const CurveClass = THREE.CatmullRomCurve3;
+    let curvePoints = points;
+
+    if (CurveClass) {
+      try {
+        const curve = new CurveClass(points);
+        curvePoints = curve.getPoints(120);
+      } catch (err) {
+        curvePoints = points;
+      }
+    }
 
     for (let i = 0; i < curvePoints.length - 1; i++) {
       const p1 = curvePoints[i];
@@ -378,7 +387,6 @@ import { DEFAULT_DATA } from './default-data.js';
 
   // Room 1: Foyer & Identity Hub
   function buildRoom1Foyer(wallMat, trimMat, chairMat) {
-    // Reception Counter Desk (warm white with orange counter top)
     const deskGeo = new THREE.BoxGeometry(3.6, 1.05, 1.2);
     const desk = new THREE.Mesh(deskGeo, wallMat);
     desk.position.set(-20, 0.52, -4);
@@ -396,10 +404,8 @@ import { DEFAULT_DATA } from './default-data.js';
     lap.position.set(-20, 1.15, -4);
     scene.add(lap);
 
-    // Receptionist Character
     createMiniCharacter(-20, -5.2, 0xff7a38, 0x1e293b, 0);
 
-    // Waiting Bench (Orange Chairs like Nadi)
     for (let i = 0; i < 3; i++) {
       const chairGeo = new THREE.BoxGeometry(0.65, 0.12, 0.6);
       const chair = new THREE.Mesh(chairGeo, chairMat);
@@ -412,19 +418,16 @@ import { DEFAULT_DATA } from './default-data.js';
       scene.add(leg);
     }
 
-    // Walking visitor along guide line
     createMiniCharacter(-18.5, 1.8, 0x10b981, 0x334155, Math.PI / 4);
   }
 
   // Room 2: Master Control Room (MCR) & Live Production Studio
   function buildRoom2MCR(screenMat, trimMat, darkMat) {
-    // Broadcast Switcher Console Desk
     const deskGeo = new THREE.BoxGeometry(4.2, 1.05, 1.4);
     const desk = new THREE.Mesh(deskGeo, darkMat);
     desk.position.set(-12, 0.52, -4.5);
     scene.add(desk);
 
-    // Multiview Video Wall (Mounted on back wall)
     const gridCols = 3;
     const gridRows = 2;
     for (let r = 0; r < gridRows; r++) {
@@ -436,7 +439,6 @@ import { DEFAULT_DATA } from './default-data.js';
       }
     }
 
-    // Studio Camera on Tripod with Red Tally Light
     const tripGeo = new THREE.CylinderGeometry(0.04, 0.25, 1.4, 4);
     const trip = new THREE.Mesh(tripGeo, new THREE.MeshStandardMaterial({ color: 0x0f172a }));
     trip.position.set(-12, 0.7, 2.5);
@@ -453,19 +455,16 @@ import { DEFAULT_DATA } from './default-data.js';
     tallyLight.position.set(-12, 1.75, 2.85);
     scene.add(tallyLight);
 
-    // Director Avatar behind desk
     createMiniCharacter(-12, -5.5, 0x0284c7, 0x1e293b, 0);
   }
 
   // Room 3: Digital Newsroom & Social Media Strategy Hub
   function buildRoom3Newsroom(trimMat, darkMat, chairMat) {
-    // Curved Newsroom Team Workstation
     const deskGeo = new THREE.BoxGeometry(4.5, 0.95, 1.5);
     const desk = new THREE.Mesh(deskGeo, new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }));
     desk.position.set(-4, 0.48, -4.2);
     scene.add(desk);
 
-    // Dual iMac Displays
     for (let i = 0; i < 2; i++) {
       const scr = new THREE.Mesh(
         new THREE.BoxGeometry(1.1, 0.7, 0.08),
@@ -475,10 +474,8 @@ import { DEFAULT_DATA } from './default-data.js';
       scene.add(scr);
     }
 
-    // Social Media Specialist Avatar
     createMiniCharacter(-4, -5.2, 0xa855f7, 0x1e293b, 0);
 
-    // Whiteboard stand on side with diagram lines
     const board = new THREE.Mesh(
       new THREE.BoxGeometry(2.2, 1.5, 0.08),
       new THREE.MeshStandardMaterial({ color: 0xffffff })
@@ -490,14 +487,12 @@ import { DEFAULT_DATA } from './default-data.js';
 
   // Room 4: Data Science & AI Engineering Lab
   function buildRoom4DataLab(trimMat, darkMat) {
-    // Server Rack Cabinet with pulsing LED status lights
     const rackGeo = new THREE.BoxGeometry(1.4, 2.4, 1.0);
     const rackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.6, roughness: 0.3 });
     const rack = new THREE.Mesh(rackGeo, rackMat);
     rack.position.set(6.5, 1.2, -8.5);
     scene.add(rack);
 
-    // Server LED light dots
     for (let i = 0; i < 5; i++) {
       const led = new THREE.Mesh(
         new THREE.SphereGeometry(0.04),
@@ -507,7 +502,6 @@ import { DEFAULT_DATA } from './default-data.js';
       scene.add(led);
     }
 
-    // Data Analyst Workstation
     const desk = new THREE.Mesh(
       new THREE.BoxGeometry(3.8, 0.95, 1.3),
       new THREE.MeshStandardMaterial({ color: 0x1e293b })
@@ -515,13 +509,11 @@ import { DEFAULT_DATA } from './default-data.js';
     desk.position.set(4, 0.48, -4);
     scene.add(desk);
 
-    // Data Scientist Avatar
     createMiniCharacter(4, -5.1, 0x3b82f6, 0x0f172a, 0);
   }
 
   // Room 5: IoT & Hardware Innovation Workshop
   function buildRoom5IoTWorkshop(trimMat, darkMat) {
-    // Electronics Workbench
     const bench = new THREE.Mesh(
       new THREE.BoxGeometry(4.0, 1.0, 1.4),
       new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.7 })
@@ -529,7 +521,6 @@ import { DEFAULT_DATA } from './default-data.js';
     bench.position.set(12, 0.5, -4.5);
     scene.add(bench);
 
-    // Miniature IoT LPG-SafeSense Device Prototype
     const gasTank = new THREE.Mesh(
       new THREE.CylinderGeometry(0.3, 0.3, 0.7, 16),
       new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.4 })
@@ -537,7 +528,6 @@ import { DEFAULT_DATA } from './default-data.js';
     gasTank.position.set(11.2, 1.35, -4.5);
     scene.add(gasTank);
 
-    // Miniature 3D Golden Innovation Trophy (Juara 1 MKI)
     const trophy = new THREE.Mesh(
       new THREE.OctahedronGeometry(0.22),
       new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 })
@@ -545,20 +535,17 @@ import { DEFAULT_DATA } from './default-data.js';
     trophy.position.set(13.2, 1.4, -4.5);
     scene.add(trophy);
 
-    // Hardware Engineer Avatar
     createMiniCharacter(12, -5.5, 0xf97316, 0x1e293b, 0);
   }
 
   // Room 6: Partnership Lounge & Fast-Track Recruiter Desk
   function buildRoom6Lounge(trimMat, darkMat, chairMat) {
-    // Executive Sofa
     const sofaGeo = new THREE.BoxGeometry(3.6, 0.8, 1.4);
     const sofaMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 });
     const sofa = new THREE.Mesh(sofaGeo, sofaMat);
     sofa.position.set(20, 0.4, -4.5);
     scene.add(sofa);
 
-    // Coffee Table with Warm Wood
     const table = new THREE.Mesh(
       new THREE.BoxGeometry(2.0, 0.45, 1.0),
       new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6 })
@@ -566,7 +553,6 @@ import { DEFAULT_DATA } from './default-data.js';
     table.position.set(20, 0.25, -2);
     scene.add(table);
 
-    // Indoor Plant (Potted Fiddle Leaf Fig)
     const pot = new THREE.Mesh(
       new THREE.CylinderGeometry(0.35, 0.25, 0.7, 12),
       new THREE.MeshStandardMaterial({ color: 0xffffff })
@@ -581,7 +567,6 @@ import { DEFAULT_DATA } from './default-data.js';
     foliage.position.set(23, 1.2, -8.5);
     scene.add(foliage);
 
-    // Recruiter & Candidate Meeting Avatars
     createMiniCharacter(19, -0.8, 0x059669, 0x1e293b, -Math.PI / 4);
     createMiniCharacter(21, -0.8, 0xff6b2b, 0x1e293b, Math.PI / 4);
   }
@@ -617,12 +602,16 @@ import { DEFAULT_DATA } from './default-data.js';
             </nav>
 
             <div class="nadi-nav-actions">
-              <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Resmi">
+              <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Data Analyst (PDF)">
                 <ion-icon name="document-text-outline"></ion-icon>
-                <span>Unduh CV ATS</span>
+                <span>CV Data Analyst</span>
+              </a>
+              <a href="./CV_Mangara_Pakpahan_Sosmed_Humas.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Sosmed & Humas (PDF)">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>CV Sosmed & Humas</span>
               </a>
               <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20melihat%20portofolio%203D%20Anda." target="_blank" rel="noopener" class="nadi-btn-primary" title="Hubungi via WhatsApp">
-                <span>Hubungi Langsung &rarr;</span>
+                <span>WhatsApp &rarr;</span>
               </a>
             </div>
           </header>
@@ -668,24 +657,37 @@ import { DEFAULT_DATA } from './default-data.js';
             <div class="nadi-scroll-pill-icon">
               <div class="nadi-scroll-pill-dot"></div>
             </div>
-            <span>GULIR KE BAWAH UNTUK TERBANG &bull; SCROLL TO EXPLORE</span>
+            <span>GULIR KE BAWAH / TEKAN TOMBOL PANAH UNTUK TERBANG &bull; SCROLL TO EXPLORE</span>
           </div>
 
-          <!-- 3. BOTTOM SCROLLYTELLING PROGRESS BAR -->
+          <!-- 3. BOTTOM SCROLLYTELLING PROGRESS BAR WITH ARROW CONTROLS -->
           <footer class="nadi-bottom-timeline">
-            <div class="nadi-steps-bar" id="nadi-steps-bar">
-              ${SCROLL_STEPS.map((s, idx) => `
-                <div class="nadi-step-item ${idx === 0 ? 'active' : ''}" data-index="${idx}">
-                  <span class="nadi-step-num">${s.stepNum}</span>
-                  <span class="nadi-step-name">${s.stepName}</span>
-                  <div class="nadi-step-track">
-                    <div class="nadi-step-fill" id="nadi-fill-${idx}"></div>
+            <div class="nadi-timeline-left-wrap">
+              <!-- PREV & NEXT ARROWS -->
+              <div class="nadi-nav-arrows">
+                <button class="nadi-arrow-btn" id="nadi-btn-prev" title="Kamar Sebelumnya (&larr;)">
+                  <ion-icon name="arrow-back-outline"></ion-icon>
+                </button>
+                <button class="nadi-arrow-btn" id="nadi-btn-next" title="Kamar Selanjutnya (&rarr;)">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </button>
+              </div>
+
+              <!-- PROGRESS STEPS BAR -->
+              <div class="nadi-steps-bar" id="nadi-steps-bar">
+                ${SCROLL_STEPS.map((s, idx) => `
+                  <div class="nadi-step-item ${idx === 0 ? 'active' : ''}" data-index="${idx}">
+                    <span class="nadi-step-num">${s.stepNum}</span>
+                    <span class="nadi-step-name">${s.stepName}</span>
+                    <div class="nadi-step-track">
+                      <div class="nadi-step-fill" id="nadi-fill-${idx}"></div>
+                    </div>
                   </div>
-                </div>
-              `).join('')}
+                `).join('')}
+              </div>
             </div>
 
-            <a href="#main-portfolio-content" class="nadi-skip-btn" id="nadi-skip-btn" title="Lewati atau buka katalog dokumen lengkap">
+            <a href="#main-portfolio-content" class="nadi-skip-btn" id="nadi-skip-btn" title="Lewati ke dokumen portofolio lengkap">
               <span>Buka Dokumen Lengkap &darr;</span>
             </a>
           </footer>
@@ -706,11 +708,9 @@ import { DEFAULT_DATA } from './default-data.js';
       main.prepend(wrapper);
     }
 
-    // Initial Story Content Render
     renderStoryStep(0);
   }
 
-  // Render left floating content for specific step index
   function renderStoryStep(index) {
     const step = SCROLL_STEPS[index];
     if (!step) return;
@@ -757,7 +757,7 @@ import { DEFAULT_DATA } from './default-data.js';
     }
   }
 
-  // ─── 5. SCROLL CALCULATION & TIMELINE UPDATES ─────────────────
+  // ─── 5. SCROLL & INTERACTION CONTROLLER ───────────────────────
   function handleScroll() {
     if (!scrollyTrack) return;
 
@@ -765,15 +765,13 @@ import { DEFAULT_DATA } from './default-data.js';
     const trackHeight = scrollyTrack.offsetHeight;
     const windowHeight = window.innerHeight;
 
-    // Calculate normalized scroll position from 0.0 to 1.0
     const scrollDist = -rect.top;
-    const maxScroll = trackHeight - windowHeight;
+    const maxScroll = Math.max(1, trackHeight - windowHeight);
 
     let progress = scrollDist / maxScroll;
     progress = Math.max(0, Math.min(1, progress));
     targetProgress = progress;
 
-    // Determine current step index (0 to 5)
     const stepRange = 1 / (SCROLL_STEPS.length - 1);
     const newStepIndex = Math.min(
       SCROLL_STEPS.length - 1,
@@ -785,7 +783,6 @@ import { DEFAULT_DATA } from './default-data.js';
       renderStoryStep(currentStepIndex);
     }
 
-    // Update bottom step indicators and fill lines
     updateTimelineUI(progress);
   }
 
@@ -817,13 +814,14 @@ import { DEFAULT_DATA } from './default-data.js';
     });
   }
 
-  // Smooth jump to specific step
+  // Smooth jump to specific room step index
   function jumpToStep(idx) {
     if (!scrollyTrack) return;
+    const clampedIdx = Math.max(0, Math.min(SCROLL_STEPS.length - 1, idx));
     const trackTop = scrollyTrack.offsetTop;
     const trackHeight = scrollyTrack.offsetHeight;
     const maxScroll = trackHeight - window.innerHeight;
-    const targetScroll = trackTop + (idx / (SCROLL_STEPS.length - 1)) * maxScroll;
+    const targetScroll = trackTop + (clampedIdx / (SCROLL_STEPS.length - 1)) * maxScroll;
 
     window.scrollTo({
       top: targetScroll,
@@ -837,8 +835,16 @@ import { DEFAULT_DATA } from './default-data.js';
     stickyViewport = document.getElementById('nadi-sticky-viewport');
     scrollyTrack = document.getElementById('nadi-scrolly-track');
 
+    if (!canvas || !stickyViewport || !scrollyTrack) return;
+
     const width = stickyViewport.clientWidth || window.innerWidth;
     const height = stickyViewport.clientHeight || window.innerHeight;
+
+    // Camera initial position vectors
+    currentCamPos = new THREE.Vector3(SCROLL_STEPS[0].cam.x, SCROLL_STEPS[0].cam.y, SCROLL_STEPS[0].cam.z);
+    currentLookAt = new THREE.Vector3(SCROLL_STEPS[0].look.x, SCROLL_STEPS[0].look.y, SCROLL_STEPS[0].look.z);
+    tempTargetPos = new THREE.Vector3();
+    tempTargetLook = new THREE.Vector3();
 
     // Scene
     scene = new THREE.Scene();
@@ -872,11 +878,16 @@ import { DEFAULT_DATA } from './default-data.js';
     // Build the architectural diorama
     buildMiniatureDioramaScene();
 
-    // Event Listeners
+    // Scroll & Resize Handlers
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', onWindowResize);
 
-    // Setup Clickable Navigation Steps
+    // Direct wheel handler on sticky viewport
+    stickyViewport.addEventListener('wheel', (e) => {
+      window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+    }, { passive: true });
+
+    // Clickable Navigation Step Pills
     document.querySelectorAll('.nadi-step-item').forEach(item => {
       item.addEventListener('click', () => {
         const idx = parseInt(item.dataset.index, 10);
@@ -892,11 +903,66 @@ import { DEFAULT_DATA } from './default-data.js';
       });
     });
 
+    // Prev & Next Buttons
+    document.getElementById('nadi-btn-prev')?.addEventListener('click', () => {
+      jumpToStep(currentStepIndex - 1);
+    });
+
+    document.getElementById('nadi-btn-next')?.addEventListener('click', () => {
+      jumpToStep(currentStepIndex + 1);
+    });
+
+    // Keyboard Arrow Navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'ArrowDown' || e.code === 'ArrowRight' || e.code === 'PageDown') {
+        const nextIdx = Math.min(SCROLL_STEPS.length - 1, currentStepIndex + 1);
+        jumpToStep(nextIdx);
+      } else if (e.code === 'ArrowUp' || e.code === 'ArrowLeft' || e.code === 'PageUp') {
+        const prevIdx = Math.max(0, currentStepIndex - 1);
+        jumpToStep(prevIdx);
+      }
+    });
+
+    // Mouse / Touch Drag scrubbing along path
+    let isDragging = false;
+    let startY = 0;
+
+    stickyViewport.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => (isDragging = false));
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const delta = startY - e.clientY;
+        startY = e.clientY;
+        window.scrollBy({ top: delta * 3, behavior: 'auto' });
+      }
+    });
+
+    // Touch swipe handler
+    let touchStartY = 0;
+    stickyViewport.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    stickyViewport.addEventListener('touchmove', (e) => {
+      const touchY = e.touches[0].clientY;
+      const delta = touchStartY - touchY;
+      touchStartY = touchY;
+      window.scrollBy({ top: delta * 2, behavior: 'auto' });
+    }, { passive: true });
+
     // Hide loading screen
     setTimeout(() => {
       const loader = document.getElementById('nadi-loading-screen');
       if (loader) loader.classList.add('hidden');
     }, 400);
+
+    // Trigger initial scroll calculation
+    handleScroll();
 
     // Start 60 FPS Camera Flight loop
     animate();
@@ -947,11 +1013,16 @@ import { DEFAULT_DATA } from './default-data.js';
 
     const { pos, look } = getCameraPoseAtProgress(currentProgress);
 
-    currentCamPos.lerp(new THREE.Vector3(pos.x, pos.y, pos.z), 0.1);
-    currentLookAt.lerp(new THREE.Vector3(look.x, look.y, look.z), 0.1);
+    if (currentCamPos && currentLookAt && tempTargetPos && tempTargetLook) {
+      tempTargetPos.set(pos.x, pos.y, pos.z);
+      tempTargetLook.set(look.x, look.y, look.z);
 
-    camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
-    camera.lookAt(currentLookAt);
+      currentCamPos.lerp(tempTargetPos, 0.1);
+      currentLookAt.lerp(tempTargetLook, 0.1);
+
+      camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
+      camera.lookAt(currentLookAt);
+    }
 
     renderer.render(scene, camera);
   }
