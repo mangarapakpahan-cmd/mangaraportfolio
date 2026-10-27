@@ -1,15 +1,12 @@
 /**
  * pixel-fps-walkthrough.js
- * Retro First-Person 3D Raycasting Walkthrough Engine
- * Authentic 90s Wolfenstein/Roblox-style 3D Experience for Mangara Ferdianto Pakpahan
- * Features:
- * - 5 Full 3D Levels with Unique Atmosphere, Walls, and Floor/Ceiling Themes
- * - Real-time Raycasting Engine (DDA algorithm, Depth Shading, 60FPS)
- * - 3D Billboard Sprites (NPCs, Information Terminals, Chests, Glowing Portals)
- * - Real-time Minimap Radar with Player Direction Cone
- * - Keyboard (WASD / Arrows / Q/E), Mouse Drag, and Mobile Touch D-Pad Controls
- * - Head Bobbing & Animated Tablet / Compass in Hand
- * - Seamless Integration with Portfolio Data & ATS CV Downloads
+ * Pusat Rekruter Eksekutif & First-Person 3D Walkthrough Engine
+ * Dibangun khusus untuk Mangara Ferdianto Pakpahan
+ * - Recruiter Fast-Track Hub (1-Click ATS CV Download, WhatsApp, Email)
+ * - 5 Ruang Pameran 3D Interaktif (Raycasting Engine 60FPS)
+ * - Minimap Radar Real-time & Crosshair Interaktif
+ * - Mouse Drag / Touch Swipe / Keyboard (WASD & Arrows)
+ * - Modal Dialog Informasi Portofolio Terverifikasi
  */
 
 (function () {
@@ -48,7 +45,7 @@
   function playLevelClearSound() {
     if (!sfxOn || !audioCtx) return;
     [392, 523, 659, 784, 1046].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.16, 'square', 0.09), i * 110);
+      setTimeout(() => playTone(f, 0.16, 'square', 0.08), i * 110);
     });
   }
 
@@ -56,17 +53,16 @@
     playTone(587, 0.09, 'sine', 0.1);
   }
 
-  // ─── 2. 5 COMPLETE 3D LEVELS (GRID MAPS & OBJECTS) ────────────
-  // Map legend: 1=Stone Wall, 2=Blue Tech Wall, 3=Wood Wall, 4=Cyber Brick, 5=Castle Wall, 0=Empty Floor
-  const FPS_LEVELS = [
+  // ─── 2. 5 GUIDED RECRUITMENT ROOMS (3D MAPS & EXHIBITS) ───────
+  const FPS_ROOMS = [
     {
       id: 1,
-      name: "LEVEL 1: ATRIUM AWAL (SPAWN GALLERY)",
-      situation: "Lobi Megah Kampus ITPLN & Pengenalan Mangara",
-      ceilingColor: "#101633",
-      floorColor: "#1b2854",
-      wallColorLight: "#3f51b5",
-      wallColorDark: "#283593",
+      name: "RUANG 1: PROFIL & NILAI UNGGUL",
+      situation: "Atrium Utama Pengenalan Kompetensi & Latar Belakang",
+      ceilingColor: "#0f172a",
+      floorColor: "#1e293b",
+      wallColorLight: "#3b82f6",
+      wallColorDark: "#1d4ed8",
       spawn: { x: 2.5, y: 2.5, angle: 0 },
       map: [
         [1,1,1,1,1,1,1,1,1,1],
@@ -84,37 +80,37 @@
         {
           x: 4.5, y: 2.5,
           type: "npc",
-          title: "Mentor ITPLN",
-          text: "Selamat datang di Walkthrough First-Person Mangara Ferdianto Pakpahan! Gunakan tombol W/A/S/D atau D-Pad untuk menjelajahi ruangan dan tekan E saat mendekati stasiun informasi."
+          title: "Mentor ITPLN: Ringkasan Kandidat",
+          text: "MANGARA FERDIANTO PAKPAHAN\n\n• Mahasiswa aktif S1 Teknik Informatika Institut Teknologi PLN (2023 - Sekarang).\n• Memadukan keunggulan kreatif multimedia dengan pemrosesan data analitik kuantitatif.\n• Berpengalaman memimpin siaran langsung berskala nasional, kampanye media sosial institusi, serta riset pemodelan data machine learning."
         },
         {
           x: 7.5, y: 3.5,
           type: "terminal",
-          title: "Papan Biodata & Pendidikan",
-          text: "MANGARA FERDIANTO PAKPAHAN\nMahasiswa S1 Teknik Informatika Institut Teknologi PLN (2023 - Sekarang).\nSpesialisasi: Creative Director, Live Production, Sinematografi, Visual Designer, & Data Analyst."
+          title: "Peran Target Utama",
+          text: "1. Data Analyst (Python, SQL, Azure Databricks, SEM-PLS, MOS Excel)\n2. Social Media Specialist / Humas (Strategi Konten, Engagement 3x Lipat, Copywriting)\n3. Creative Director & Live Production Specialist (OBS/vMix, Multicam, Identitas Visual)"
         },
         {
           x: 7.5, y: 6.5,
           type: "terminal",
-          title: "Visi Karier",
-          text: "Memadukan estetika visual multimedia berstandar industri dengan ketajaman analisis data kuantitatif untuk mendorong inovasi institusi dan industri energi."
+          title: "Keunggulan Kompetitif",
+          text: "• Terbiasa bekerja dengan tenggat waktu ketat & produksi berskala institusi BUMN.\n• Rekam jejak kepemimpinan: Deputy Manager ITPLN Media & Ketua Pelaksana NCC 2025.\n• Memiliki sertifikasi resmi internasional dari Microsoft dan Educativa."
         },
         {
           x: 8.5, y: 5.0,
           type: "portal",
-          title: "PORTAL KE LEVEL 2",
+          title: "PORTAL KE RUANG 2",
           isPortal: true
         }
       ]
     },
     {
       id: 2,
-      name: "LEVEL 2: KORIDOR KARIER & PENGALAMAN",
-      situation: "Lorong Galeri Prestasi & Rekam Jejak Kerja",
-      ceilingColor: "#1d1029",
-      floorColor: "#2a1b3d",
-      wallColorLight: "#7b1fa2",
-      wallColorDark: "#4a148c",
+      name: "RUANG 2: REKAM JEJAK & PENGALAMAN KERJA",
+      situation: "Galeri Pengalaman Profesional & Kepemimpinan Organisasi",
+      ceilingColor: "#172554",
+      floorColor: "#1e3a8a",
+      wallColorLight: "#8b5cf6",
+      wallColorDark: "#6d28d9",
       spawn: { x: 1.5, y: 2.5, angle: 0 },
       map: [
         [2,2,2,2,2,2,2,2,2,2,2,2],
@@ -128,42 +124,42 @@
           x: 3.5, y: 1.5,
           type: "terminal",
           title: "Magang PJCI (Smart Grid Indonesia)",
-          text: "Social Media Manager & Pengelola Redaksi Website (Apr 2026 - Jul 2026).\nSK No. 026/PJCI-Magang/SMM/2026. Mengelola kanal @smartgridindonesia dan portal warta pjci.or.id."
+          text: "Social Media Manager & Redaksi Berita Web (Apr 2026 - Jul 2026)\n• SK Resmi No. 026/PJCI-Magang/SMM/2026.\n• Mengelola akun @smartgridindonesia dan portal berita pjci.or.id.\n• Diseminasi agenda transisi energi bersih dan edukasi modernisasi jaringan cerdas nasional."
         },
         {
           x: 5.5, y: 3.5,
           type: "terminal",
-          title: "Bagian Humas & Stakeholder ITPLN (BHMS)",
-          text: "Social Media & Website Specialist (Okt 2025 - Sekarang).\nMemproduksi konten publikasi digital, artikel web itpln.ac.id, dan strategi media sosial @itpln dengan lonjakan engagement hingga 3x lipat!"
+          title: "Humas & Stakeholder ITPLN (BHMS)",
+          text: "Social Media & Website Specialist (Okt 2025 - Sekarang)\n• Penulisan rilis pers kehumasan resmi pada portal itpln.ac.id.\n• Pengelolaan media sosial @itpln dan @vokasiitpln dengan lonjakan engagement hingga 3 kali lipat."
         },
         {
           x: 7.5, y: 1.5,
           type: "terminal",
-          title: "Educativa Cipta Nawasena - Riset 120 JP",
-          text: "Bootcamp Riset Kuantitatif 120 JP & Structural Equation Modeling (SEM-PLS). Analisis mediasi, moderasi, dan validitas data empiris riset."
+          title: "PT Educativa - Riset Kuantitatif 120 JP",
+          text: "Trainee Riset Kuantitatif & Structural Equation Modeling (2026)\n• Menyelesaikan 120 JP analisis statistik inferensial, uji instrumen data, dan pemodelan SEM-PLS.\n• Menganalisis pengaruh mediasi dan moderasi pada dataset empiris."
         },
         {
           x: 9.5, y: 3.5,
           type: "terminal",
-          title: "ITPLN Media & NCC 2025",
-          text: "Deputy Manager & Direktur Kreatif ITPLN Media. Koordinator Video Company Profile dan Ketua Pelaksana National Creative Competition (NCC) 2025."
+          title: "ITPLN Media: Creative Director & NCC 2025",
+          text: "Deputy Manager & Direktur Kreatif (2024 - Sekarang)\n• Koordinator Tim Video Company Profile (SK No. 001/SK/ITPLN MEDIA/APRIL/2025).\n• Ketua Pelaksana National Creative Competition (NCC) 2025 bertema Data Science Energi Nuklir."
         },
         {
           x: 10.8, y: 2.5,
           type: "portal",
-          title: "PORTAL KE LEVEL 3",
+          title: "PORTAL KE RUANG 3",
           isPortal: true
         }
       ]
     },
     {
       id: 3,
-      name: "LEVEL 3: CYBER SHOWCASE 50+ PROYEK",
-      situation: "Laboratorium Hologram Siber 16-Bit",
-      ceilingColor: "#050814",
-      floorColor: "#0b1638",
-      wallColorLight: "#00b0ff",
-      wallColorDark: "#0069c0",
+      name: "RUANG 3: SHOWCASE 50+ PROYEK & KARYA",
+      situation: "Laboratorium Hologram Portofolio Unggulan",
+      ceilingColor: "#022c22",
+      floorColor: "#064e3b",
+      wallColorLight: "#06b6d4",
+      wallColorDark: "#0891b2",
       spawn: { x: 2.5, y: 2.5, angle: 0 },
       map: [
         [3,3,3,3,3,3,3,3,3,3],
@@ -179,43 +175,43 @@
         {
           x: 4.5, y: 1.5,
           type: "holo",
-          title: "Holo-Display: Live Production Wisuda ke-46",
-          text: "Siaran langsung multi-kamera berdurasi lebih dari 3.5 jam dengan ribuan penonton online. Visual switcher, audio master, dan lower-thirds dinamis."
+          title: "Live Production: Wisuda ITPLN ke-46",
+          text: "Produksi siaran langsung multi-kamera 3.5+ jam berstandar broadcast untuk ribuan audiens daring.\n• Pengaturan video switcher, lower-thirds animasi, dan routing audio."
         },
         {
           x: 6.5, y: 1.5,
           type: "holo",
-          title: "Holo-Display: IoT LPG-SafeSense (Juara 1 MKI)",
-          text: "Inovasi deteksi kebocoran gas LPG cerdas berbasis mikrokontroler sensor MQ-6 dan beban load cell terintegrasi aplikasi seluler cloud (Juara 1 Tingkat Nasional)."
+          title: "IoT LPG-SafeSense (Juara 1 MKI)",
+          text: "Riset dan rekayasa perangkat Internet of Things pendeteksi kebocoran gas LPG dan monitoring berat sisa gas berbasis sensor MQ-6 dan loadcell terintegrasi mobile apps."
         },
         {
           x: 4.5, y: 5.5,
           type: "holo",
-          title: "Holo-Display: Juara 1 Desain Poster IPB University",
-          text: "Karya desain grafis poster Ocean Experience IPB University 2025 dengan visualisasi artistik konservasi terumbu karang laut Indonesia."
+          title: "Juara 1 Desain Poster IPB University 2025",
+          text: "Karya pemenang Juara 1 Nasional Lomba Desain Poster Ocean Experience di IPB University dengan visualisasi konservasi terumbu karang ekosistem laut."
         },
         {
           x: 6.5, y: 5.5,
           type: "holo",
-          title: "Holo-Display: Portal Berita pjci.or.id & itpln.ac.id",
-          text: "Pengelolaan artikel redaksi, rilis pers, liputan transisi energi dekarbonisasi, serta arsip digital institusional secara berkala."
+          title: "Redaksi Portal Web pjci.or.id & itpln.ac.id",
+          text: "Penulisan dan kurasi artikel warta energi terbarukan, seminar ketenagalistrikan, liputan rektorat, dan dokumentasi kemitraan industri."
         },
         {
           x: 8.5, y: 3.5,
           type: "portal",
-          title: "PORTAL KE LEVEL 4",
+          title: "PORTAL KE RUANG 4",
           isPortal: true
         }
       ]
     },
     {
       id: 4,
-      name: "LEVEL 4: WISDOM SANCTUM (ARSIP RISET)",
-      situation: "Perpustakaan Kuno Megah Berkilau Data Kuantitatif",
-      ceilingColor: "#1b140e",
-      floorColor: "#2c1d12",
-      wallColorLight: "#ff8f00",
-      wallColorDark: "#b26500",
+      name: "RUANG 4: SERTIFIKASI & ANALITIK DATA",
+      situation: "Sanctum Kredensial Terverifikasi & Kompetensi Kuantitatif",
+      ceilingColor: "#311029",
+      floorColor: "#4a044e",
+      wallColorLight: "#f59e0b",
+      wallColorDark: "#d97706",
       spawn: { x: 2.0, y: 2.5, angle: 0 },
       map: [
         [4,4,4,4,4,4,4,4,4,4,4],
@@ -228,37 +224,37 @@
         {
           x: 3.0, y: 1.5,
           type: "scroll",
-          title: "Gulungan Microsoft Azure Databricks Machine Learning",
-          text: "Menyelesaikan 8 modul spesialisasi resmi Microsoft: AutoML, Hyperparameter Tuning, MLflow, dan Apache Spark di Azure Databricks."
+          title: "Microsoft Azure Databricks Machine Learning",
+          text: "Menyelesaikan 8 modul spesialisasi resmi Microsoft:\n• Machine Learning in Production\n• AutoML & Hyperparameter Tuning\n• MLflow Lifecycle & Apache Spark di Azure Databricks."
         },
         {
           x: 5.0, y: 1.5,
           type: "scroll",
-          title: "Gulungan Riset Kuantitatif SEM-PLS (Educativa)",
-          text: "Pemodelan persamaan struktural tingkat lanjut, analisis faktor konfirmatori, evaluasi outer/inner model, dan pengujian hipotesis riset."
+          title: "Sertifikasi Riset Kuantitatif SEM-PLS (Educativa)",
+          text: "Kelulusan pelatihan 120 JP analisis statistik inferensial tingkat lanjut, pemodelan Structural Equation Modeling (SEM-PLS), path analysis, dan validitas data riset."
         },
         {
           x: 7.0, y: 1.5,
           type: "scroll",
-          title: "Gulungan Microsoft Office Specialist (MOS) Excel 2019",
-          text: "Sertifikasi internasional Microsoft Corporation untuk spreadsheet mahir: pemodelan data finansial multivariat dan dasbor interaktif bisnis."
+          title: "Microsoft Office Specialist (MOS) Excel 2019",
+          text: "Sertifikasi resmi internasional dari Microsoft dalam penguasaan spreadsheet Excel tingkat mahir: pemodelan data finansial, formula logika kompleks, dan dashboard analisis bisnis."
         },
         {
           x: 9.8, y: 2.5,
           type: "portal",
-          title: "PORTAL KE LEVEL 5",
+          title: "PORTAL KE RUANG 5",
           isPortal: true
         }
       ]
     },
     {
       id: 5,
-      name: "LEVEL 5: MENARA OBSERVASI PUNCAK (NIGHT SUMMIT)",
-      situation: "Langit Malam Bintang, Bulan Tersenyum & Peti Harta Karun CV",
-      ceilingColor: "#050818",
-      floorColor: "#143a1e",
-      wallColorLight: "#ffd54f",
-      wallColorDark: "#c79a00",
+      name: "RUANG 5: KEPUTUSAN PEREKRUTAN & UNDUH CV",
+      situation: "Pusat Rekrutmen: Unduh CV ATS Resmi & Hubungi Langsung",
+      ceilingColor: "#020617",
+      floorColor: "#0f172a",
+      wallColorLight: "#10b981",
+      wallColorDark: "#047857",
       spawn: { x: 2.0, y: 3.0, angle: 0 },
       map: [
         [5,5,5,5,5,5,5,5,5],
@@ -272,60 +268,60 @@
         {
           x: 4.5, y: 1.8,
           type: "chest",
-          title: "Peti Harta Karun 1: CV ATS Data Analyst",
-          text: "Dokumen Curriculum Vitae resmi teroptimasi sistem ATS untuk posisi Data Analyst (Bahasa Indonesia & Inggris, format PDF).\n\n[Klik tombol di bawah untuk membuka file PDF]",
+          title: "Peti Berkas 1: CV ATS Data Analyst",
+          text: "Curriculum Vitae resmi berstandar ATS khusus posisi Data Analyst (Format PDF Bahasa Indonesia, 2 Halaman Ringkas & Terverifikasi).\n\nKlik tombol di bawah untuk mengunduh:",
           actionLink: "./CV_Mangara_Pakpahan_Data_Analyst.pdf",
-          actionText: "Unduh CV Data Analyst (PDF)"
+          actionText: "📥 Unduh CV Data Analyst (PDF)"
         },
         {
           x: 6.5, y: 1.8,
           type: "chest",
-          title: "Peti Harta Karun 2: CV ATS Sosmed Specialist / Humas",
-          text: "Dokumen Curriculum Vitae resmi teroptimasi sistem ATS untuk posisi Social Media Specialist / Public Relations (Humas).\n\n[Klik tombol di bawah untuk membuka file PDF]",
+          title: "Peti Berkas 2: CV ATS Sosmed Specialist / Humas",
+          text: "Curriculum Vitae resmi berstandar ATS khusus posisi Social Media Specialist / Public Relations (Humas).\n\nKlik tombol di bawah untuk mengunduh:",
           actionLink: "./CV_Mangara_Pakpahan_Sosmed_Humas.pdf",
-          actionText: "Unduh CV Sosmed / Humas (PDF)"
+          actionText: "📥 Unduh CV Sosmed & Humas (PDF)"
         },
         {
           x: 4.5, y: 3.8,
           type: "teleport",
-          title: "Cermin Komunikasi: WhatsApp Langsung",
-          text: "Hubungi Mangara secara langsung melalui WhatsApp untuk mendiskusikan peluang kerja sama profesional.",
-          actionLink: "https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20tertarik%20berkolaborasi!",
-          actionText: "Kirim Pesan WhatsApp (0813-1881-6058)"
+          title: "Koneksi WhatsApp Langsung",
+          text: "Hubungi Mangara secara langsung melalui WhatsApp untuk mendiskusikan peluang kerja, magang, atau sesi wawancara.",
+          actionLink: "https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20berdiskusi%20mengenai%20peluang%20rekrutmen.",
+          actionText: "💬 Hubungi via WhatsApp (0813-1881-6058)"
         },
         {
           x: 6.5, y: 3.8,
           type: "teleport",
-          title: "Kotak Surat: Email Resmi",
-          text: "Kirim surat elektronik ke alamat resmi: mangarapakpahan51@gmail.com",
+          title: "Surat Elektronik Resmi",
+          text: "Kirim email resmi langsung ke inbox Mangara: mangarapakpahan51@gmail.com",
           actionLink: "mailto:mangarapakpahan51@gmail.com",
-          actionText: "Kirim Email Resmi"
+          actionText: "✉️ Kirim Email Resmi"
         },
         {
           x: 7.5, y: 2.8,
           type: "portal",
-          title: "KEMBALI KE LEVEL 1 / RESTART",
+          title: "KEMBALI KE RUANG 1",
           isPortal: true
         }
       ]
     }
   ];
 
-  // ─── 3. FIRST-PERSON ENGINE STATE ─────────────────────────────
+  // ─── 3. ENGINE STATE ──────────────────────────────────────────
   let canvas = null;
   let ctx = null;
   let minimapCanvas = null;
   let minimapCtx = null;
 
-  let currentLvlIdx = 0;
+  let currentRoomIdx = 0;
   let activeModal = null;
 
   const player = {
     x: 2.5,
     y: 2.5,
     angle: 0,
-    speed: 0.045,
-    rotSpeed: 0.038,
+    speed: 0.05,
+    rotSpeed: 0.04,
     fov: Math.PI / 3, // 60 degrees
     bob: 0
   };
@@ -343,20 +339,18 @@
   const RAYS_COUNT = 320;
   const zBuffer = new Float32Array(RAYS_COUNT);
 
-  // ─── 4. RAYCASTING ENGINE (DDA ALGORITHM) ──────────────────────
-  function castRay(rayAngle, lvl) {
-    const map = lvl.map;
+  // ─── 4. RAYCASTING ENGINE (DDA) ───────────────────────────────
+  function castRay(rayAngle, room) {
+    const map = room.map;
     const mapH = map.length;
     const mapW = map[0].length;
 
     const cos = Math.cos(rayAngle);
     const sin = Math.sin(rayAngle);
 
-    // Initial grid position
     let mapX = Math.floor(player.x);
     let mapY = Math.floor(player.y);
 
-    // Distance ray travels from one x or y-side to next
     const deltaDistX = Math.abs(1 / cos);
     const deltaDistY = Math.abs(1 / sin);
 
@@ -380,7 +374,7 @@
     }
 
     let hit = 0;
-    let side = 0; // 0 for vertical, 1 for horizontal
+    let side = 0;
 
     while (hit === 0) {
       if (sideDistX < sideDistY) {
@@ -412,17 +406,13 @@
 
     return {
       dist: perpWallDist,
-      side: side,
-      mapX: mapX,
-      mapY: mapY
+      side: side
     };
   }
 
-  // ─── 5. BILLBOARDS / SPRITE RENDERING ─────────────────────────
-  function drawSprites(lvl, screenW, screenH) {
-    const sprites = lvl.sprites;
-    // Calculate distance of each sprite to player
-    const sprList = sprites.map((s, idx) => {
+  // ─── 5. DRAW BILLBOARDS IN 3D SPACE ───────────────────────────
+  function drawSprites(room, screenW, screenH) {
+    const sprList = room.sprites.map(s => {
       const dx = s.x - player.x;
       const dy = s.y - player.y;
       return {
@@ -433,72 +423,62 @@
       };
     });
 
-    // Sort far to near (Painter's algorithm)
     sprList.sort((a, b) => b.dist - a.dist);
 
     for (const spr of sprList) {
-      // Transform sprite with inverse camera matrix
       const cos = Math.cos(player.angle);
       const sin = Math.sin(player.angle);
 
-      // Rotate relative to player view
       const transX = spr.dx * sin - spr.dy * cos;
-      const transY = spr.dx * cos + spr.dy * sin; // depth
+      const transY = spr.dx * cos + spr.dy * sin;
 
-      if (transY <= 0.2) continue; // Behind player
+      if (transY <= 0.25) continue;
 
       const screenX = Math.floor((screenW / 2) * (1 - transX / (transY * Math.tan(player.fov / 2))));
       const sprSize = Math.abs(Math.floor(screenH / transY));
-
       const sprY = Math.floor(screenH / 2 - sprSize / 2 + player.bob);
 
-      // Check if visible and in front of walls
       const rayCol = Math.floor((screenX / screenW) * RAYS_COUNT);
       if (rayCol >= 0 && rayCol < RAYS_COUNT && zBuffer[rayCol] > transY) {
         ctx.save();
         ctx.imageSmoothingEnabled = false;
 
-        // Draw pixel billboard based on type
         if (spr.isPortal) {
-          // Glowing portal ring
           const time = Date.now() * 0.005;
           ctx.fillStyle = '#ffe853';
           ctx.fillRect(screenX - sprSize * 0.35, sprY, sprSize * 0.7, sprSize);
-          ctx.fillStyle = '#9c27b0';
+          ctx.fillStyle = '#9333ea';
           ctx.fillRect(screenX - sprSize * 0.25, sprY + sprSize * 0.1, sprSize * 0.5, sprSize * 0.8);
-          ctx.fillStyle = '#00e5ff';
+          ctx.fillStyle = '#06b6d4';
           ctx.fillRect(screenX - sprSize * 0.15 + Math.sin(time) * 4, sprY + sprSize * 0.2, sprSize * 0.3, sprSize * 0.6);
         } else if (spr.type === 'chest') {
-          // Treasure chest
-          ctx.fillStyle = '#b71c1c';
+          ctx.fillStyle = '#dc2626';
           ctx.fillRect(screenX - sprSize * 0.3, sprY + sprSize * 0.4, sprSize * 0.6, sprSize * 0.5);
-          ctx.fillStyle = '#ffe853';
+          ctx.fillStyle = '#f59e0b';
           ctx.fillRect(screenX - sprSize * 0.3, sprY + sprSize * 0.55, sprSize * 0.6, sprSize * 0.1);
         } else if (spr.type === 'npc') {
-          // NPC Character
-          ctx.fillStyle = '#4a148c';
+          ctx.fillStyle = '#2563eb';
           ctx.fillRect(screenX - sprSize * 0.25, sprY + sprSize * 0.3, sprSize * 0.5, sprSize * 0.6);
           ctx.fillStyle = '#ffcc80';
           ctx.fillRect(screenX - sprSize * 0.18, sprY, sprSize * 0.36, sprSize * 0.3);
-          ctx.fillStyle = '#ffe853';
+          ctx.fillStyle = '#f59e0b';
           ctx.fillRect(screenX - sprSize * 0.2, sprY - sprSize * 0.05, sprSize * 0.4, sprSize * 0.12);
         } else {
-          // Holo / Terminal / Scroll
-          ctx.fillStyle = '#1a237e';
+          ctx.fillStyle = '#1e293b';
           ctx.fillRect(screenX - sprSize * 0.25, sprY + sprSize * 0.1, sprSize * 0.5, sprSize * 0.8);
-          ctx.fillStyle = '#00e5ff';
+          ctx.fillStyle = '#38bdf8';
           ctx.fillRect(screenX - sprSize * 0.2, sprY + sprSize * 0.15, sprSize * 0.4, sprSize * 0.4);
-          ctx.fillStyle = '#ffe853';
+          ctx.fillStyle = '#f59e0b';
           ctx.fillRect(screenX - sprSize * 0.15, sprY + sprSize * 0.6, sprSize * 0.3, sprSize * 0.25);
         }
 
-        // Title banner over sprite
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(screenX - 50, sprY - 20, 100, 14);
+        // Title Tag
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillRect(screenX - 55, sprY - 22, 110, 16);
         ctx.fillStyle = '#ffe853';
-        ctx.font = 'bold 8px monospace';
+        ctx.font = 'bold 8.5px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(spr.title.substring(0, 14), screenX, sprY - 10);
+        ctx.fillText(spr.title.substring(0, 16), screenX, sprY - 11);
 
         ctx.restore();
       }
@@ -506,9 +486,9 @@
   }
 
   // ─── 6. MINIMAP RADAR ─────────────────────────────────────────
-  function drawMinimap(lvl) {
+  function drawMinimap(room) {
     if (!minimapCanvas || !minimapCtx) return;
-    const map = lvl.map;
+    const map = room.map;
     const mapH = map.length;
     const mapW = map[0].length;
 
@@ -517,56 +497,49 @@
     const cellW = minimapCanvas.width / mapW;
     const cellH = minimapCanvas.height / mapH;
 
-    // Draw walls
     for (let r = 0; r < mapH; r++) {
       for (let c = 0; c < mapW; c++) {
         if (map[r][c] > 0) {
-          minimapCtx.fillStyle = '#3f51b5';
+          minimapCtx.fillStyle = '#334155';
           minimapCtx.fillRect(c * cellW, r * cellH, cellW - 0.5, cellH - 0.5);
         } else {
-          minimapCtx.fillStyle = '#060a1d';
+          minimapCtx.fillStyle = '#090d1e';
           minimapCtx.fillRect(c * cellW, r * cellH, cellW - 0.5, cellH - 0.5);
         }
       }
     }
 
-    // Draw sprites on minimap
-    for (const spr of lvl.sprites) {
-      minimapCtx.fillStyle = spr.isPortal ? '#ff00ff' : '#ffe853';
-      minimapCtx.fillRect(spr.x * cellW - 2, spr.y * cellH - 2, 4, 4);
+    for (const spr of room.sprites) {
+      minimapCtx.fillStyle = spr.isPortal ? '#d946ef' : '#f59e0b';
+      minimapCtx.fillRect(spr.x * cellW - 2.5, spr.y * cellH - 2.5, 5, 5);
     }
 
-    // Draw Player dot & view line
     const px = player.x * cellW;
     const py = player.y * cellH;
 
-    minimapCtx.fillStyle = '#39ff14';
+    minimapCtx.fillStyle = '#22c55e';
     minimapCtx.beginPath();
-    minimapCtx.arc(px, py, 3, 0, Math.PI * 2);
+    minimapCtx.arc(px, py, 3.5, 0, Math.PI * 2);
     minimapCtx.fill();
 
-    // Direction line
-    minimapCtx.strokeStyle = '#39ff14';
-    minimapCtx.lineWidth = 1.5;
+    minimapCtx.strokeStyle = '#22c55e';
+    minimapCtx.lineWidth = 1.8;
     minimapCtx.beginPath();
     minimapCtx.moveTo(px, py);
-    minimapCtx.lineTo(px + Math.cos(player.angle) * 10, py + Math.sin(player.angle) * 10);
+    minimapCtx.lineTo(px + Math.cos(player.angle) * 12, py + Math.sin(player.angle) * 12);
     minimapCtx.stroke();
   }
 
-  // ─── 7. UPDATE PLAYER & INTERACTION ───────────────────────────
-  function updatePlayer(lvl) {
+  // ─── 7. UPDATE & COLLISION ────────────────────────────────────
+  function updatePlayer(room) {
     if (activeModal) return;
 
-    // Turn
     if (keys.turnLeft) player.angle -= player.rotSpeed;
     if (keys.turnRight) player.angle += player.rotSpeed;
 
-    // Normalize angle
     while (player.angle < 0) player.angle += Math.PI * 2;
     while (player.angle >= Math.PI * 2) player.angle -= Math.PI * 2;
 
-    // Move vectors
     let moveStep = 0;
     if (keys.fwd) moveStep = player.speed;
     if (keys.bwd) moveStep = -player.speed;
@@ -575,7 +548,7 @@
     if (keys.strafeLeft) strafeStep = -player.speed * 0.8;
     if (keys.strafeRight) strafeStep = player.speed * 0.8;
 
-    let isMoving = moveStep !== 0 || strafeStep !== 0;
+    const isMoving = moveStep !== 0 || strafeStep !== 0;
 
     if (isMoving) {
       player.bob = Math.sin(Date.now() * 0.009) * 4;
@@ -586,35 +559,28 @@
       const dx = cos * moveStep + Math.cos(player.angle + Math.PI / 2) * strafeStep;
       const dy = sin * moveStep + Math.sin(player.angle + Math.PI / 2) * strafeStep;
 
-      // Collision checks with padding
       const nextX = player.x + dx;
       const nextY = player.y + dy;
-
-      const map = lvl.map;
+      const map = room.map;
       const pad = 0.25;
 
-      if (
-        map[Math.floor(player.y)][Math.floor(nextX + (dx > 0 ? pad : -pad))] === 0
-      ) {
+      if (map[Math.floor(player.y)][Math.floor(nextX + (dx > 0 ? pad : -pad))] === 0) {
         player.x = nextX;
       }
-
-      if (
-        map[Math.floor(nextY + (dy > 0 ? pad : -pad))][Math.floor(player.x)] === 0
-      ) {
+      if (map[Math.floor(nextY + (dy > 0 ? pad : -pad))][Math.floor(player.x)] === 0) {
         player.y = nextY;
       }
     } else {
       player.bob = 0;
     }
 
-    // Check interaction with nearest sprite
+    // Nearest interactive sprite
     let nearestSprite = null;
     let nearestDist = 999;
 
-    for (const spr of lvl.sprites) {
+    for (const spr of room.sprites) {
       const d = Math.hypot(spr.x - player.x, spr.y - player.y);
-      if (d < 1.8 && d < nearestDist) {
+      if (d < 1.9 && d < nearestDist) {
         nearestDist = d;
         nearestSprite = spr;
       }
@@ -623,19 +589,18 @@
     const cue = document.getElementById('fps-interaction-cue');
     if (cue) {
       if (nearestSprite) {
+        cue.style.display = 'block';
         if (nearestSprite.isPortal) {
-          cue.style.display = 'block';
-          cue.textContent = `[PORTAL] TEKAN E UNTUK MASUK KE LEVEL SELANJUTNYA ▶`;
+          cue.textContent = `[PORTAL] TEKAN E ATAU KLIK UNTUK PINDAH KE RUANG BERIKUTNYA ▶`;
         } else {
-          cue.style.display = 'block';
-          cue.textContent = `[TEKAN E] BUKA: ${nearestSprite.title}`;
+          cue.textContent = `[TEKAN E ATAU KLIK] BUKA: ${nearestSprite.title}`;
         }
 
         if (keys.interact) {
           if (nearestSprite.isPortal) {
-            advanceLevel();
+            advanceRoom();
           } else {
-            openFPSModal(nearestSprite);
+            openRecruiterModal(nearestSprite);
           }
           keys.interact = false;
         }
@@ -645,28 +610,28 @@
     }
   }
 
-  function advanceLevel() {
+  function advanceRoom() {
     playLevelClearSound();
-    currentLvlIdx = (currentLvlIdx + 1) % FPS_LEVELS.length;
-    resetPlayerForFPSLevel();
+    currentRoomIdx = (currentRoomIdx + 1) % FPS_ROOMS.length;
+    resetPlayerForRoom();
   }
 
-  function resetPlayerForFPSLevel() {
-    const lvl = FPS_LEVELS[currentLvlIdx];
-    player.x = lvl.spawn.x;
-    player.y = lvl.spawn.y;
-    player.angle = lvl.spawn.angle;
+  function resetPlayerForRoom() {
+    const r = FPS_ROOMS[currentRoomIdx];
+    player.x = r.spawn.x;
+    player.y = r.spawn.y;
+    player.angle = r.spawn.angle;
 
     const title = document.getElementById('fps-level-title');
     const sit = document.getElementById('fps-situation-text');
-    if (title) title.textContent = lvl.name;
-    if (sit) sit.textContent = lvl.situation;
+    if (title) title.textContent = r.name;
+    if (sit) sit.textContent = r.situation;
 
     const btns = document.querySelectorAll('.fps-lvl-btn');
-    btns.forEach((b, i) => b.classList.toggle('active', i === currentLvlIdx));
+    btns.forEach((b, i) => b.classList.toggle('active', i === currentRoomIdx));
   }
 
-  function openFPSModal(spr) {
+  function openRecruiterModal(spr) {
     playInteractSound();
     activeModal = spr;
     const modal = document.getElementById('pixel-dialogue-modal');
@@ -689,151 +654,229 @@
           <button id="fps-modal-close" class="pixel-btn-close">Tutup [Esc]</button>
         `;
       } else {
-        actions.innerHTML = `<button id="fps-modal-close" class="pixel-btn-close">Tutup [Esc]</button>`;
+        actions.innerHTML = `<button id="fps-modal-close" class="pixel-btn-close">Tutup [Esc / Spasi]</button>`;
       }
-      document.getElementById('fps-modal-close')?.addEventListener('click', closeFPSModal);
+      document.getElementById('fps-modal-close')?.addEventListener('click', closeRecruiterModal);
     }
   }
 
-  function closeFPSModal() {
+  function closeRecruiterModal() {
     activeModal = null;
     const modal = document.getElementById('pixel-dialogue-modal');
     if (modal) modal.style.display = 'none';
   }
 
-  // ─── 8. RENDER 3D FRAME ───────────────────────────────────────
+  // ─── 8. 3D RENDER LOOP ────────────────────────────────────────
   function render3D() {
     if (!canvas || !ctx) return;
-    const lvl = FPS_LEVELS[currentLvlIdx];
-
+    const room = FPS_ROOMS[currentRoomIdx];
     const screenW = canvas.width;
     const screenH = canvas.height;
 
-    // 1. Ceiling (Sky with Stars)
-    ctx.fillStyle = lvl.ceilingColor;
+    // Ceiling
+    ctx.fillStyle = room.ceilingColor;
     ctx.fillRect(0, 0, screenW, screenH / 2);
 
-    // Star twinkle dots in ceiling
-    ctx.fillStyle = '#ffe853';
-    for (let i = 0; i < 20; i++) {
-      const sx = ((i * 47) + (player.angle * 100)) % screenW;
-      const sy = (i * 9) % (screenH / 2);
-      ctx.fillRect(sx, sy, 2, 2);
-    }
-
-    // 2. Floor
-    ctx.fillStyle = lvl.floorColor;
+    // Floor
+    ctx.fillStyle = room.floorColor;
     ctx.fillRect(0, screenH / 2, screenW, screenH / 2);
 
-    // 3. Wall Raycasting
+    // Raycast walls
     const colW = screenW / RAYS_COUNT;
 
     for (let i = 0; i < RAYS_COUNT; i++) {
       const rayAngle = player.angle - player.fov / 2 + (i / RAYS_COUNT) * player.fov;
-      const hit = castRay(rayAngle, lvl);
+      const hit = castRay(rayAngle, room);
 
-      // Fish-eye correction
       const correctedDist = hit.dist * Math.cos(rayAngle - player.angle);
       zBuffer[i] = correctedDist;
 
       const wallHeight = Math.min(screenH * 1.5, Math.floor(screenH / correctedDist));
       const wallTop = Math.floor(screenH / 2 - wallHeight / 2 + player.bob);
+      const shade = Math.max(0.25, Math.min(1.0, 1.4 / (1 + correctedDist * 0.4)));
 
-      // Depth Shading: Darker when further
-      const shade = Math.max(0.2, Math.min(1.0, 1.4 / (1 + correctedDist * 0.4)));
-
-      if (hit.side === 0) {
-        ctx.fillStyle = lvl.wallColorLight;
-      } else {
-        ctx.fillStyle = lvl.wallColorDark;
-      }
-
+      ctx.fillStyle = hit.side === 0 ? room.wallColorLight : room.wallColorDark;
       ctx.fillRect(i * colW, wallTop, colW + 0.5, wallHeight);
 
-      // Dark shadow overlay for depth
+      // Depth Shadow
       ctx.fillStyle = `rgba(0, 0, 0, ${1 - shade})`;
       ctx.fillRect(i * colW, wallTop, colW + 0.5, wallHeight);
     }
 
-    // 4. Draw 3D Billboard Sprites
-    drawSprites(lvl, screenW, screenH);
-
-    // 5. Draw Minimap
-    drawMinimap(lvl);
+    drawSprites(room, screenW, screenH);
+    drawMinimap(room);
   }
 
   function fpsLoop() {
-    updatePlayer(FPS_LEVELS[currentLvlIdx]);
+    updatePlayer(FPS_ROOMS[currentRoomIdx]);
     render3D();
     requestAnimationFrame(fpsLoop);
   }
 
-  // ─── 9. DOM MOUNTING & CONTROLS ───────────────────────────────
-  function buildFPSViewport() {
-    const mainSection = document.getElementById('pixel-game-adventure-section');
-    if (!mainSection) return;
+  // ─── 9. BUILD WORKFLOW UI & MOUNT ─────────────────────────────
+  function buildRecruiterExperience() {
+    const mainMount = document.querySelector('main');
+    if (!mainMount) return;
 
-    // Create First-Person View Container
-    const fpsDiv = document.createElement('div');
-    fpsDiv.id = 'pixel-fps-walkthrough-section';
-    fpsDiv.className = 'pixel-fps-container';
+    // Container for both Recruiter Hub and First-Person Walkthrough
+    const hubWrapper = document.createElement('div');
+    hubWrapper.id = 'recruiter-walkthrough-hub';
 
-    fpsDiv.innerHTML = `
-      <div class="fps-header-bar">
-        <div class="fps-title-group">
-          <span class="fps-mode-badge">👁️ FIRST-PERSON 3D WALKTHROUGH MODE</span>
-          <h2 id="fps-level-title" class="fps-level-title">${FPS_LEVELS[0].name}</h2>
-          <span id="fps-situation-text" class="fps-situation-text">${FPS_LEVELS[0].situation}</span>
+    hubWrapper.innerHTML = `
+      <!-- 1. PUSAT REKRUTER CEPAT (FAST-TRACK HERO) -->
+      <section class="recruiter-fast-track-card">
+        <div class="recruiter-badge-row">
+          <span class="recruiter-status-tag">✨ TERSEDIA UNTUK KERJA & MAGANG (OPEN TO WORK)</span>
+          <span class="recruiter-location-tag">📍 Jakarta, Indonesia</span>
         </div>
 
-        <div class="fps-hud-stats">
-          <div class="fps-stat-pill">★ FPS: 60</div>
-          <button id="fps-sfx-btn" class="pixel-hud-btn">🔊 SFX</button>
-          <a href="#main-portfolio-content" class="pixel-hud-btn" style="text-decoration:none; background:#2bb44a;">📄 CV / DOKUMEN</a>
+        <div class="recruiter-hero-content">
+          <div class="recruiter-avatar-wrapper">
+            <img src="./assets/images/my-avatar.png" alt="Mangara Ferdianto Pakpahan">
+          </div>
+          <div class="recruiter-text-group">
+            <h1 class="recruiter-candidate-name">Mangara Ferdianto Pakpahan</h1>
+            <p class="recruiter-candidate-title">
+              Mahasiswa S1 Teknik Informatika ITPLN &bull; Data Analyst &bull; Social Media Specialist & Humas &bull; Creative Director
+            </p>
+            <div class="recruiter-role-pills">
+              <span class="role-pill">📊 Data Analyst (Python, SQL, Azure Databricks, SEM-PLS)</span>
+              <span class="role-pill">📱 Social Media & Humas (@itpln, @smartgridindonesia)</span>
+              <span class="role-pill">🎬 Live Production Specialist & Visual Designer</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Level Selector -->
-      <div class="fps-level-nav">
-        <span class="fps-level-label">PILIH RUANGAN 3D:</span>
-        <div class="fps-level-btns">
-          <button class="fps-lvl-btn active" data-lvl="0">1. Atrium Awal</button>
-          <button class="fps-lvl-btn" data-lvl="1">2. Koridor Karier</button>
-          <button class="fps-lvl-btn" data-lvl="2">3. Cyber 50+ Proyek</button>
-          <button class="fps-lvl-btn" data-lvl="3">4. Arsip Riset</button>
-          <button class="fps-lvl-btn" data-lvl="4">5. Menara Puncak</button>
+        <!-- TOMBOL AKSI CEPAT REKRUTER (UNDUH CV ATS & KONTAK) -->
+        <div class="recruiter-cta-grid">
+          <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="btn-recruiter-cv da" title="Buka / Unduh CV ATS Data Analyst">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <div>
+              <strong>Unduh CV Data Analyst</strong>
+              <small>Format ATS Terverifikasi &bull; PDF</small>
+            </div>
+          </a>
+
+          <a href="./CV_Mangara_Pakpahan_Sosmed_Humas.pdf" target="_blank" rel="noopener" class="btn-recruiter-cv sh" title="Buka / Unduh CV ATS Sosmed & Humas">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <div>
+              <strong>Unduh CV Sosmed & Humas</strong>
+              <small>Format ATS Terverifikasi &bull; PDF</small>
+            </div>
+          </a>
+
+          <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20peluang%20rekrutmen." target="_blank" rel="noopener" class="btn-recruiter-contact wa" title="Hubungi Mangara via WhatsApp">
+            <ion-icon name="logo-whatsapp"></ion-icon>
+            <div>
+              <strong>WhatsApp Langsung</strong>
+              <small>0813-1881-6058 (Respons Cepat)</small>
+            </div>
+          </a>
+
+          <a href="mailto:mangarapakpahan51@gmail.com" class="btn-recruiter-contact mail" title="Kirim Email Resmi">
+            <ion-icon name="mail-outline"></ion-icon>
+            <div>
+              <strong>Kirim Email Resmi</strong>
+              <small>mangarapakpahan51@gmail.com</small>
+            </div>
+          </a>
         </div>
-      </div>
 
-      <!-- 3D Viewport -->
-      <div class="fps-viewport-wrapper" id="fps-viewport-wrapper">
-        <canvas id="pixel-fps-canvas" width="640" height="360"></canvas>
-        <div class="fps-crosshair"></div>
-        <div class="fps-hand-overlay"></div>
-        <div id="fps-interaction-cue" class="fps-interaction-cue">[TEKAN E] INTERAKSI</div>
-
-        <!-- Minimap -->
-        <div class="fps-minimap-card">
-          <canvas id="fps-minimap-canvas" width="100" height="100"></canvas>
+        <!-- WORKFLOW MODE TOGGLE -->
+        <div class="workflow-toggle-bar">
+          <div class="workflow-tabs">
+            <button id="toggle-fps-view-btn" class="workflow-tab-btn active" title="Tampilkan Jelajah 3D First-Person">
+              <span class="tab-icon">👁️</span> Mode 1: Jelajah 3D First-Person Walkthrough
+            </button>
+            <button id="toggle-doc-view-btn" class="workflow-tab-btn" title="Langsung gulir ke daftar dokumen portofolio">
+              <span class="tab-icon">📋</span> Mode 2: Ringkasan Eksekutif & Dokumen Portofolio
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Mobile Touch Controls -->
-      <div class="fps-mobile-controls">
-        <div class="fps-dpad-grid">
-          <button class="fps-ctrl-btn fwd" id="fps-btn-fwd">▲</button>
-          <button class="fps-ctrl-btn turn-left" id="fps-btn-left">◄</button>
-          <button class="fps-ctrl-btn bwd" id="fps-btn-bwd">▼</button>
-          <button class="fps-ctrl-btn turn-right" id="fps-btn-right">►</button>
+      <!-- 2. FIRST-PERSON 3D WALKTHROUGH VIEWPORT -->
+      <section id="fps-walkthrough-viewport-section" class="pixel-fps-container">
+        <div class="fps-header-bar">
+          <div class="fps-title-group">
+            <span class="fps-mode-badge">👁️ FIRST-PERSON 3D INTERACTIVE WALKTHROUGH</span>
+            <h2 id="fps-level-title" class="fps-level-title">${FPS_ROOMS[0].name}</h2>
+            <span id="fps-situation-text" class="fps-situation-text">${FPS_ROOMS[0].situation}</span>
+          </div>
+
+          <div class="fps-hud-stats">
+            <button id="fps-sfx-btn" class="pixel-hud-btn">🔊 SFX ON</button>
+            <a href="#main-portfolio-content" class="pixel-hud-btn" style="text-decoration:none; background:#16a34a; color:#fff;">⬇️ LIHAT PORTOFOLIO</a>
+          </div>
         </div>
-        <div class="fps-action-group">
-          <button class="fps-ctrl-btn interact-btn" id="fps-btn-action">E (Aksi)</button>
+
+        <!-- Room Selector Buttons -->
+        <div class="fps-level-nav">
+          <span class="fps-level-label">PILIH RUANG PAMERAN:</span>
+          <div class="fps-level-btns">
+            <button class="fps-lvl-btn active" data-lvl="0">1. Profil & Nilai</button>
+            <button class="fps-lvl-btn" data-lvl="1">2. Pengalaman Kerja</button>
+            <button class="fps-lvl-btn" data-lvl="2">3. Showcase 50+ Proyek</button>
+            <button class="fps-lvl-btn" data-lvl="3">4. Sertifikasi & Riset</button>
+            <button class="fps-lvl-btn" data-lvl="4">5. Perekrutan & Unduh CV</button>
+          </div>
+        </div>
+
+        <!-- 3D Viewport Frame -->
+        <div class="fps-viewport-wrapper" id="fps-viewport-wrapper">
+          <canvas id="pixel-fps-canvas" width="640" height="360"></canvas>
+          <div class="fps-crosshair"></div>
+          <div class="fps-hand-overlay"></div>
+          <div id="fps-interaction-cue" class="fps-interaction-cue">[TEKAN E / KLIK] BUKA INFORMASI</div>
+
+          <!-- Minimap Radar -->
+          <div class="fps-minimap-card">
+            <canvas id="fps-minimap-canvas" width="110" height="110"></canvas>
+          </div>
+        </div>
+
+        <!-- Instruction bar -->
+        <div class="fps-controls-bar">
+          <div class="fps-instruction-text">
+            <span>KONTROL WALKTHROUGH:</span> 
+            <kbd>W</kbd> <kbd>S</kbd> Jalan &bull; 
+            <kbd>A</kbd> <kbd>D</kbd> / Tarik Mouse Putar Pandangan &bull; 
+            <kbd>E</kbd> Interaksi / Masuk Portal
+          </div>
+        </div>
+
+        <!-- Mobile Touch D-Pad -->
+        <div class="fps-mobile-controls">
+          <div class="fps-dpad-grid">
+            <button class="fps-ctrl-btn fwd" id="fps-btn-fwd">▲</button>
+            <button class="fps-ctrl-btn turn-left" id="fps-btn-left">◄</button>
+            <button class="fps-ctrl-btn bwd" id="fps-btn-bwd">▼</button>
+            <button class="fps-ctrl-btn turn-right" id="fps-btn-right">►</button>
+          </div>
+          <div class="fps-action-group">
+            <button class="fps-ctrl-btn interact-btn" id="fps-btn-action">E (Aksi)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODAL DIALOGUE POPUP -->
+      <div id="pixel-dialogue-modal" class="pixel-dialogue-overlay" style="display: none;">
+        <div class="pixel-dialogue-box">
+          <div class="dialogue-header">
+            <span class="dialogue-icon">📜</span>
+            <h3 id="dialogue-title" class="dialogue-title-text">Detail Informasi</h3>
+          </div>
+          <div id="dialogue-text" class="dialogue-body-text">
+            Keterangan...
+          </div>
+          <div id="dialogue-actions" class="dialogue-actions-bar">
+            <button id="fps-modal-close" class="pixel-btn-close">Tutup [Esc]</button>
+          </div>
         </div>
       </div>
     `;
 
-    // Insert right before the 2D section
-    mainSection.parentNode.insertBefore(fpsDiv, mainSection);
+    mainMount.prepend(hubWrapper);
 
     canvas = document.getElementById('pixel-fps-canvas');
     if (canvas) ctx = canvas.getContext('2d');
@@ -841,26 +884,83 @@
     minimapCanvas = document.getElementById('fps-minimap-canvas');
     if (minimapCanvas) minimapCtx = minimapCanvas.getContext('2d');
 
-    // Level buttons
-    const btns = fpsDiv.querySelectorAll('.fps-lvl-btn');
-    btns.forEach(b => {
+    // Room Switcher Buttons
+    const lvlBtns = hubWrapper.querySelectorAll('.fps-lvl-btn');
+    lvlBtns.forEach(b => {
       b.addEventListener('click', () => {
         initAudio();
-        currentLvlIdx = parseInt(b.dataset.lvl, 10) || 0;
-        resetPlayerForFPSLevel();
+        currentRoomIdx = parseInt(b.dataset.lvl, 10) || 0;
+        resetPlayerForRoom();
       });
     });
 
-    // SFX button
+    // SFX Toggle
     const sfxBtn = document.getElementById('fps-sfx-btn');
     sfxBtn?.addEventListener('click', () => {
       initAudio();
       sfxOn = !sfxOn;
-      sfxBtn.textContent = sfxOn ? '🔊 SFX' : '🔇 SFX';
+      sfxBtn.textContent = sfxOn ? '🔊 SFX ON' : '🔇 SFX OFF';
     });
 
+    // Workflow Mode Toggle Buttons
+    const fpsTabBtn = document.getElementById('toggle-fps-view-btn');
+    const docTabBtn = document.getElementById('toggle-doc-view-btn');
+    const fpsSection = document.getElementById('fps-walkthrough-viewport-section');
+
+    fpsTabBtn?.addEventListener('click', () => {
+      fpsTabBtn.classList.add('active');
+      docTabBtn.classList.remove('active');
+      if (fpsSection) {
+        fpsSection.style.display = 'block';
+        fpsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    docTabBtn?.addEventListener('click', () => {
+      docTabBtn.classList.add('active');
+      fpsTabBtn.classList.remove('active');
+      const docTarget = document.getElementById('main-portfolio-content');
+      if (docTarget) {
+        docTarget.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    // Mouse Drag Look on Canvas
+    setupMouseLook();
+
+    // Keyboard & Touch
     setupKeyboard();
     setupTouch();
+  }
+
+  function setupMouseLook() {
+    const wrapper = document.getElementById('fps-viewport-wrapper');
+    if (!wrapper) return;
+
+    let isDragging = false;
+    let lastX = 0;
+
+    wrapper.addEventListener('mousedown', (e) => {
+      initAudio();
+      isDragging = true;
+      lastX = e.clientX;
+    });
+
+    window.addEventListener('mouseup', () => (isDragging = false));
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging || activeModal) return;
+      const dx = e.clientX - lastX;
+      player.angle += dx * 0.006;
+      lastX = e.clientX;
+    });
+
+    // Click canvas to interact if prompt is visible
+    canvas?.addEventListener('click', () => {
+      initAudio();
+      keys.interact = true;
+      setTimeout(() => (keys.interact = false), 100);
+    });
   }
 
   function setupKeyboard() {
@@ -871,8 +971,8 @@
       if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.turnLeft = true;
       if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.turnRight = true;
       if (e.code === 'KeyQ') keys.strafeLeft = true;
-      if (e.code === 'KeyE') keys.interact = true;
-      if (e.code === 'Escape' && activeModal) closeFPSModal();
+      if (e.code === 'KeyE' || e.code === 'Space') keys.interact = true;
+      if (e.code === 'Escape' && activeModal) closeRecruiterModal();
     });
 
     window.addEventListener('keyup', (e) => {
@@ -881,7 +981,7 @@
       if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.turnLeft = false;
       if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.turnRight = false;
       if (e.code === 'KeyQ') keys.strafeLeft = false;
-      if (e.code === 'KeyE') keys.interact = false;
+      if (e.code === 'KeyE' || e.code === 'Space') keys.interact = false;
     });
   }
 
@@ -913,11 +1013,11 @@
     bind('fps-btn-action', () => (keys.interact = true), () => (keys.interact = false));
   }
 
-  // ─── 10. INIT ─────────────────────────────────────────────────
+  // ─── 10. INITIALIZE ───────────────────────────────────────────
   function init() {
-    buildFPSViewport();
+    buildRecruiterExperience();
     requestAnimationFrame(fpsLoop);
-    console.log('👁️ First-Person 3D Raycasting Walkthrough Engine activated successfully!');
+    console.log('👁️ Recruiter Fast-Track Hub & First-Person Walkthrough Engine live!');
   }
 
   if (document.readyState === 'loading') {
