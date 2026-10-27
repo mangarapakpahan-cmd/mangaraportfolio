@@ -496,6 +496,39 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
+  // Architectural Room Partitions (Dividers separating 7 zones)
+  function build7RoomPartitions(wallMat, trimMat) {
+    const dividerX = [-17.5, -10.5, -3.5, 3.5, 10.5, 17.5];
+
+    for (const x of dividerX) {
+      // Back wall partition
+      const wGeo1 = new THREE.BoxGeometry(0.35, 2.6, 8.5);
+      const w1 = new THREE.Mesh(wGeo1, wallMat);
+      w1.position.set(x, 1.3, -5.5);
+      w1.receiveShadow = true;
+      w1.castShadow = true;
+      scene.add(w1);
+
+      const capGeo1 = new THREE.BoxGeometry(0.42, 0.1, 8.6);
+      const cap1 = new THREE.Mesh(capGeo1, trimMat);
+      cap1.position.set(x, 2.65, -5.5);
+      scene.add(cap1);
+
+      // Front wall partition
+      const wGeo2 = new THREE.BoxGeometry(0.35, 2.6, 5);
+      const w2 = new THREE.Mesh(wGeo2, wallMat);
+      w2.position.set(x, 1.3, 7.2);
+      w2.receiveShadow = true;
+      w2.castShadow = true;
+      scene.add(w2);
+
+      const capGeo2 = new THREE.BoxGeometry(0.42, 0.1, 5.1);
+      const cap2 = new THREE.Mesh(capGeo2, trimMat);
+      cap2.position.set(x, 2.65, 7.2);
+      scene.add(cap2);
+    }
+  }
+
   // Streetlamps & Faceted Trees
   function buildStreetLampsAndTrees() {
     const lampPositions = [-18, -11, -4, 3, 10, 17];
@@ -2612,13 +2645,26 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   function init() {
     buildScrollytellingDOM();
 
+    function safeInitDiorama() {
+      try {
+        initThreeDiorama();
+      } catch (err) {
+        console.error('Three.js diorama initialization error:', err);
+        document.getElementById('nadi-loading-screen')?.classList.add('hidden');
+      }
+    }
+
     if (typeof THREE !== 'undefined') {
-      initThreeDiorama();
+      safeInitDiorama();
     } else {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
       script.onload = () => {
-        initThreeDiorama();
+        safeInitDiorama();
+      };
+      script.onerror = (e) => {
+        console.error('Failed to load Three.js:', e);
+        document.getElementById('nadi-loading-screen')?.classList.add('hidden');
       };
       document.head.appendChild(script);
     }
