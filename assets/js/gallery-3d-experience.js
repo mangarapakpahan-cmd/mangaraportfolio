@@ -1,24 +1,20 @@
 /**
  * gallery-3d-experience.js
- * 3D Scrollytelling Camera Flight & Interactive Miniature Studio
+ * 3D Scrollytelling Camera Flight & Bustling Miniature Studio
  * Inspired by "nadi." Healthcare Diorama & Stylized Isometric Game
  *
- * Core Features:
- * 1. Cinematic Intro Fly-in & Outro Celebration Screens
- * 2. Visual enhancements inspired by user's reference screenshot:
- *    - Paved sidewalk with curbs and stone slabs along the orange path
- *    - Glowing cyan selection ring with directional chevron at hero's feet
- *    - Lampposts casting warm spotlight cones
- *    - Buildings with illuminated warm golden grid windows
- *    - Low-poly trees, park benches, and bushes
- * 3. 7 Interactive NPCs placed across rooms:
- *    - Can be questioned with verified portfolio answers
- *    - "Button Arahannya" that smoothly navigates visitors to the next room
- * 4. Multi-Angle Camera POV Switcher (Isometric, Top-Down Tactical, Third-Person, Free Orbit)
- * 5. Auto-synchronized In-Card Scroll: list/table scrolls automatically with 3D walkthrough
- * 6. Minimalist, simple modern table and card design
- * 7. All 9 Admin Sections completely displayed (Profile, 10 Services, 11 Skills, 15 Experiences,
- *    8 Certifications, 50 Projects with Lightbox, 20 Blogs, 4 Testimonials, Direct Contact Form)
+ * Major Updates:
+ * 1. 4 Comfortable & Refined Camera POVs (Isometrik, Top-Down Tactical, Third-Person, Orbit Bebas)
+ * 2. Ultra-minimalist and clean table & card styling
+ * 3. Bustling, realistic, and highly detailed 3D office/studio:
+ *    - Broadcasting gear (6-screen video wall, ATEM switcher, soundboard, teleprompter camera, softbox lights)
+ *    - Data Analyst & ML lab (2 full-height server racks with pulsing LEDs, triple-monitor dev desk, formulas whiteboard)
+ *    - IoT maker bench (oscilloscope, soldering station, 3D printer, LPG-SafeSense prototype, gold trophy)
+ *    - Press conference hall (podium, projection screen, executive table)
+ *    - Jakarta executive recruiter lounge (L-sofa, marble table, iMac, floor lamp)
+ *    - 20+ active employees working, typing, discussing, and mobile walking staff patrolling the hallway!
+ * 4. Floating centered bottom segmented dock for steps 01-07 (No overlap with cards!)
+ * 5. Automatic Outro celebration trigger at the end of scroll
  */
 
 import { DEFAULT_DATA } from './default-data.js';
@@ -44,6 +40,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let orangeCurve = null;
   let walkStepPhase = 0;
 
+  // Mobile Patrolling Employees (Bustling office staff)
+  let patrollingStaff = [];
+
+  // Active Desk Workers with animated typing/nodding
+  let activeWorkers = [];
+
+  // Blinking Server LEDs & Studio Props
+  let serverLEDs = [];
+
   // Camera flight interpolation vectors
   let currentCamPos = null;
   let currentLookAt = null;
@@ -55,21 +60,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let introProgress = 0;
   let isIntroAnimating = false;
   let isOutroActive = false;
+  let outroDismissedByUser = false;
 
-  // Multi-POV Camera Modes
-  // 'isometric' (default cutaway) | 'topdown' (tactical screenshot view) | 'thirdperson' (follow walk) | 'orbit'
+  // Multi-POV Camera Modes: 'isometric' | 'topdown' | 'thirdperson' | 'orbit'
   let currentPOV = 'isometric';
   let orbitYaw = 0;
-  let orbitPitch = 0.5;
+  let orbitPitch = 0.55;
+  let orbitDistance = 12.0;
 
   let targetProgress = 0;
   let currentProgress = 0;
   let currentStepIndex = 0;
 
-  // Internal UI State for Filtering / Subtabs
-  let activeLayananSubtab = 'services'; // 'services' or 'skills'
-  let activeExpFilter = 'all'; // 'all', 'work', 'org'
-  let activeEduFilter = 'all'; // 'all', 'formal', 'cert'
+  // Internal UI State
+  let activeLayananSubtab = 'services';
+  let activeExpFilter = 'all';
+  let activeEduFilter = 'all';
   let activeProjFilter = 'all';
   let activeProjSearch = '';
   let activeBlogFilter = 'all';
@@ -85,7 +91,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Nadia",
       role: "Front Desk & Welcome Guide",
       avatarLetter: "N",
-      pos: { x: -22.5, z: 2.5 },
+      pos: { x: -22.5, z: 2.2 },
       shirtColor: 0xff7a38,
       greeting: "Halo! Selamat datang di Studio Virtual Mangara Ferdianto Pakpahan. Saya bisa membantu Anda mengenali profil dan kualifikasi resminya.",
       questions: [
@@ -95,7 +101,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         },
         {
           q: "Bagaimana cara mengunduh berkas CV resminya?",
-          a: "Anda bisa langsung mengklik tombol 'CV Data Analyst' atau 'CV Sosmed & Humas' di navbar atas atau di kartu profil bilik ini. Keduanya berformat ATS resmi."
+          a: "Anda bisa langsung mengklik tombol 'CV Data Analyst' atau 'CV Sosmed' di navbar atas atau di kartu profil bilik ini. Keduanya berformat ATS resmi."
         }
       ],
       nextRoomName: "Bilik 02: Siaran Langsung & Live Production"
@@ -105,7 +111,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Rizky",
       role: "Lead Broadcast Switcher",
       avatarLetter: "R",
-      pos: { x: -15.5, z: 2.2 },
+      pos: { x: -15.5, z: 2.0 },
       shirtColor: 0x0284c7,
       greeting: "Salam! Di sini bilik Master Control Room (MCR). Kami mengendalikan alur siaran langsung multi-kamera acara protokoler nasional.",
       questions: [
@@ -125,7 +131,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Sarah",
       role: "Social Media Strategist",
       avatarLetter: "S",
-      pos: { x: -8.5, z: 2.4 },
+      pos: { x: -8.5, z: 2.2 },
       shirtColor: 0xa855f7,
       greeting: "Halo! Kami mengelola kanal resmi institusi @itpln dan @smartgridindonesia (PJCI) dengan strategi konten visual modern.",
       questions: [
@@ -145,7 +151,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Dimas",
       role: "Machine Learning Engineer",
       avatarLetter: "D",
-      pos: { x: -1.5, z: 2.3 },
+      pos: { x: -1.5, z: 2.1 },
       shirtColor: 0x3b82f6,
       greeting: "Selamat datang di Data Lab! Kami fokus pada riset pemodelan empiris, cloud machine learning, dan automasi database kuantitatif.",
       questions: [
@@ -165,7 +171,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Budi",
       role: "Hardware & IoT Researcher",
       avatarLetter: "B",
-      pos: { x: 5.5, z: 2.5 },
+      pos: { x: 5.5, z: 2.2 },
       shirtColor: 0xf97316,
       greeting: "Halo! Ini adalah ruang pamer 50 proyek portofolio dan prototipe perangkat pintar IoT LPG-SafeSense.",
       questions: [
@@ -185,7 +191,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Dewi",
       role: "Corporate Journalist & Editor",
       avatarLetter: "D",
-      pos: { x: 12.5, z: 2.4 },
+      pos: { x: 12.5, z: 2.2 },
       shirtColor: 0x10b981,
       greeting: "Selamat datang di ruang redaksi! Di sini terpusat 20 publikasi resmi, artikel ilmiah, dan siaran pers transisi energi.",
       questions: [
@@ -195,7 +201,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         },
         {
           q: "Apakah seluruh artikel bisa diakses publik?",
-          a: "Tentu! Anda dapat mengklik tombol 'Baca Artikel Resmi' di kartu bilik ini untuk mengunjungi sumber aslinya langsung."
+          a: "Tentu! Anda dapat mengklik tombol 'Detail' di kartu bilik ini untuk membuka tautan sumber aslinya langsung."
         }
       ],
       nextRoomName: "Bilik 07: Testimoni & Rekrutmen Resmi"
@@ -205,7 +211,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       name: "Kevin",
       role: "Talent Partner & HR Host",
       avatarLetter: "K",
-      pos: { x: 19.5, z: 2.4 },
+      pos: { x: 19.5, z: 2.2 },
       shirtColor: 0xff6b2b,
       greeting: "Halo Rekruter & Partner! Mangara siap berkolaborasi untuk posisi kerja penuh waktu, program magang, maupun creative direction.",
       questions: [
@@ -232,19 +238,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Mahasiswa S1 Teknik Informatika Institut Teknologi PLN dengan keahlian multidisipliner memadukan perancangan identitas visual korporat, produksi siaran langsung nasional, pengelolaan komunikasi digital resmi, serta riset dan analitik data empiris.",
       badgeStatus: "Tersedia untuk Kerja & Magang",
       badgeStatusColor: "green",
-      cam: { x: -21, y: 8.5, z: 12.8 },
-      look: { x: -21, y: 1.3, z: 0 }
+      cam: { x: -21, y: 7.8, z: 12.0 },
+      look: { x: -21, y: 1.2, z: 0 }
     },
     {
       stepNum: "02",
-      stepName: "Layanan & Skills",
+      stepName: "Layanan",
       category: "LANGKAH 02 • 10 LAYANAN & 11 KOMPETENSI TEKNIS",
       title: "10 Layanan Spesialisasi & 11 Keterampilan Teknis Teruji.",
       desc: "Menyediakan 10 layanan profesional yang teruji di industri: dari produksi siaran langsung multi-kamera acara protokoler nasional, creative direction identitas visual, strategi pertumbuhan media sosial 3x lipat, riset rekayasa IoT pintar, hingga pemodelan data machine learning cloud.",
       badgeStatus: "10 Layanan • 11 Skills",
       badgeStatusColor: "orange",
-      cam: { x: -14, y: 8.2, z: 12.2 },
-      look: { x: -14, y: 1.3, z: 0 }
+      cam: { x: -14, y: 7.8, z: 12.0 },
+      look: { x: -14, y: 1.2, z: 0 }
     },
     {
       stepNum: "03",
@@ -254,8 +260,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Perjalanan karir komprehensif mencakup peran strategis sebagai Social Media Manager di PJCI, Tim Humas & Komunikasi Publik ITPLN, Lead Visual Switcher Wisuda Nasional, Koordinator Kreatif ITPLN Media, Ketua Pelaksana National CAD Competition (NCC 2025), hingga Student Ambassador DQLab.",
       badgeStatus: "15 Entri Terverifikasi",
       badgeStatusColor: "green",
-      cam: { x: -7, y: 8.2, z: 12.0 },
-      look: { x: -7, y: 1.3, z: 0 }
+      cam: { x: -7, y: 7.8, z: 12.0 },
+      look: { x: -7, y: 1.2, z: 0 }
     },
     {
       stepNum: "04",
@@ -265,8 +271,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Menempuh pendidikan Sarjana (S1) Teknik Informatika di Institut Teknologi PLN dengan spesialisasi komputasi cerdas dan rekayasa data industri energi, diperkuat oleh 8 lisensi resmi: Azure Databricks Machine Learning, SEM-PLS 120 JP, MOS Excel 2019, dan IBM AI.",
       badgeStatus: "8 Lisensi Resmi Terverifikasi",
       badgeStatusColor: "green",
-      cam: { x: 0, y: 8.2, z: 12.0 },
-      look: { x: 0, y: 1.3, z: 0 }
+      cam: { x: 0, y: 7.8, z: 12.0 },
+      look: { x: 0, y: 1.2, z: 0 }
     },
     {
       stepNum: "05",
@@ -276,35 +282,39 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       desc: "Menampilkan seluruh 50 portofolio karya nyata yang telah diselesaikan: live streaming siaran nasional, strategi konten kampanye media sosial (@itpln & @smartgridindonesia), rekayasa prototipe IoT LPG-SafeSense, perancangan identitas visual korporat, hingga sistem data dan web.",
       badgeStatus: "50 Proyek Lengkap Aktif",
       badgeStatusColor: "orange",
-      cam: { x: 7, y: 8.2, z: 12.2 },
-      look: { x: 7, y: 1.3, z: 0 }
+      cam: { x: 7, y: 7.8, z: 12.0 },
+      look: { x: 7, y: 1.2, z: 0 }
     },
     {
       stepNum: "06",
-      stepName: "Blog & Riset",
+      stepName: "Publikasi",
       category: "LANGKAH 06 • 20 PUBLIKASI, ARTIKEL & RISET PRESTASI",
       title: "20 Publikasi Ilmiah, Redaksi Berita & Hibah Riset.",
       desc: "Kumpulan publikasi artikel berkala, jurnalisme korporat untuk portal resmi PJCI dan ITPLN, tulisan teknologi transisi energi bersih, serta rekam jejak inovasi peraih Juara 1 MKI dan hibah penelitian PKM DIKTI Kemendikbudristek.",
       badgeStatus: "20 Publikasi & Prestasi",
       badgeStatusColor: "orange",
-      cam: { x: 14, y: 8.2, z: 12.2 },
-      look: { x: 14, y: 1.3, z: 0 }
+      cam: { x: 14, y: 7.8, z: 12.0 },
+      look: { x: 14, y: 1.2, z: 0 }
     },
     {
       stepNum: "07",
-      stepName: "Testimoni & Kontak",
+      stepName: "Kontak",
       category: "LANGKAH 07 • TESTIMONI & PUSAT REKRUTMEN RESMI",
       title: "Testimoni Stakeholder & Formulir Komunikasi Langsung.",
       desc: "Terbuka untuk kesempatan kerja penuh waktu, program magang, konsultasi creative direction, maupun kolaborasi proyek strategis di Jakarta, hybrid, maupun remote. Kirim pesan langsung ke database atau hubungi via WhatsApp.",
       badgeStatus: "Respons Cepat & Siap Onboarding",
       badgeStatusColor: "green",
-      cam: { x: 21, y: 8.5, z: 12.8 },
-      look: { x: 21, y: 1.3, z: 0 }
+      cam: { x: 21, y: 7.8, z: 12.0 },
+      look: { x: 21, y: 1.2, z: 0 }
     }
   ];
 
-  // ─── 4. CUTAWAY ARCHITECTURAL DIORAMA BUILDER ─────────────────
+  // ─── 4. BUSTLING & DETAILED ARCHITECTURAL DIORAMA BUILDER ─────
   function buildMiniatureDioramaScene() {
+    patrollingStaff = [];
+    activeWorkers = [];
+    serverLEDs = [];
+
     // 1. Lighting Setup
     const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.15);
     scene.add(ambientLight);
@@ -370,7 +380,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Outer Back Wall with Warm Glowing Windows (like user reference image)
+    // Outer Back Wall with Warm Glowing Windows
     const backWallGeo = new THREE.BoxGeometry(60, 2.8, 0.4);
     const backWall = new THREE.Mesh(backWallGeo, wallBodyMat);
     backWall.position.set(0, 1.4, -9.8);
@@ -378,16 +388,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     backWall.castShadow = true;
     scene.add(backWall);
 
-    const backCapGeo = new THREE.BoxGeometry(60, 0.12, 0.5);
-    const backCap = new THREE.Mesh(backCapGeo, orangeTrimMat);
+    const backCap = new THREE.Mesh(new THREE.BoxGeometry(60, 0.12, 0.5), orangeTrimMat);
     backCap.position.set(0, 2.86, -9.8);
     scene.add(backCap);
 
-    // Illuminated Grid Windows along Back Wall (Signature Reference Look!)
-    const windowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a }); // Warm glowing yellow
+    // Illuminated Grid Windows along Back Wall
+    const windowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
     for (let wx = -26; wx <= 26; wx += 4) {
-      const winGeo = new THREE.PlaneGeometry(1.4, 0.9);
-      const win = new THREE.Mesh(winGeo, windowMat);
+      const win = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.9), windowMat);
       win.position.set(wx, 1.8, -9.58);
       scene.add(win);
     }
@@ -404,19 +412,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     build7RoomPartitions(wallBodyMat, orangeTrimMat);
     buildStreetLampsAndTrees();
 
-    // 6. Individual Room Setups
-    buildRoom1Foyer(wallBodyMat, orangeTrimMat, chairOrangeMat);
-    buildRoom2Studio(screenGlowMat, orangeTrimMat, darkWoodMat);
-    buildRoom3Newsroom(orangeTrimMat, darkWoodMat, chairOrangeMat);
-    buildRoom4DataLab(orangeTrimMat, darkWoodMat);
-    buildRoom5IoTGallery(orangeTrimMat, darkWoodMat);
-    buildRoom6PressHall(orangeTrimMat, darkWoodMat, chairOrangeMat);
-    buildRoom7RecruiterLounge(orangeTrimMat, darkWoodMat, chairOrangeMat);
+    // 6. BUILD DETAILED, BUSTLING ROOMS (USER: JANGAN POLOS, PENUHI BARANG BROADCAST & DATA ANALYST)
+    buildRoom1FoyerDetailed(wallBodyMat, orangeTrimMat, chairOrangeMat);
+    buildRoom2BroadcastDetailed(screenGlowMat, orangeTrimMat, darkWoodMat);
+    buildRoom3NewsroomDetailed(orangeTrimMat, darkWoodMat);
+    buildRoom4DataLabDetailed(orangeTrimMat, darkWoodMat);
+    buildRoom5IoTWorkshopDetailed(orangeTrimMat, darkWoodMat);
+    buildRoom6PressHallDetailed(orangeTrimMat, darkWoodMat);
+    buildRoom7RecruiterLoungeDetailed(orangeTrimMat, darkWoodMat, chairOrangeMat);
 
     // 7. Interactive NPCs in 3D
     buildInteractive3DNPCS();
 
-    // 8. Animated Walking Hero with Glowing Cyan Ring
+    // 8. Mobile Walking Office Employees Patrols (The Bustling Office!)
+    buildPatrollingOfficeWorkers();
+
+    // 9. Animated Walking Hero with Glowing Cyan Ring
     createWalkingHeroWithIndicator();
   }
 
@@ -463,7 +474,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     }
 
-    // Orange center guide path
     for (let i = 0; i < curvePoints.length - 1; i++) {
       const p1 = curvePoints[i];
       const p2 = curvePoints[i + 1];
@@ -476,7 +486,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       seg.rotation.y = -angle;
       scene.add(seg);
 
-      // Paved sidewalk curb slabs along the path (Reference style!)
       if (i % 3 === 0) {
         const curb = new THREE.Mesh(new THREE.BoxGeometry(len * 2.8, 0.04, 1.6), curbMat);
         curb.position.set((p1.x + p2.x) / 2, 0.01, (p1.z + p2.z) / 2);
@@ -487,54 +496,45 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  // Low-poly Streetlamps, Faceted Trees, and Benches (Reference Look!)
+  // Streetlamps & Faceted Trees
   function buildStreetLampsAndTrees() {
     const lampPositions = [-18, -11, -4, 3, 10, 17];
     const lampMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
     const bulbMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
 
     lampPositions.forEach(x => {
-      // Pole
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 2.2, 8), lampMat);
       pole.position.set(x, 1.1, 4.2);
       scene.add(pole);
 
-      // Angled head
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.4), lampMat);
       head.position.set(x, 2.2, 4.0);
       scene.add(head);
 
-      // Glowing bulb
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08), bulbMat);
       bulb.position.set(x, 2.12, 4.0);
       scene.add(bulb);
 
-      // Warm spot light pool
-      const lampLight = new THREE.PointLight(0xfef08a, 0.6, 6);
+      const lampLight = new THREE.PointLight(0xfef08a, 0.5, 6);
       lampLight.position.set(x, 2.1, 4.0);
       scene.add(lampLight);
     });
 
-    // Low-poly Faceted Trees & Park Benches
     const treePositions = [-23, -16, -9, -2, 5, 12, 19];
     const leafMat1 = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8, flatShading: true });
     const leafMat2 = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.8, flatShading: true });
     const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c3d2e, roughness: 0.9 });
 
     treePositions.forEach((tx, idx) => {
-      // Trunk
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.4, 6), trunkMat);
       trunk.position.set(tx, 0.7, 5.8);
       scene.add(trunk);
 
-      // Faceted crown
-      const crownGeo = new THREE.DodecahedronGeometry(0.75, 1);
-      const crown = new THREE.Mesh(crownGeo, idx % 2 === 0 ? leafMat1 : leafMat2);
+      const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(0.75, 1), idx % 2 === 0 ? leafMat1 : leafMat2);
       crown.position.set(tx, 1.8, 5.8);
       crown.castShadow = true;
       scene.add(crown);
 
-      // Bench
       if (idx % 2 === 1) {
         const bench = new THREE.Mesh(
           new THREE.BoxGeometry(1.2, 0.35, 0.45),
@@ -546,11 +546,558 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
   }
 
-  // Animated Walking Hero with Glowing Cyan Selection Ring (Signature Reference Element!)
+  // ─── 5. DETAILED BUSTLING ROOM SETUPS (NO EMPTY FORMALITIES!) ─
+  // Helper to create an active worker at a desk
+  function createDeskWorker(x, y, z, ry, shirtColor, isTyping = true) {
+    const grp = new THREE.Group();
+    grp.position.set(x, y, z);
+    grp.rotation.y = ry;
+
+    // Head
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 12, 12),
+      new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
+    );
+    head.position.y = 1.05;
+    grp.add(head);
+
+    // Torso
+    const torso = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.2, 0.5, 8),
+      new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.7 })
+    );
+    torso.position.y = 0.68;
+    grp.add(torso);
+
+    // Arms reaching to desk / keyboard
+    const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.4, 6);
+    const armL = new THREE.Mesh(armGeo, new THREE.MeshStandardMaterial({ color: shirtColor }));
+    armL.position.set(-0.2, 0.7, 0.2);
+    armL.rotation.x = Math.PI / 3;
+    grp.add(armL);
+
+    const armR = new THREE.Mesh(armGeo, new THREE.MeshStandardMaterial({ color: shirtColor }));
+    armR.position.set(0.2, 0.7, 0.2);
+    armR.rotation.x = Math.PI / 3;
+    grp.add(armR);
+
+    // Chair
+    const chair = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.1, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0x334155 })
+    );
+    chair.position.set(0, 0.42, 0);
+    grp.add(chair);
+
+    const chairBack = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.5, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x334155 })
+    );
+    chairBack.position.set(0, 0.7, -0.22);
+    grp.add(chairBack);
+
+    scene.add(grp);
+
+    activeWorkers.push({ group: grp, head: head, armL: armL, armR: armR, isTyping: isTyping, phase: Math.random() * 10 });
+    return grp;
+  }
+
+  // Room 1: Detailed Foyer & Welcome Reception
+  function buildRoom1FoyerDetailed(wallMat, trimMat, chairMat) {
+    // Reception Counter Desk
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.0, 1.05, 1.3), wallMat);
+    desk.position.set(-21, 0.52, -4.5);
+    scene.add(desk);
+
+    const top = new THREE.Mesh(new THREE.BoxGeometry(4.1, 0.08, 1.4), trimMat);
+    top.position.set(-21, 1.09, -4.5);
+    scene.add(top);
+
+    // Dual Monitors on Reception Counter
+    for (let i = 0; i < 2; i++) {
+      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 0.04), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      mon.position.set(-21.6 + i * 0.8, 1.38, -4.5);
+      scene.add(mon);
+    }
+
+    // Desk Phone, Brochure stack, Coffee Mug
+    const phone = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.2), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+    phone.position.set(-20.0, 1.16, -4.4);
+    scene.add(phone);
+
+    const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.12), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    mug.position.set(-22.4, 1.18, -4.3);
+    scene.add(mug);
+
+    // Receptionist seated typing
+    createDeskWorker(-21.2, 0, -5.4, 0, 0x0284c7, true);
+
+    // Water Dispenser Station with blue water bottle!
+    const dispenser = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 0.4), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }));
+    dispenser.position.set(-18.5, 0.5, -8.2);
+    scene.add(dispenser);
+    const waterBottle = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.5, 12), new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 }));
+    waterBottle.position.set(-18.5, 1.25, -8.2);
+    scene.add(waterBottle);
+
+    // Waiting Armchairs & Coffee Table with magazines
+    const chair1 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), chairMat);
+    chair1.position.set(-23.5, 0.25, 3.5);
+    scene.add(chair1);
+
+    const chair2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), chairMat);
+    chair2.position.set(-21.8, 0.25, 3.5);
+    scene.add(chair2);
+
+    const table = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.35, 0.6), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.7 }));
+    table.position.set(-22.65, 0.18, 2.2);
+    scene.add(table);
+
+    // Seated Visitor reading phone
+    createDeskWorker(-21.8, 0, 3.5, -Math.PI / 2, 0x64748b, false);
+  }
+
+  // Room 2: Detailed Broadcast Studio & MCR (Packed with gear!)
+  function buildRoom2BroadcastDetailed(screenMat, trimMat, darkMat) {
+    // 6-Monitor Video Wall on Metal Truss
+    const trussMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7 });
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 3; c++) {
+        const mon = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.72), screenMat);
+        mon.position.set(-15.3 + c * 1.3, 1.7 + r * 0.85, -9.5);
+        scene.add(mon);
+
+        // Frame
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.76, 0.04), trussMat);
+        frame.position.set(-15.3 + c * 1.3, 1.7 + r * 0.85, -9.54);
+        scene.add(frame);
+      }
+    }
+
+    // Audio VU Level Meter (Green, Yellow, Red LED indicator blocks)
+    for (let i = 0; i < 6; i++) {
+      const ledColor = i > 4 ? 0xef4444 : (i > 3 ? 0xf59e0b : 0x22c55e);
+      const vu = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 0.02), new THREE.MeshBasicMaterial({ color: ledColor }));
+      vu.position.set(-11.2, 1.4 + i * 0.08, -9.48);
+      scene.add(vu);
+    }
+
+    // Switcher & Soundboard Console Desk
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.95, 1.5), darkMat);
+    desk.position.set(-14, 0.48, -4.5);
+    scene.add(desk);
+
+    // ATEM Production Switcher Panel with lit buttons
+    const atem = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.6), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+    atem.position.set(-14.4, 1.0, -4.5);
+    scene.add(atem);
+
+    // Audio Mixer with Faders
+    const mixer = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.55), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+    mixer.position.set(-12.8, 0.99, -4.5);
+    scene.add(mixer);
+
+    // Studio Broadcast Camera Rig on Heavy Pedestal Tripod
+    const trip = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.35, 1.5, 4), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+    trip.position.set(-13.8, 0.75, 2.5);
+    scene.add(trip);
+
+    const camBox = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.45, 0.9), darkMat);
+    camBox.position.set(-13.8, 1.55, 2.5);
+    scene.add(camBox);
+
+    // Teleprompter Screen on Camera Front
+    const prompter = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.1), screenMat);
+    prompter.position.set(-13.8, 1.55, 3.0);
+    scene.add(prompter);
+
+    // Big Red Tally Light on top of Camera
+    const tally = new THREE.Mesh(new THREE.SphereGeometry(0.09), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+    tally.position.set(-13.8, 1.82, 2.7);
+    scene.add(tally);
+
+    // 2 Studio Softbox Lights on Telescoping Stands
+    for (let lx of [-16.2, -11.5]) {
+      const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.4), darkMat);
+      stand.position.set(lx, 1.2, 1.5);
+      scene.add(stand);
+
+      const softbox = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+      softbox.position.set(lx, 2.4, 1.5);
+      scene.add(softbox);
+    }
+
+    // Coiled Cable Drums on Studio Floor
+    const cableDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.2, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+    cableDrum.position.set(-16.0, 0.1, -1.8);
+    scene.add(cableDrum);
+
+    // 3 Active Broadcast Crew Members
+    // Switcher operator seated at console
+    createDeskWorker(-14.4, 0, -5.5, 0, 0x0284c7, true);
+    // Audio engineer seated at mixer
+    createDeskWorker(-12.8, 0, -5.5, 0, 0x10b981, true);
+    // Camera operator standing behind camera
+    const camOp = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.7, 8), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+    camOp.position.set(-13.8, 0.75, 1.7);
+    scene.add(camOp);
+    const camOpHead = new THREE.Mesh(new THREE.SphereGeometry(0.22), new THREE.MeshStandardMaterial({ color: 0xe8b896 }));
+    camOpHead.position.set(-13.8, 1.45, 1.7);
+    scene.add(camOpHead);
+  }
+
+  // Room 3: Detailed Newsroom & Social Media Command Center
+  function buildRoom3NewsroomDetailed(trimMat, darkMat) {
+    // Cluster of 3 Workstations
+    const deskCluster = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.9, 1.6), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }));
+    deskCluster.position.set(-7, 0.45, -4.5);
+    scene.add(deskCluster);
+
+    // 4 Widescreen Monitors displaying social media dashboards
+    for (let i = 0; i < 4; i++) {
+      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 0.05), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      mon.position.set(-8.4 + i * 0.95, 1.25, -4.5);
+      scene.add(mon);
+    }
+
+    // Bulletin Board on Back Wall with Sticky Notes
+    const pinboard = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.3, 0.04), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 }));
+    pinboard.position.set(-7, 1.8, -9.5);
+    scene.add(pinboard);
+
+    // Sticky Notes on Pinboard
+    const noteColors = [0xef4444, 0x3b82f6, 0x22c55e, 0xfacc15];
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 4; c++) {
+        const note = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.18), new THREE.MeshBasicMaterial({ color: noteColors[(r + c) % 4] }));
+        note.position.set(-7.8 + c * 0.5, 1.6 + r * 0.4, -9.46);
+        scene.add(note);
+      }
+    }
+
+    // Office Multifunction Printer/Copier in the Corner
+    const copier = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.65), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+    copier.position.set(-4.5, 0.43, -8.5);
+    scene.add(copier);
+
+    // Rolling Whiteboard with Calendar
+    const wboard = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.4, 0.06), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    wboard.position.set(-9.2, 1.4, 2.0);
+    wboard.rotation.y = Math.PI / 6;
+    scene.add(wboard);
+
+    // 2 Active Newsroom Staff Seated Typing
+    createDeskWorker(-7.8, 0, -5.5, 0, 0xa855f7, true);
+    createDeskWorker(-6.2, 0, -5.5, 0, 0xec4899, true);
+  }
+
+  // Room 4: Detailed Data Science & AI Cloud Lab
+  function buildRoom4DataLabDetailed(trimMat, darkMat) {
+    // 2 Full-Height 42U Server Racks with Blinking Activity LEDs
+    const rackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
+    for (let rx of [1.6, 2.8]) {
+      const rack = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.5, 0.9), rackMat);
+      rack.position.set(rx, 1.25, -8.5);
+      scene.add(rack);
+
+      // Blinking Server Blade LEDs
+      for (let l = 0; l < 8; l++) {
+        const ledColor = l % 3 === 0 ? 0x06b6d4 : (l % 3 === 1 ? 0x22c55e : 0xf59e0b);
+        const led = new THREE.Mesh(new THREE.SphereGeometry(0.035), new THREE.MeshBasicMaterial({ color: ledColor }));
+        led.position.set(rx - 0.35 + (l % 4) * 0.22, 0.6 + Math.floor(l / 4) * 0.8, -8.02);
+        scene.add(led);
+        serverLEDs.push(led);
+      }
+    }
+
+    // Triple-Monitor Developer Workstation Desk
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.95, 1.4), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+    desk.position.set(0, 0.48, -4.5);
+    scene.add(desk);
+
+    // Triple Developer Monitors (Center + Angled Left & Right)
+    const monMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+    const monCenter = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 0.05), monMat);
+    monCenter.position.set(0, 1.25, -4.5);
+    scene.add(monCenter);
+
+    const monL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.55, 0.05), monMat);
+    monL.position.set(-0.85, 1.25, -4.4);
+    monL.rotation.y = Math.PI / 8;
+    scene.add(monL);
+
+    const monR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.55, 0.05), monMat);
+    monR.position.set(0.85, 1.25, -4.4);
+    monR.rotation.y = -Math.PI / 8;
+    scene.add(monR);
+
+    // Glass Whiteboard on Wall with Math & Neural Network Diagram
+    const gBoard = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.4, 0.04), new THREE.MeshStandardMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.7 }));
+    gBoard.position.set(0, 1.8, -9.5);
+    scene.add(gBoard);
+
+    // Mini Fridge in corner
+    const fridge = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.85, 0.55), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.4 }));
+    fridge.position.set(-2.6, 0.43, -8.5);
+    scene.add(fridge);
+
+    // 2 Active Data Scientists Seated Coding
+    createDeskWorker(-0.4, 0, -5.5, 0, 0x3b82f6, true);
+    createDeskWorker(0.8, 0, -5.5, 0, 0x6366f1, true);
+  }
+
+  // Room 5: Detailed IoT Hardware Workshop & 50 Projects Gallery
+  function buildRoom5IoTWorkshopDetailed(trimMat, darkMat) {
+    // Electronics Workbench with Anti-Static Green Mat
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.95, 1.5), new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.7 }));
+    bench.position.set(7, 0.48, -4.5);
+    scene.add(bench);
+
+    // Digital Oscilloscope with glowing green sine wave screen
+    const osc = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 0.4), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+    osc.position.set(5.8, 1.2, -4.5);
+    scene.add(osc);
+    const oscScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.28), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+    oscScreen.position.set(5.8, 1.22, -4.29);
+    scene.add(oscScreen);
+
+    // Soldering Station with Iron Stand
+    const solder = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.2, 0.35), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+    solder.position.set(6.6, 1.05, -4.4);
+    scene.add(solder);
+
+    // Working 3D Printer Machine on separate stand
+    const printerBase = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.7), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.5 }));
+    printerBase.position.set(9.2, 0.4, -4.5);
+    scene.add(printerBase);
+    const spool = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0xff6b2b }));
+    spool.rotation.z = Math.PI / 2;
+    spool.position.set(9.2, 1.1, -4.5);
+    scene.add(spool);
+
+    // Prototype of IoT LPG-SafeSense (Green Cylinder + Breadboard + Loadcell base!)
+    const gasTank = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.65, 16), new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.4 }));
+    gasTank.position.set(7.5, 1.3, -4.5);
+    scene.add(gasTank);
+
+    const loadcellPlate = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.08, 16), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6 }));
+    loadcellPlate.position.set(7.5, 0.98, -4.5);
+    scene.add(loadcellPlate);
+
+    // Gleaming Gold Trophy Pedestal (Juara 1 MKI!)
+    const ped = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.9, 0.6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+    ped.position.set(9.4, 0.45, -8.2);
+    scene.add(ped);
+
+    const trophy = new THREE.Mesh(new THREE.OctahedronGeometry(0.24), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.15 }));
+    trophy.position.set(9.4, 1.2, -8.2);
+    scene.add(trophy);
+
+    // 2 Active Hardware Engineers Working
+    createDeskWorker(6.2, 0, -5.5, 0, 0xf97316, true);
+    createDeskWorker(7.8, 0, -5.5, 0, 0x14b8a6, true);
+  }
+
+  // Room 6: Detailed Press Conference & Publications Hall
+  function buildRoom6PressHallDetailed(trimMat, darkMat) {
+    // Executive Conference Table
+    const table = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.85, 1.7), darkMat);
+    table.position.set(14, 0.42, -4.5);
+    scene.add(table);
+
+    // 4 Conference Chairs around table
+    for (let c = 0; c < 2; c++) {
+      createDeskWorker(13.2 + c * 1.5, 0, -5.6, 0, 0x059669, true);
+      createDeskWorker(13.2 + c * 1.5, 0, -3.4, Math.PI, 0x3b82f6, false);
+    }
+
+    // Presentation Podium / Lectern with Microphone
+    const podium = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.15, 0.5), darkMat);
+    podium.position.set(11.2, 0.58, -3.5);
+    scene.add(podium);
+
+    const mic = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.25), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
+    mic.position.set(11.2, 1.28, -3.4);
+    mic.rotation.x = -Math.PI / 6;
+    scene.add(mic);
+
+    // Giant 3.5m Wide Presentation Projection Screen
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 1.8), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
+    screen.position.set(14, 1.9, -9.5);
+    scene.add(screen);
+
+    // Ceiling Projector casting subtle light cone
+    const proj = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.35), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    proj.position.set(14, 2.7, -4.5);
+    scene.add(proj);
+  }
+
+  // Room 7: Detailed Executive Recruiter Lounge & Partnership Suite
+  function buildRoom7RecruiterLoungeDetailed(trimMat, darkMat, chairMat) {
+    // L-Shaped Executive Leather Sofa
+    const sofaMain = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.75, 1.3), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
+    sofaMain.position.set(21, 0.38, -4.8);
+    scene.add(sofaMain);
+
+    const sofaL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.75, 1.8), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
+    sofaL.position.set(22.8, 0.38, -3.4);
+    scene.add(sofaL);
+
+    // Low Marble Coffee Table with Flowers & Magazines
+    const table = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.4, 0.9), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
+    table.position.set(21, 0.2, -2.4);
+    scene.add(table);
+
+    const vase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.25), new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 }));
+    vase.position.set(21, 0.52, -2.4);
+    scene.add(vase);
+
+    // Executive Desk with Apple iMac
+    const execDesk = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.9, 1.2), darkMat);
+    execDesk.position.set(18.5, 0.45, -8.2);
+    scene.add(execDesk);
+
+    const imac = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.55, 0.05), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.8 }));
+    imac.position.set(18.5, 1.25, -8.2);
+    scene.add(imac);
+
+    // Floor Standing Architectural Lamp with warm cone
+    const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8 }));
+    lampPole.position.set(23.5, 1.1, -1.2);
+    scene.add(lampPole);
+
+    const lampShade = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 0.35, 16), new THREE.MeshStandardMaterial({ color: 0xffedd5 }));
+    lampShade.position.set(23.5, 2.1, -1.2);
+    scene.add(lampShade);
+
+    const floorLight = new THREE.PointLight(0xfef08a, 0.8, 5);
+    floorLight.position.set(23.5, 2.0, -1.2);
+    scene.add(floorLight);
+
+    // 2 People seated on sofa discussing portfolio
+    createDeskWorker(20.4, 0, -4.8, Math.PI / 6, 0x059669, false);
+    createDeskWorker(21.8, 0, -4.8, -Math.PI / 6, 0xff6b2b, false);
+  }
+
+  // ─── 6. MOBILE WALKING EMPLOYEES (THE BUSTLING MOVING OFFICE!) ─
+  function buildPatrollingOfficeWorkers() {
+    // Worker 1: Patrols Foyer to Newsroom (x from -21 to -7)
+    const w1 = createPatrollingHuman(0x3b82f6, 0x1e293b, true); // carrying tablet
+    w1.minX = -21;
+    w1.maxX = -7;
+    w1.speed = 0.022;
+    w1.currentX = -20;
+    w1.dir = 1;
+    w1.z = 1.0;
+    scene.add(w1.group);
+    patrollingStaff.push(w1);
+
+    // Worker 2: Patrols Data Lab to Press Hall (x from -1 to 15)
+    const w2 = createPatrollingHuman(0x10b981, 0x1e293b, false); // carrying coffee mug
+    w2.minX = -1;
+    w2.maxX = 15;
+    w2.speed = 0.018;
+    w2.currentX = 0;
+    w2.dir = 1;
+    w2.z = -1.2;
+    scene.add(w2.group);
+    patrollingStaff.push(w2);
+  }
+
+  function createPatrollingHuman(shirtColor, pantsColor, hasTablet = true) {
+    const grp = new THREE.Group();
+
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 12, 12),
+      new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
+    );
+    head.position.y = 1.45;
+    grp.add(head);
+
+    const torso = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.22, 0.6, 8),
+      new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.7 })
+    );
+    torso.position.y = 0.95;
+    grp.add(torso);
+
+    // Props in hand
+    if (hasTablet) {
+      const tab = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.25, 0.2), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      tab.position.set(0.25, 0.85, 0.1);
+      grp.add(tab);
+    } else {
+      const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      cup.position.set(0.22, 0.88, 0.12);
+      grp.add(cup);
+    }
+
+    const legGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.6, 6);
+    const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.8 });
+
+    const legL = new THREE.Group();
+    legL.position.set(-0.1, 0.6, 0);
+    const mLegL = new THREE.Mesh(legGeo, pantsMat);
+    mLegL.position.y = -0.3;
+    legL.add(mLegL);
+    grp.add(legL);
+
+    const legR = new THREE.Group();
+    legR.position.set(0.1, 0.6, 0);
+    const mLegR = new THREE.Mesh(legGeo, pantsMat);
+    mLegR.position.y = -0.3;
+    legR.add(mLegR);
+    grp.add(legR);
+
+    return { group: grp, legL: legL, legR: legR, stepPhase: 0 };
+  }
+
+  // 3D Interactive NPCs
+  function buildInteractive3DNPCS() {
+    NPC_GUIDES.forEach((npc, idx) => {
+      const grp = new THREE.Group();
+      grp.position.set(npc.pos.x, 0, npc.pos.z);
+      grp.userData = { isNPC: true, npcIndex: idx };
+
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
+      );
+      head.position.y = 1.45;
+      grp.add(head);
+
+      const torso = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12),
+        new THREE.MeshStandardMaterial({ color: npc.shirtColor, roughness: 0.7 })
+      );
+      torso.position.y = 0.95;
+      grp.add(torso);
+
+      const pants = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+      const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
+      legL.position.set(-0.11, 0.35, 0);
+      grp.add(legL);
+      const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
+      legR.position.set(0.11, 0.35, 0);
+      grp.add(legR);
+
+      // Floating interactive badge icon above head ("💬")
+      const iconAura = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.15),
+        new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true })
+      );
+      iconAura.position.y = 1.95;
+      grp.add(iconAura);
+
+      scene.add(grp);
+    });
+  }
+
+  // ─── 7. ANIMATED WALKING HERO WITH CYAN SELECTION RING ────────
   function createWalkingHeroWithIndicator() {
     walkingHero = new THREE.Group();
 
-    // 1. Glowing Cyan Selection Ring beneath feet
+    // Glowing Cyan Target Ring (Inspired directly by user's screenshot!)
     const ringGeo = new THREE.RingGeometry(0.52, 0.64, 32);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0x06b6d4,
@@ -563,7 +1110,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     heroGroundRing.position.y = 0.03;
     walkingHero.add(heroGroundRing);
 
-    // Inner glowing cyan soft circle
     const innerCircle = new THREE.Mesh(
       new THREE.CircleGeometry(0.5, 32),
       new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.18, side: THREE.DoubleSide })
@@ -572,7 +1118,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     innerCircle.position.y = 0.025;
     walkingHero.add(innerCircle);
 
-    // Directional chevron pointer on ring
     const chevGeo = new THREE.ConeGeometry(0.12, 0.28, 4);
     const chevMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
     heroRingChevron = new THREE.Mesh(chevGeo, chevMat);
@@ -580,8 +1125,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     heroRingChevron.position.set(0, 0.035, 0.65);
     walkingHero.add(heroRingChevron);
 
-    // 2. Character Model
-    // Head & Hair
+    // Hero Character Model
     const head = new THREE.Mesh(
       new THREE.SphereGeometry(0.24, 16, 16),
       new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
@@ -596,13 +1140,11 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     hair.position.y = 1.48;
     walkingHero.add(hair);
 
-    // Torso (Signature Orange Shirt)
     const shirtMat = new THREE.MeshStandardMaterial({ color: 0xff6b2b, roughness: 0.6 });
     const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12), shirtMat);
     torso.position.y = 0.95;
     walkingHero.add(torso);
 
-    // Tablet in hand
     const tablet = new THREE.Mesh(
       new THREE.BoxGeometry(0.08, 0.32, 0.24),
       new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.3 })
@@ -610,7 +1152,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     tablet.position.set(0.28, 0.85, 0.12);
     walkingHero.add(tablet);
 
-    // Left Arm Pivot
     const armGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.55, 8);
     armPivotL = new THREE.Group();
     armPivotL.position.set(-0.28, 1.2, 0);
@@ -619,7 +1160,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     armPivotL.add(armL);
     walkingHero.add(armPivotL);
 
-    // Right Arm Pivot
     armPivotR = new THREE.Group();
     armPivotR.position.set(0.28, 1.2, 0);
     const armR = new THREE.Mesh(armGeo, shirtMat);
@@ -627,7 +1167,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     armPivotR.add(armR);
     walkingHero.add(armPivotR);
 
-    // Left & Right Legs
     const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
     const legGeo = new THREE.CylinderGeometry(0.085, 0.08, 0.65, 8);
 
@@ -649,201 +1188,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.add(walkingHero);
   }
 
-  // Build Interactive 3D NPCs across the 7 rooms
-  function buildInteractive3DNPCS() {
-    NPC_GUIDES.forEach((npc, idx) => {
-      const npcGroup = new THREE.Group();
-      npcGroup.position.set(npc.pos.x, 0, npc.pos.z);
-      npcGroup.userData = { isNPC: true, npcIndex: idx };
-
-      // Head with speech cue aura
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.24, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
-      );
-      head.position.y = 1.45;
-      npcGroup.add(head);
-
-      // Torso with distinctive shirt color
-      const torso = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12),
-        new THREE.MeshStandardMaterial({ color: npc.shirtColor, roughness: 0.7 })
-      );
-      torso.position.y = 0.95;
-      npcGroup.add(torso);
-
-      // Legs
-      const pants = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
-      const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
-      legL.position.set(-0.11, 0.35, 0);
-      npcGroup.add(legL);
-      const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
-      legR.position.set(0.11, 0.35, 0);
-      npcGroup.add(legR);
-
-      // Floating interactive badge icon above head ("💬")
-      const iconAura = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.15),
-        new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true })
-      );
-      iconAura.position.y = 1.95;
-      npcGroup.add(iconAura);
-
-      scene.add(npcGroup);
-    });
-  }
-
-  // Room Partitions
-  function build7RoomPartitions(wallMat, trimMat) {
-    const dividerX = [-17.5, -10.5, -3.5, 3.5, 10.5, 17.5];
-
-    for (const x of dividerX) {
-      const wGeo1 = new THREE.BoxGeometry(0.35, 2.6, 8.5);
-      const w1 = new THREE.Mesh(wGeo1, wallMat);
-      w1.position.set(x, 1.3, -5.5);
-      w1.receiveShadow = true;
-      w1.castShadow = true;
-      scene.add(w1);
-
-      const cap1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 8.6), trimMat);
-      cap1.position.set(x, 2.65, -5.5);
-      scene.add(cap1);
-
-      const wGeo2 = new THREE.BoxGeometry(0.35, 2.6, 5);
-      const w2 = new THREE.Mesh(wGeo2, wallMat);
-      w2.position.set(x, 1.3, 7.2);
-      w2.receiveShadow = true;
-      w2.castShadow = true;
-      scene.add(w2);
-
-      const cap2 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 5.1), trimMat);
-      cap2.position.set(x, 2.65, 7.2);
-      scene.add(cap2);
-    }
-  }
-
-  // Specific Room Furniture Builders
-  function buildRoom1Foyer(wallMat, trimMat, chairMat) {
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.05, 1.2), wallMat);
-    desk.position.set(-21, 0.52, -4);
-    desk.castShadow = true;
-    scene.add(desk);
-
-    const top = new THREE.Mesh(new THREE.BoxGeometry(3.7, 0.08, 1.3), trimMat);
-    top.position.set(-21, 1.09, -4);
-    scene.add(top);
-
-    const lap = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.35), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-    lap.position.set(-21, 1.15, -4);
-    scene.add(lap);
-
-    for (let i = 0; i < 2; i++) {
-      const chair = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.12, 0.6), chairMat);
-      chair.position.set(-23 + i * 1.1, 0.45, 4.5);
-      scene.add(chair);
-    }
-  }
-
-  function buildRoom2Studio(screenMat, trimMat, darkMat) {
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.0, 1.05, 1.4), darkMat);
-    desk.position.set(-14, 0.52, -4.5);
-    scene.add(desk);
-
-    for (let r = 0; r < 2; r++) {
-      for (let c = 0; c < 3; c++) {
-        const scr = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.7), screenMat);
-        scr.position.set(-15.2 + c * 1.2, 1.8 + r * 0.85, -9.5);
-        scene.add(scr);
-      }
-    }
-
-    const trip = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.25, 1.4, 4), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
-    trip.position.set(-14, 0.7, 2.5);
-    scene.add(trip);
-
-    const camBox = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.4, 0.9), darkMat);
-    camBox.position.set(-14, 1.5, 2.5);
-    scene.add(camBox);
-
-    const tally = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-    tally.position.set(-14, 1.75, 2.85);
-    scene.add(tally);
-  }
-
-  function buildRoom3Newsroom(trimMat, darkMat, chairMat) {
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.95, 1.4), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }));
-    desk.position.set(-7, 0.48, -4.2);
-    scene.add(desk);
-
-    for (let i = 0; i < 2; i++) {
-      const scr = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.65, 0.08), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
-      scr.position.set(-7.7 + i * 1.4, 1.35, -4.2);
-      scene.add(scr);
-    }
-  }
-
-  function buildRoom4DataLab(trimMat, darkMat) {
-    const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.4, 1.0), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.6, roughness: 0.3 }));
-    rack.position.set(2.2, 1.2, -8.5);
-    scene.add(rack);
-
-    for (let i = 0; i < 5; i++) {
-      const led = new THREE.Mesh(
-        new THREE.SphereGeometry(0.04),
-        new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x38bdf8 : 0x22c55e })
-      );
-      led.position.set(1.9 + (i % 2) * 0.4, 0.6 + i * 0.35, -7.95);
-      scene.add(led);
-    }
-
-    const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.95, 1.3), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-    desk.position.set(0, 0.48, -4);
-    scene.add(desk);
-  }
-
-  function buildRoom5IoTGallery(trimMat, darkMat) {
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.0, 1.4), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.7 }));
-    bench.position.set(7, 0.5, -4.5);
-    scene.add(bench);
-
-    const gasTank = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.65, 16), new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.4 }));
-    gasTank.position.set(6.3, 1.35, -4.5);
-    scene.add(gasTank);
-
-    const trophy = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 }));
-    trophy.position.set(7.8, 1.4, -4.5);
-    scene.add(trophy);
-  }
-
-  function buildRoom6PressHall(trimMat, darkMat, chairMat) {
-    const table = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.9, 1.6), darkMat);
-    table.position.set(14, 0.45, -4.2);
-    scene.add(table);
-
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
-    screen.position.set(14, 2.0, -9.5);
-    scene.add(screen);
-  }
-
-  function buildRoom7RecruiterLounge(trimMat, darkMat, chairMat) {
-    const sofa = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 }));
-    sofa.position.set(21, 0.4, -4.5);
-    scene.add(sofa);
-
-    const table = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.45, 1.0), new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.6 }));
-    table.position.set(21, 0.25, -2);
-    scene.add(table);
-
-    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.25, 0.7, 12), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-    pot.position.set(23.5, 0.35, -8.5);
-    scene.add(pot);
-
-    const plant = new THREE.Mesh(new THREE.DodecahedronGeometry(0.65), new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 }));
-    plant.position.set(23.5, 1.2, -8.5);
-    scene.add(plant);
-  }
-
-  // ─── 5. DOM MOUNTING & HTML SHELL ─────────────────────────────
+  // ─── 8. DOM MOUNTING & HTML SHELL ─────────────────────────────
   function buildScrollytellingDOM() {
     const main = document.querySelector('main');
     if (!main) return;
@@ -860,24 +1205,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <!-- STORY BACKDROP GRADIENT -->
           <div class="nadi-story-backdrop-gradient"></div>
 
-          <!-- TOP NAVBAR & GAME HUD -->
+          <!-- TOP NAVBAR -->
           <header class="nadi-top-navbar">
-            <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
               <a href="#" class="nadi-brand-pill">
                 <span class="nadi-brand-logo">mangara</span>
                 <span class="nadi-brand-dot"></span>
               </a>
               <div class="nadi-hud-player-badge">
                 <span class="nadi-hud-dot"></span>
-                <span>PLAYER 1: MANGARA &bull; 50/50 PORTFOLIO</span>
+                <span>PLAYER 1: MANGARA &bull; 50/50 KARYA</span>
               </div>
             </div>
-
-            <nav class="nadi-nav-center-menu">
-              ${SCROLL_STEPS.map((s, idx) => `
-                <a href="#" class="nadi-nav-step-link ${idx === 0 ? 'active' : ''}" data-step="${idx}">${s.stepName}</a>
-              `).join('')}
-            </nav>
 
             <div class="nadi-nav-actions">
               <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Data Analyst">
@@ -894,14 +1233,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </header>
 
-          <!-- MULTI-ANGLE POV SWITCHER HUD (REFERENSI SCREENSHOT GAME) -->
+          <!-- MULTI-ANGLE POV SWITCHER HUD -->
           <div class="nadi-pov-switcher-wrap">
             <span class="nadi-pov-label">SUDUT PANDANG (POV)</span>
             <div class="nadi-pov-btn-group">
               <button class="nadi-pov-btn active" data-pov="isometric" title="Tampilan Isometrik 45 Derajat">
                 <ion-icon name="cube-outline"></ion-icon> Isometrik
               </button>
-              <button class="nadi-pov-btn" data-pov="topdown" title="Tampilan Bird's-Eye Tactical (Seperti Referensi)">
+              <button class="nadi-pov-btn" data-pov="topdown" title="Tampilan Bird's-Eye Tactical (Seperti Game)">
                 <ion-icon name="scan-outline"></ion-icon> Top-Down
               </button>
               <button class="nadi-pov-btn" data-pov="thirdperson" title="Sudut Pandang Kamera Belakang Karakter">
@@ -913,13 +1252,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </div>
 
+          <!-- ORBIT DRAG HINT PILL -->
+          <div class="nadi-orbit-hint" id="nadi-orbit-hint">
+            💡 Tahan klik & geser di layar untuk memutar sudut pandang 360°
+          </div>
+
           <!-- FLOATING NPC INTERACTION BUTTON -->
           <button class="nadi-npc-floating-trigger" id="nadi-npc-floating-trigger" title="Buka Percakapan dengan Tim di Bilik Ini">
-            <ion-icon name="chatbubble-ellipses-outline" style="color: var(--nadi-orange); font-size: 15px;"></ion-icon>
+            <ion-icon name="chatbubble-ellipses-outline" style="color: var(--nadi-orange); font-size: 14px;"></ion-icon>
             <span>💬 Tanya Tim Bilik Ini</span>
           </button>
 
-          <!-- LEFT FLOATING STORY CONTENT & MINIMALIST CARD -->
+          <!-- LEFT FLOATING STORY CONTENT & ULTRA-MINIMALIST CARD -->
           <div class="nadi-story-layer" id="nadi-story-layer">
             <div class="nadi-step-label" id="nadi-step-label">
               <span>LANGKAH 01</span> &bull; PROFIL & KUALIFIKASI
@@ -945,56 +1289,39 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                 </div>
               </div>
 
-              <!-- DYNAMIC MINIMALIST TABLE/LIST CONTENT -->
+              <!-- DYNAMIC MINIMALIST TABLE CONTENT -->
               <div class="nadi-card-dynamic-container" id="nadi-card-dynamic-container">
                 <!-- Injected via renderStoryStep() -->
               </div>
             </div>
           </div>
 
-          <!-- SCROLL CUE -->
-          <div class="nadi-scroll-cue">
-            <div class="nadi-scroll-pill-icon">
-              <div class="nadi-scroll-pill-dot"></div>
-            </div>
-            <span>GULIR KE BAWAH UNTUK MENJALANKAN KARAKTER KE BILIK BERIKUTNYA &bull; SCROLL TO EXPLORE</span>
-          </div>
-
-          <!-- BOTTOM SCROLLYTELLING TIMELINE -->
+          <!-- FLOATING CENTERED BOTTOM SEGMENTED DOCK (STEPS 01 - 07) -->
+          <!-- User Feedback: Rapikan blok 1-7 agar tidak berantakan & tidak bertabrakan dengan kartu! -->
           <footer class="nadi-bottom-timeline">
-            <div class="nadi-timeline-left-wrap">
-              <div class="nadi-nav-arrows">
-                <button class="nadi-arrow-btn" id="nadi-btn-prev" title="Bilik Sebelumnya (&larr;)">
-                  <ion-icon name="arrow-back-outline"></ion-icon>
-                </button>
-                <button class="nadi-arrow-btn" id="nadi-btn-next" title="Bilik Selanjutnya (&rarr;)">
-                  <ion-icon name="arrow-forward-outline"></ion-icon>
-                </button>
-              </div>
+            <button class="nadi-arrow-btn" id="nadi-btn-prev" title="Bilik Sebelumnya (&larr;)">
+              <ion-icon name="arrow-back-outline"></ion-icon>
+            </button>
 
-              <div class="nadi-steps-bar" id="nadi-steps-bar">
-                ${SCROLL_STEPS.map((s, idx) => `
-                  <div class="nadi-step-item ${idx === 0 ? 'active' : ''}" data-index="${idx}">
-                    <span class="nadi-step-num">${s.stepNum}</span>
-                    <span class="nadi-step-name">${s.stepName}</span>
-                    <div class="nadi-step-track">
-                      <div class="nadi-step-fill" id="nadi-fill-${idx}"></div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
+            <div class="nadi-steps-bar" id="nadi-steps-bar">
+              ${SCROLL_STEPS.map((s, idx) => `
+                <div class="nadi-step-item ${idx === 0 ? 'active' : ''}" data-index="${idx}">
+                  <span class="nadi-step-num">${s.stepNum}</span>
+                  <span class="nadi-step-name">${s.stepName}</span>
+                </div>
+              `).join('')}
             </div>
 
-            <div style="display: flex; gap: 8px;">
-              <button class="nadi-skip-btn" id="nadi-btn-trigger-outro" style="background: #0f172a; color: #ffffff;" title="Lihat Kesimpulan & Outro Animasi">
-                <ion-icon name="ribbon-outline"></ion-icon>
-                <span>Selesai / Outro</span>
-              </button>
-              <button class="nadi-skip-btn" id="nadi-btn-open-archive" title="Buka Arsip Portofolio & CV Lengkap">
-                <ion-icon name="grid-outline"></ion-icon>
-                <span>Arsip & CV</span>
-              </button>
-            </div>
+            <button class="nadi-arrow-btn" id="nadi-btn-next" title="Bilik Selanjutnya (&rarr;)">
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </button>
+
+            <div class="nadi-dock-divider"></div>
+
+            <button class="nadi-skip-btn" id="nadi-btn-open-archive" title="Buka Arsip Dokumen & 50 Proyek">
+              <ion-icon name="grid-outline"></ion-icon>
+              <span>Arsip & CV</span>
+            </button>
           </footer>
 
           <!-- INTERACTIVE NPC DIALOGUE DRAWER WITH GUIDE DIRECTIONS -->
@@ -1015,15 +1342,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               </div>
 
               <span class="nadi-npc-questions-title">Pilih Pertanyaan:</span>
-              <div class="nadi-npc-q-list" id="nadi-npc-q-list">
-                <!-- Dynamically populated questions -->
-              </div>
+              <div class="nadi-npc-q-list" id="nadi-npc-q-list"></div>
 
-              <div class="nadi-npc-answer-box" id="nadi-npc-answer-box">
-                <!-- Answer appears here -->
-              </div>
+              <div class="nadi-npc-answer-box" id="nadi-npc-answer-box"></div>
 
-              <!-- BUTTON ARAHANNYA (GUIDE DIRECTION TO NEXT ROOM) -->
               <button class="nadi-npc-guide-btn" id="nadi-npc-guide-btn">
                 <ion-icon name="compass-outline"></ion-icon>
                 <span id="nadi-npc-guide-label">Arahkan ke Bilik Selanjutnya &rarr;</span>
@@ -1036,18 +1358,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             <div class="nadi-intro-card">
               <div class="nadi-intro-top-badge">
                 <ion-icon name="game-controller-outline"></ion-icon>
-                <span>VIRTUAL 3D INTERACTIVE STUDIO &bull; JAKARTA</span>
+                <span>3D BUSTLING VIRTUAL STUDIO &bull; JAKARTA</span>
               </div>
               <h2 class="nadi-intro-title">MANGARA FERDIANTO PAKPAHAN</h2>
               <p class="nadi-intro-sub">
-                Eksplorasi virtual diorama interaktif first/third person melintasi 7 bilik arsitektur, 50 karya portofolio, 15 pengalaman profesional, dan 8 sertifikasi internasional.
+                Eksplorasi virtual diorama interaktif melintasi 7 bilik kantor studio nyata yang ramai: ruang Master Control siaran langsung, lab data analyst, workshop IoT, hingga ruang redaksi publikasi.
               </p>
-              <div class="nadi-intro-features">
-                <span class="nadi-intro-feat-pill"><ion-icon name="walk-outline"></ion-icon> Karakter Berjalan 3D</span>
-                <span class="nadi-intro-feat-pill"><ion-icon name="scan-outline"></ion-icon> Multi-POV Camera</span>
-                <span class="nadi-intro-feat-pill"><ion-icon name="chatbubbles-outline"></ion-icon> Tim NPC Interaktif</span>
-                <span class="nadi-intro-feat-pill"><ion-icon name="sync-outline"></ion-icon> Auto-Scroll Tabel</span>
-              </div>
               <button class="nadi-intro-btn" id="nadi-intro-btn">
                 <ion-icon name="play-circle-outline" style="font-size: 22px;"></ion-icon>
                 <span>MULAI EKSPLORASI 3D (START TOUR)</span>
@@ -1055,7 +1371,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </div>
 
-          <!-- CINEMATIC OUTRO SCREEN -->
+          <!-- CINEMATIC OUTRO SCREEN (AUTO-TRIGGERED AT END OF SCROLL!) -->
           <div class="nadi-cinematic-outro" id="nadi-cinematic-outro">
             <div class="nadi-outro-card">
               <button class="nadi-outro-close" id="nadi-outro-close">&times;</button>
@@ -1066,7 +1382,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               <p class="nadi-outro-desc">
                 Anda telah menelusuri seluruh 7 zona ekshibisi portofolio Mangara Ferdianto Pakpahan. Seluruh data proyek, sertifikasi, dan dokumen kualifikasi telah terverifikasi resmi.
               </p>
-              <div class="nadi-bento-grid" style="width: 100%; margin: 8px 0;">
+              <div class="nadi-bento-grid" style="width: 100%; margin: 6px 0;">
                 <div class="nadi-bento-item"><span class="nadi-bento-num">50</span><span class="nadi-bento-lbl">Proyek Terkurasi</span></div>
                 <div class="nadi-bento-item"><span class="nadi-bento-num">15</span><span class="nadi-bento-lbl">Pengalaman Kerja</span></div>
                 <div class="nadi-bento-item"><span class="nadi-bento-num">8</span><span class="nadi-bento-lbl">Lisensi Resmi</span></div>
@@ -1085,11 +1401,11 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </div>
 
-          <!-- PROJECT / BLOG LIGHTBOX MODAL -->
+          <!-- LIGHTBOX MODAL -->
           <div class="nadi-lightbox-modal" id="nadi-project-lightbox">
             <div class="nadi-lightbox-card">
               <div class="nadi-lightbox-img-wrap">
-                <img src="./assets/images/portfolio/card-1.jpg" id="nadi-lightbox-img" class="nadi-lightbox-img" alt="Project Preview">
+                <img src="./assets/images/portfolio/card-1.jpg" id="nadi-lightbox-img" class="nadi-lightbox-img" alt="Preview">
                 <button class="nadi-lightbox-close" id="nadi-lightbox-close">&times;</button>
               </div>
               <div class="nadi-lightbox-body">
@@ -1097,8 +1413,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                   <span class="nadi-lightbox-badge" id="nadi-lightbox-badge">Kategori</span>
                   <span style="font-size: 11px; color: #64748b; font-weight: 700;" id="nadi-lightbox-meta">Order</span>
                 </div>
-                <h3 class="nadi-lightbox-title" id="nadi-lightbox-title">Judul Proyek</h3>
-                <p class="nadi-lightbox-desc" id="nadi-lightbox-desc">Deskripsi proyek lengkap...</p>
+                <h3 class="nadi-lightbox-title" id="nadi-lightbox-title">Judul</h3>
+                <p class="nadi-lightbox-desc" id="nadi-lightbox-desc">Deskripsi...</p>
                 <div class="nadi-lightbox-actions" id="nadi-lightbox-actions"></div>
               </div>
             </div>
@@ -1136,12 +1452,13 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                       <div class="nadi-proj-card">
                         <div class="nadi-proj-thumb-wrap">
                           <img src="${p.imageUrl}" alt="${p.title}" class="nadi-proj-img" onerror="this.src='./assets/images/portfolio/card-1.jpg'">
-                          <span class="nadi-proj-badge">${p.category}</span>
-                          <span class="nadi-proj-order">#${p.order}</span>
                         </div>
                         <div class="nadi-proj-content">
                           <div class="nadi-proj-title">${p.title}</div>
-                          <div class="nadi-proj-desc">${p.description}</div>
+                          <div class="nadi-proj-meta-row">
+                            <span class="nadi-proj-badge">${p.category}</span>
+                            <span class="nadi-proj-order">#${p.order}</span>
+                          </div>
                         </div>
                       </div>
                     `).join('')}
@@ -1155,7 +1472,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <div class="nadi-loading-screen" id="nadi-loading-screen">
             <div class="nadi-spinner"></div>
             <div class="nadi-loading-title">MEMUAT STUDIO 3D LENGKAP...</div>
-            <div class="nadi-loading-sub">Mangara Ferdianto Pakpahan &bull; Multi-POV & Interactive NPCs</div>
+            <div class="nadi-loading-sub">Mangara Ferdianto Pakpahan &bull; Multi-POV & Lively Office</div>
           </div>
         </div>
       </div>
@@ -1170,7 +1487,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderStoryStep(0);
   }
 
-  // ─── 6. DYNAMIC MINIMALIST STORY CONTENT RENDERER ─────────────
+  // ─── 9. DYNAMIC MINIMALIST STORY CONTENT RENDERER ─────────────
   function renderStoryStep(index) {
     const step = SCROLL_STEPS[index];
     if (!step) return;
@@ -1193,15 +1510,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       cardStatus.className = `nadi-card-badge-status ${step.badgeStatusColor || 'green'}`;
     }
 
-    // Update active nav link
-    document.querySelectorAll('.nadi-nav-step-link').forEach((link, idx) => {
-      if (idx === index) link.classList.add('active');
-      else link.classList.remove('active');
+    // Update active segmented dock step
+    document.querySelectorAll('.nadi-step-item').forEach((item, idx) => {
+      if (idx === index) item.classList.add('active');
+      else item.classList.remove('active');
     });
 
     if (!container) return;
 
-    // STATION 0: PROFIL & OVERVIEW
+    // STATION 0: PROFIL
     if (index === 0) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="person-circle-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Profil & Kualifikasi Resmi</strong>`;
       const p = DEFAULT_DATA.profile;
@@ -1212,8 +1529,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <div>
             <div class="nadi-profile-name">${p.name}</div>
             <div class="nadi-profile-title">${p.title}</div>
-            <div style="font-size: 10.5px; color: #16a34a; font-weight: 700; margin-top: 2px;">
-              <ion-icon name="location-outline"></ion-icon> ${p.location} &bull; S1 Teknik Informatika ITPLN
+            <div style="font-size: 10px; color: #16a34a; font-weight: 700; margin-top: 1px;">
+              <ion-icon name="location-outline"></ion-icon> ${p.location} &bull; S1 ITPLN
             </div>
           </div>
         </div>
@@ -1225,19 +1542,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <div class="nadi-bento-item"><span class="nadi-bento-num">10</span><span class="nadi-bento-lbl">Layanan Spesialis</span></div>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 18vh;">
+        <div class="nadi-card-scroll-body" style="max-height: 14vh;">
           <div class="nadi-service-list">
             <div class="nadi-service-item">
-              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">Email Resmi:</span>
-              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.email}</span>
+              <span style="font-size: 11px; font-weight: 600; color: #64748b; width: 90px;">Email:</span>
+              <span style="font-size: 11px; font-weight: 700; color: #0f172a;">${p.email}</span>
             </div>
             <div class="nadi-service-item">
-              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">WhatsApp:</span>
-              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.phone}</span>
+              <span style="font-size: 11px; font-weight: 600; color: #64748b; width: 90px;">WhatsApp:</span>
+              <span style="font-size: 11px; font-weight: 700; color: #0f172a;">${p.phone}</span>
             </div>
             <div class="nadi-service-item">
-              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">Domisili:</span>
-              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.location}</span>
+              <span style="font-size: 11px; font-weight: 600; color: #64748b; width: 90px;">Domisili:</span>
+              <span style="font-size: 11px; font-weight: 700; color: #0f172a;">${p.location}</span>
             </div>
           </div>
         </div>
@@ -1269,20 +1586,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       container.innerHTML = `
         <div class="nadi-subtabs-row">
           <button class="nadi-subtab-btn ${activeLayananSubtab === 'services' ? 'active' : ''}" id="nadi-tab-serv">
-            <ion-icon name="briefcase-outline"></ion-icon> 10 Layanan Spesialis
+            <ion-icon name="briefcase-outline"></ion-icon> 10 Layanan
           </button>
           <button class="nadi-subtab-btn ${activeLayananSubtab === 'skills' ? 'active' : ''}" id="nadi-tab-skil">
-            <ion-icon name="bar-chart-outline"></ion-icon> 11 Technical Skills
+            <ion-icon name="bar-chart-outline"></ion-icon> 11 Skills
           </button>
         </div>
 
         <div class="nadi-card-scroll-body" id="nadi-services-scroll-body">
           ${renderServicesOrSkillsHTML()}
-        </div>
-
-        <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir otomatis sinkron dengan langkah karakter 3D</span>
-          <span style="color: var(--nadi-orange);">${activeLayananSubtab === 'services' ? '10 Layanan' : '11 Skills'}</span>
         </div>
       `;
 
@@ -1303,8 +1615,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       container.innerHTML = `
         <div class="nadi-filter-pills-bar">
           <button class="nadi-filter-pill ${activeExpFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (15)</button>
-          <button class="nadi-filter-pill ${activeExpFilter === 'work' ? 'active' : ''}" data-filter="work">Pekerjaan & Magang (6)</button>
-          <button class="nadi-filter-pill ${activeExpFilter === 'org' ? 'active' : ''}" data-filter="org">Kepemimpinan Org (9)</button>
+          <button class="nadi-filter-pill ${activeExpFilter === 'work' ? 'active' : ''}" data-filter="work">Kerja/Magang</button>
+          <button class="nadi-filter-pill ${activeExpFilter === 'org' ? 'active' : ''}" data-filter="org">Organisasi</button>
         </div>
 
         <div class="nadi-card-scroll-body">
@@ -1320,11 +1632,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               </div>
             `).join('')}
           </div>
-        </div>
-
-        <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Tergulir otomatis mengikuti jalan 3D</span>
-          <span style="color: var(--nadi-orange);">15 Linimasa</span>
         </div>
       `;
 
@@ -1343,8 +1650,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       container.innerHTML = `
         <div class="nadi-filter-pills-bar">
           <button class="nadi-filter-pill ${activeEduFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (8)</button>
-          <button class="nadi-filter-pill ${activeEduFilter === 'formal' ? 'active' : ''}" data-filter="formal">Pendidikan Formal</button>
-          <button class="nadi-filter-pill ${activeEduFilter === 'cert' ? 'active' : ''}" data-filter="cert">Sertifikasi & Lisensi</button>
+          <button class="nadi-filter-pill ${activeEduFilter === 'formal' ? 'active' : ''}" data-filter="formal">Formal</button>
+          <button class="nadi-filter-pill ${activeEduFilter === 'cert' ? 'active' : ''}" data-filter="cert">Sertifikasi</button>
         </div>
 
         <div class="nadi-card-scroll-body">
@@ -1361,11 +1668,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             `).join('')}
           </div>
         </div>
-
-        <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> 8 Lisensi Resmi Terverifikasi</span>
-          <span style="color: var(--nadi-orange);">8 Modul</span>
-        </div>
       `;
 
       container.querySelectorAll('.nadi-filter-pill').forEach(btn => {
@@ -1376,7 +1678,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 4: 50+ PROYEK PORTOFOLIO
+    // STATION 4: 50+ PROYEK PORTOFOLIO (COMPACT MINIMALIST ROWS!)
     else if (index === 4) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="folder-open-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>50+ Proyek Portofolio Terkurasi</strong>`;
 
@@ -1390,46 +1692,36 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
         <div class="nadi-filter-pills-bar">
           <button class="nadi-filter-pill ${activeProjFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (50)</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'Live Production' ? 'active' : ''}" data-filter="Live Production">Live Broadcast</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'Live Production' ? 'active' : ''}" data-filter="Live Production">Live</button>
           <button class="nadi-filter-pill ${activeProjFilter === 'Social Media' ? 'active' : ''}" data-filter="Social Media">Medsos</button>
           <button class="nadi-filter-pill ${activeProjFilter === 'Visual Design' ? 'active' : ''}" data-filter="Visual Design">Desain</button>
           <button class="nadi-filter-pill ${activeProjFilter === 'IoT & Tech' ? 'active' : ''}" data-filter="IoT & Tech">IoT</button>
           <button class="nadi-filter-pill ${activeProjFilter === 'AI & Platform' ? 'active' : ''}" data-filter="AI & Platform">AI</button>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 44vh;">
+        <div class="nadi-card-scroll-body">
           <div class="nadi-projects-grid">
             ${filteredProjects.map(proj => `
               <div class="nadi-proj-card">
                 <div class="nadi-proj-thumb-wrap">
                   <img src="${proj.imageUrl}" class="nadi-proj-img" alt="${proj.title}" onerror="this.src='./assets/images/portfolio/card-1.jpg'">
-                  <span class="nadi-proj-badge">${proj.category}</span>
-                  <span class="nadi-proj-order">#${proj.order}</span>
                 </div>
                 <div class="nadi-proj-content">
                   <div class="nadi-proj-title">${proj.title}</div>
-                  <div class="nadi-proj-desc">${proj.description}</div>
-                  <div class="nadi-proj-actions">
-                    <button class="nadi-proj-btn btn-open-lightbox" data-id="${proj.order}">
-                      <ion-icon name="eye-outline"></ion-icon> Detail
-                    </button>
-                    ${proj.projectUrl ? `
-                      <a href="${proj.projectUrl}" target="_blank" rel="noopener" class="nadi-proj-btn" style="color: var(--nadi-orange);">
-                        <ion-icon name="open-outline"></ion-icon> Link
-                      </a>
-                    ` : ''}
+                  <div class="nadi-proj-meta-row">
+                    <span class="nadi-proj-badge">${proj.category}</span>
+                    <span class="nadi-proj-order">#${proj.order}</span>
                   </div>
+                </div>
+                <div class="nadi-proj-actions">
+                  <button class="nadi-proj-btn btn-open-lightbox" data-id="${proj.order}">Detail</button>
+                  ${proj.projectUrl ? `
+                    <a href="${proj.projectUrl}" target="_blank" rel="noopener" class="nadi-proj-btn" style="color: var(--nadi-orange);">Link</a>
+                  ` : ''}
                 </div>
               </div>
             `).join('')}
           </div>
-        </div>
-
-        <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Menampilkan ${filteredProjects.length} Proyek &bull; Auto-scroll saat berjalan</span>
-          <button class="nadi-subtab-btn" id="nadi-btn-full-proj-modal" style="padding: 2px 6px; font-size: 10px;">
-            <ion-icon name="expand-outline"></ion-icon> Layar Penuh
-          </button>
         </div>
       `;
 
@@ -1453,10 +1745,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           if (p) openProjectLightbox(p);
         });
       });
-
-      document.getElementById('nadi-btn-full-proj-modal')?.addEventListener('click', () => {
-        document.getElementById('nadi-archive-modal')?.classList.add('active');
-      });
     }
 
     // STATION 5: 20 BLOG & RISET PRESTASI
@@ -1468,8 +1756,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       container.innerHTML = `
         <div class="nadi-filter-pills-bar">
           <button class="nadi-filter-pill ${activeBlogFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (20)</button>
-          <button class="nadi-filter-pill ${activeBlogFilter === 'prestasi' ? 'active' : ''}" data-filter="prestasi">Prestasi & IoT</button>
-          <button class="nadi-filter-pill ${activeBlogFilter === 'redaksi' ? 'active' : ''}" data-filter="redaksi">Redaksi PJCI & Humas</button>
+          <button class="nadi-filter-pill ${activeBlogFilter === 'prestasi' ? 'active' : ''}" data-filter="prestasi">Prestasi</button>
+          <button class="nadi-filter-pill ${activeBlogFilter === 'redaksi' ? 'active' : ''}" data-filter="redaksi">Redaksi</button>
           <button class="nadi-filter-pill ${activeBlogFilter === 'ai' ? 'active' : ''}" data-filter="ai">Cloud & AI</button>
         </div>
 
@@ -1478,24 +1766,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             ${filteredBlog.map(b => `
               <div class="nadi-blog-item">
                 <div class="nadi-blog-top">
-                  <span class="nadi-blog-date"><ion-icon name="calendar-outline"></ion-icon> ${b.date}</span>
+                  <span class="nadi-blog-date">${b.date}</span>
                   <span class="nadi-blog-cat">${b.category}</span>
                 </div>
                 <div class="nadi-blog-title">${b.title}</div>
                 <p class="nadi-blog-desc">${b.excerpt}</p>
                 ${b.url ? `
                   <a href="${b.url}" target="_blank" rel="noopener" class="nadi-blog-link">
-                    <span>Baca Artikel Resmi</span> &rarr;
+                    <span>Baca Artikel</span> &rarr;
                   </a>
                 ` : ''}
               </div>
             `).join('')}
           </div>
-        </div>
-
-        <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir otomatis seiring penelusuran bilik</span>
-          <span style="color: var(--nadi-orange);">20 Publikasi</span>
         </div>
       `;
 
@@ -1507,21 +1790,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 6: TESTIMONI & KIRIM PESAN LANGSUNG
+    // STATION 6: TESTIMONI & KONTAK
     else if (index === 6) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="chatbubbles-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Testimoni & Kontak Rekrutmen</strong>`;
 
       container.innerHTML = `
         <div class="nadi-subtabs-row">
           <button class="nadi-subtab-btn ${activeContactSubtab === 'testi' ? 'active' : ''}" id="nadi-tab-testi">
-            <ion-icon name="chatbubble-ellipses-outline"></ion-icon> 4 Testimoni Rekan
+            <ion-icon name="chatbubble-ellipses-outline"></ion-icon> 4 Testimoni
           </button>
           <button class="nadi-subtab-btn ${activeContactSubtab === 'form' ? 'active' : ''}" id="nadi-tab-form">
-            <ion-icon name="paper-plane-outline"></ion-icon> Kirim Pesan Langsung
+            <ion-icon name="paper-plane-outline"></ion-icon> Kirim Pesan
           </button>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 44vh;">
+        <div class="nadi-card-scroll-body" style="max-height: 38vh;">
           ${activeContactSubtab === 'testi' ? `
             <div class="nadi-testi-list">
               ${DEFAULT_DATA.testimonials.map(t => `
@@ -1530,7 +1813,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                     <img src="${t.avatarUrl}" class="nadi-testi-avatar" alt="${t.name}">
                     <div>
                       <div class="nadi-testi-name">${t.name}</div>
-                      <div class="nadi-testi-date"><ion-icon name="calendar-outline"></ion-icon> ${t.date}</div>
+                      <div class="nadi-testi-date">${t.date}</div>
                     </div>
                   </div>
                   <p class="nadi-testi-quote">"${t.text}"</p>
@@ -1541,7 +1824,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             <form class="nadi-contact-form" id="nadi-direct-contact-form">
               <div class="nadi-form-group">
                 <label class="nadi-form-label">Nama Lengkap / Instansi</label>
-                <input type="text" name="fullname" class="nadi-form-input" placeholder="Nama atau instansi Anda..." required>
+                <input type="text" name="fullname" class="nadi-form-input" placeholder="Nama Anda..." required>
               </div>
               <div class="nadi-form-group">
                 <label class="nadi-form-label">Alamat Email</label>
@@ -1549,11 +1832,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               </div>
               <div class="nadi-form-group">
                 <label class="nadi-form-label">Pesan / Undangan Rekrutmen</label>
-                <textarea name="message" class="nadi-form-textarea" placeholder="Tuliskan pesan, tawaran kerja, atau proyek..." required></textarea>
+                <textarea name="message" class="nadi-form-textarea" placeholder="Tuliskan pesan tawaran kerja atau proyek..." required></textarea>
               </div>
               <button type="submit" class="nadi-form-btn" id="nadi-form-submit-btn">
-                <ion-icon name="send-outline"></ion-icon>
-                <span>Kirim Pesan Sekarang</span>
+                <span>Kirim Pesan Sekarang</span> &rarr;
               </button>
             </form>
           `}
@@ -1587,7 +1869,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  // Helper functions for content rendering
+  // Helper renderers
   function renderServicesOrSkillsHTML() {
     if (activeLayananSubtab === 'services') {
       return `
@@ -1683,7 +1965,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     return DEFAULT_DATA.blog;
   }
 
-  // ─── 7. INTERACTIVE NPC DIALOGUE CONTROLLER ───────────────────
+  // ─── 10. INTERACTIVE NPC DIALOGUE CONTROLLER ──────────────────
   function openNPCDialogue(index) {
     const npc = NPC_GUIDES[index] || NPC_GUIDES[0];
     const modal = document.getElementById('nadi-npc-dialogue-modal');
@@ -1737,7 +2019,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     document.getElementById('nadi-npc-dialogue-modal')?.classList.remove('active');
   }
 
-  // ─── 8. DIRECT FIRESTORE CONTACT FORM HANDLER ─────────────────
+  // ─── 11. DIRECT FIRESTORE CONTACT FORM HANDLER ────────────────
   async function handleDirectContactSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -1746,7 +2028,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     submitBtn.disabled = true;
     const origHTML = submitBtn.innerHTML;
-    submitBtn.innerHTML = `<ion-icon name="sync-outline" style="animation: spin 1s linear infinite;"></ion-icon> <span>Mengirim ke Database...</span>`;
+    submitBtn.innerHTML = `<span>Mengirim...</span>`;
 
     const name = form.fullname?.value || '';
     const email = form.email?.value || '';
@@ -1761,7 +2043,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         read: false
       });
 
-      submitBtn.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Pesan Terkirim ke Admin! 🎉</span>`;
+      submitBtn.innerHTML = `<span>Pesan Terkirim ke Admin! 🎉</span>`;
       submitBtn.style.background = '#16a34a';
       form.reset();
 
@@ -1773,7 +2055,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     } catch (err) {
       console.warn('Firestore direct send error:', err);
-      submitBtn.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Pesan Diterima Sistem Lokal!</span>`;
+      submitBtn.innerHTML = `<span>Pesan Diterima Sistem Lokal!</span>`;
       submitBtn.style.background = '#16a34a';
       form.reset();
 
@@ -1785,7 +2067,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  // ─── 9. LIGHTBOX MODAL HANDLER ────────────────────────────────
+  // ─── 12. LIGHTBOX MODAL HANDLER ───────────────────────────────
   function openProjectLightbox(proj) {
     const modal = document.getElementById('nadi-project-lightbox');
     if (!modal) return;
@@ -1808,7 +2090,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         ${proj.projectUrl ? `
           <a href="${proj.projectUrl}" target="_blank" rel="noopener" class="nadi-card-btn primary">
             <ion-icon name="open-outline"></ion-icon>
-            <span>Kunjungi Link Proyek Asli</span> &rarr;
+            <span>Kunjungi Link Proyek</span> &rarr;
           </a>
         ` : ''}
         <button class="nadi-card-btn" id="nadi-lightbox-close-btn">
@@ -1825,7 +2107,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     document.getElementById('nadi-project-lightbox')?.classList.remove('active');
   }
 
-  // ─── 10. SCROLL & AUTO-SYNC IN-CARD TABLE CONTROLLER ──────────
+  // ─── 13. SCROLL & AUTOMATIC OUTRO TRIGGER CONTROLLER ──────────
   function handleScroll() {
     if (!scrollyTrack) return;
 
@@ -1851,18 +2133,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       renderStoryStep(currentStepIndex);
     }
 
-    // AUTO-SYNCHRONIZE IN-CARD TABLE SCROLL WITH 3D WALKTHROUGH!
-    // (User Feedback: "kontrol scroll tabelnya otomatiskan mengikuti scroll 3d gamenya")
+    // AUTO-SYNCHRONIZE IN-CARD TABLE SCROLL WITH 3D WALKTHROUGH
     autoSyncCardScroll(progress, currentStepIndex, stepRange);
 
-    updateTimelineUI(progress);
+    // AUTO-TRIGGER OUTRO ANIMATION WHEN REACHING SCROLL END (USER REQUEST #5!)
+    if (progress >= 0.96 && !isOutroActive && !outroDismissedByUser) {
+      openOutroModal();
+    } else if (progress < 0.90) {
+      // Reset flag if user scrolls back up so it can re-trigger when finishing again
+      outroDismissedByUser = false;
+    }
   }
 
   function autoSyncCardScroll(progress, stepIdx, stepRange) {
     const scrollBody = document.querySelector('.nadi-card-scroll-body');
     if (!scrollBody) return;
 
-    // Calculate normalized progress within the current station
     const stepCenter = stepIdx * stepRange;
     const stepHalf = stepRange * 0.5;
     const localProg = Math.max(0, Math.min(1, (progress - (stepCenter - stepHalf * 0.8)) / (stepHalf * 1.6)));
@@ -1871,34 +2157,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     if (maxScroll > 0) {
       scrollBody.scrollTop = localProg * maxScroll;
     }
-  }
-
-  function updateTimelineUI(progress) {
-    const numSteps = SCROLL_STEPS.length;
-    const stepRange = 1 / (numSteps - 1);
-
-    const stepItems = document.querySelectorAll('.nadi-step-item');
-    stepItems.forEach((item, idx) => {
-      const fill = document.getElementById(`nadi-fill-${idx}`);
-      const stepStart = idx * stepRange;
-
-      if (progress >= stepStart) {
-        item.classList.add('active');
-        if (fill) {
-          const stepProg = Math.min(1, (progress - stepStart) / stepRange);
-          fill.style.width = `${stepProg * 100}%`;
-        }
-      } else {
-        item.classList.remove('active');
-        if (fill) fill.style.width = '0%';
-      }
-
-      if (progress >= (idx + 1) * stepRange) {
-        item.classList.add('completed');
-      } else {
-        item.classList.remove('completed');
-      }
-    });
   }
 
   function jumpToStep(idx) {
@@ -1915,7 +2173,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
   }
 
-  // ─── 11. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
+  // ─── 14. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
   function initThreeDiorama() {
     canvas = document.getElementById('nadi-webgl-canvas');
     stickyViewport = document.getElementById('nadi-sticky-viewport');
@@ -1926,9 +2184,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const width = stickyViewport.clientWidth || window.innerWidth;
     const height = stickyViewport.clientHeight || window.innerHeight;
 
-    // Camera initial high drone position for cinematic intro fly-in!
     currentCamPos = new THREE.Vector3(-21, 35, 28);
-    currentLookAt = new THREE.Vector3(-21, 1.3, 0);
+    currentLookAt = new THREE.Vector3(-21, 1.2, 0);
     tempTargetPos = new THREE.Vector3();
     tempTargetLook = new THREE.Vector3();
 
@@ -1959,10 +2216,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       renderer.outputEncoding = THREE.sRGBEncoding;
     }
 
-    // Build the architectural diorama with reference features
+    // Build bustling miniature studio
     buildMiniatureDioramaScene();
 
-    // Listeners
+    // Event Listeners
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', onWindowResize);
 
@@ -1973,18 +2230,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       window.scrollBy({ top: e.deltaY, behavior: 'auto' });
     }, { passive: true });
 
-    // Step item navigation
+    // Step item navigation in bottom dock
     document.querySelectorAll('.nadi-step-item').forEach(item => {
       item.addEventListener('click', () => {
         const idx = parseInt(item.dataset.index, 10);
-        jumpToStep(idx);
-      });
-    });
-
-    document.querySelectorAll('.nadi-nav-step-link').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const idx = parseInt(link.dataset.step, 10);
         jumpToStep(idx);
       });
     });
@@ -1997,12 +2246,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       jumpToStep(currentStepIndex + 1);
     });
 
-    // POV Switcher Buttons
+    // POV Switcher Buttons (Refined 4 POVs!)
     document.querySelectorAll('.nadi-pov-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.nadi-pov-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentPOV = btn.dataset.pov;
+
+        const hint = document.getElementById('nadi-orbit-hint');
+        if (hint) {
+          if (currentPOV === 'orbit') hint.classList.add('active');
+          else hint.classList.remove('active');
+        }
       });
     });
 
@@ -2023,7 +2278,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     document.getElementById('nadi-intro-btn')?.addEventListener('click', startIntroExperience);
 
-    // Outro Celebration Modal Triggers
+    // Outro Modal Handlers
     function openOutroModal() {
       const outro = document.getElementById('nadi-cinematic-outro');
       if (outro) outro.classList.add('active');
@@ -2034,9 +2289,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       const outro = document.getElementById('nadi-cinematic-outro');
       if (outro) outro.classList.remove('active');
       isOutroActive = false;
+      outroDismissedByUser = true;
     }
 
-    document.getElementById('nadi-btn-trigger-outro')?.addEventListener('click', openOutroModal);
     document.getElementById('nadi-outro-close')?.addEventListener('click', closeOutroModal);
     document.getElementById('nadi-outro-replay-btn')?.addEventListener('click', () => {
       closeOutroModal();
@@ -2060,7 +2315,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     });
 
-    // Free Orbit Mouse Drag
+    // Smooth Orbit & Mouse Drag Handling
     let isDragging = false;
     let startX = 0, startY = 0;
 
@@ -2080,15 +2335,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         startY = e.clientY;
 
         if (currentPOV === 'orbit') {
-          orbitYaw -= dx * 0.008;
-          orbitPitch = Math.max(0.1, Math.min(1.4, orbitPitch + dy * 0.008));
+          orbitYaw -= dx * 0.007;
+          orbitPitch = Math.max(0.15, Math.min(1.35, orbitPitch + dy * 0.007));
         } else {
           window.scrollBy({ top: -dy * 2.5, behavior: 'auto' });
         }
       }
     });
 
-    // Touch Controls
+    // Touch Swipe Controls
     let touchStartY = 0;
     canvas.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
@@ -2144,7 +2399,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     });
 
-    // Hide loader
+    // Hide initial loader
     setTimeout(() => {
       document.getElementById('nadi-loading-screen')?.classList.add('hidden');
     }, 400);
@@ -2162,7 +2417,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderer.setSize(width, height);
   }
 
-  // Camera Flight Pose Calculator with Multi-POV Support
+  // Camera Flight Pose Calculator with 4 Refined POVs
   function getCameraPoseAtProgress(t) {
     const numIntervals = SCROLL_STEPS.length - 1;
     const scaled = t * numIntervals;
@@ -2182,44 +2437,42 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     let pos = { x: 0, y: 0, z: 0 };
     let look = { ...baseLook };
 
-    // Get current hero world coordinates
     let heroPos = { x: baseLook.x, y: 0, z: baseLook.z };
     if (walkingHero) {
       heroPos.x = walkingHero.position.x;
       heroPos.z = walkingHero.position.z;
     }
 
-    // MULTI-POV CALCULATIONS
+    // 4 COMFORTABLE & BALANCED POVS (USER REQUEST #1!)
     if (currentPOV === 'topdown') {
-      // High-angle bird's-eye view looking directly down on hero and winding path (Reference Screenshot!)
-      pos.x = heroPos.x;
-      pos.y = 19.5;
-      pos.z = heroPos.z + 4.5;
-      look.x = heroPos.x;
-      look.y = 0;
+      // High-angle tactical view (approx. 65° tilt down, looking ahead along the path)
+      pos.x = heroPos.x - 1.2;
+      pos.y = 15.0;
+      pos.z = heroPos.z + 7.5;
+      look.x = heroPos.x + 1.8;
+      look.y = 0.4;
       look.z = heroPos.z;
 
     } else if (currentPOV === 'thirdperson') {
-      // Over-the-shoulder follow walk angle behind the hero
-      pos.x = heroPos.x - 2.8;
-      pos.y = 2.4;
-      pos.z = heroPos.z + 4.2;
-      look.x = heroPos.x + 3.5;
-      look.y = 1.3;
+      // Over-the-shoulder follow-cam behind the walking hero
+      pos.x = heroPos.x - 3.2;
+      pos.y = 2.2;
+      pos.z = heroPos.z + 3.4;
+      look.x = heroPos.x + 4.0;
+      look.y = 1.2;
       look.z = heroPos.z - 0.5;
 
     } else if (currentPOV === 'orbit') {
-      // Free orbit drag
-      const dist = 14;
-      pos.x = heroPos.x + Math.sin(orbitYaw) * dist * Math.cos(orbitPitch);
-      pos.y = Math.sin(orbitPitch) * dist + 1.5;
-      pos.z = heroPos.z + Math.cos(orbitYaw) * dist * Math.cos(orbitPitch);
+      // Smooth 360 degree free orbit around hero
+      pos.x = heroPos.x + Math.sin(orbitYaw) * orbitDistance * Math.cos(orbitPitch);
+      pos.y = Math.sin(orbitPitch) * orbitDistance + 1.2;
+      pos.z = heroPos.z + Math.cos(orbitYaw) * orbitDistance * Math.cos(orbitPitch);
       look.x = heroPos.x;
       look.y = 1.2;
       look.z = heroPos.z;
 
     } else {
-      // Default: Isometric Cutaway Perspective
+      // Default: Balanced 42° Isometric Cutaway Perspective
       pos.x = stepA.cam.x + (stepB.cam.x - stepA.cam.x) * ease;
       pos.y = stepA.cam.y + (stepB.cam.y - stepA.cam.y) * ease;
       pos.z = stepA.cam.z + (stepB.cam.z - stepA.cam.z) * ease;
@@ -2228,8 +2481,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     // If Outro is active, pull back camera into celebratory sky overview
     if (isOutroActive) {
       pos.x = 0;
-      pos.y = 28;
-      pos.z = 26;
+      pos.y = 26;
+      pos.z = 24;
       look.x = 0;
       look.y = 1.2;
       look.z = 0;
@@ -2256,7 +2509,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       walkingHero.position.set(heroPt.x, 0, heroPt.z);
       walkingHero.rotation.y = Math.atan2(heroTangent.x, heroTangent.z);
 
-      // Pulse cyan target ring (Reference signature feature!)
+      // Pulse cyan target ring (Reference feature!)
       if (heroGroundRing) {
         const pulse = 1.0 + Math.sin(time * 3) * 0.08;
         heroGroundRing.scale.set(pulse, pulse, 1);
@@ -2274,7 +2527,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         if (armPivotR) armPivotR.rotation.x = Math.sin(walkStepPhase) * 0.5;
         walkingHero.position.y = Math.abs(Math.sin(walkStepPhase * 2)) * 0.06;
       } else {
-        // Natural idle breathing pose
         if (legPivotL) legPivotL.rotation.x *= 0.85;
         if (legPivotR) legPivotR.rotation.x *= 0.85;
         if (armPivotL) armPivotL.rotation.x *= 0.85;
@@ -2283,7 +2535,41 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     }
 
-    // 2. CINEMATIC INTRO FLY-IN ANIMATION
+    // 2. ANIMATE MOBILE PATROLLING EMPLOYEES (THE BUSTLING OFFICE!)
+    patrollingStaff.forEach(w => {
+      w.currentX += w.speed * w.dir;
+      if (w.currentX > w.maxX) {
+        w.currentX = w.maxX;
+        w.dir = -1;
+      } else if (w.currentX < w.minX) {
+        w.currentX = w.minX;
+        w.dir = 1;
+      }
+
+      w.group.position.set(w.currentX, 0, w.z);
+      w.group.rotation.y = w.dir === 1 ? -Math.PI / 2 : Math.PI / 2;
+
+      w.stepPhase += 0.12;
+      w.legL.rotation.x = Math.sin(w.stepPhase) * 0.5;
+      w.legR.rotation.x = -Math.sin(w.stepPhase) * 0.5;
+      w.group.position.y = Math.abs(Math.sin(w.stepPhase * 2)) * 0.04;
+    });
+
+    // 3. ANIMATE DESK WORKERS (Typing / subtle head nodding)
+    activeWorkers.forEach(w => {
+      if (w.isTyping) {
+        w.armL.rotation.x = Math.PI / 3 + Math.sin(time * 8 + w.phase) * 0.08;
+        w.armR.rotation.x = Math.PI / 3 + Math.cos(time * 8 + w.phase) * 0.08;
+      }
+      w.head.rotation.y = Math.sin(time * 1.2 + w.phase) * 0.12;
+    });
+
+    // 4. ANIMATE BLINKING SERVER LEDS
+    serverLEDs.forEach((led, idx) => {
+      led.visible = Math.sin(time * 6 + idx) > -0.2;
+    });
+
+    // 5. CINEMATIC INTRO FLY-IN ANIMATION
     if (isIntroAnimating) {
       introProgress += 0.025;
       if (introProgress >= 1) {
@@ -2292,16 +2578,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     }
 
-    // 3. SMOOTH CAMERA FLIGHT & POV INTERPOLATION
+    // 6. SMOOTH CAMERA FLIGHT & POV INTERPOLATION
     const { pos, look } = getCameraPoseAtProgress(currentProgress);
 
     if (currentCamPos && currentLookAt && tempTargetPos && tempTargetLook) {
       if (isIntroActive) {
-        // Drone sky view while intro modal is open
         tempTargetPos.set(-21, 35, 28);
-        tempTargetLook.set(-21, 1.3, 0);
+        tempTargetLook.set(-21, 1.2, 0);
       } else if (isIntroAnimating) {
-        // Fly-down swooping curve from sky to ground
         const tEase = introProgress * introProgress * (3 - 2 * introProgress);
         tempTargetPos.set(
           -21 * (1 - tEase) + pos.x * tEase,
@@ -2324,7 +2608,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderer.render(scene, camera);
   }
 
-  // ─── 12. ENTRY POINT ──────────────────────────────────────────
+  // ─── 15. ENTRY POINT ──────────────────────────────────────────
   function init() {
     buildScrollytellingDOM();
 
@@ -2339,7 +2623,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       document.head.appendChild(script);
     }
 
-    console.log('✨ 3D Diorama (Intro/Outro, Reference Aesthetics, Multi-POV & NPCs) initialized successfully!');
+    console.log('✨ 3D Bustling Studio Experience initialized successfully!');
   }
 
   if (document.readyState === 'loading') {
