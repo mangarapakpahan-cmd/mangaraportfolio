@@ -1,20 +1,24 @@
 /**
  * gallery-3d-experience.js
  * 3D Scrollytelling Camera Flight & Interactive Miniature Studio
- * Inspired by "nadi." Healthcare Diorama Experience
- * - Complete integration of ALL 9 sections managed in admin.html & DEFAULT_DATA:
- *   1. Profil (Bio, stats counters, contacts, social links, 1-click ATS CV downloads)
- *   2. Layanan (All 10 services with icons & full descriptions)
- *   3. Skills (All 11 technical & creative skills with progress bars)
- *   4. Pengalaman (All 15 work & organizational leadership items)
- *   5. Pendidikan & Sertifikasi (All 8 items: S1 ITPLN, Azure Databricks ML, SEM-PLS 120 JP, MOS Excel, etc.)
- *   6. 50+ Proyek Portofolio (All 50 authentic projects with card-1.jpg..card-50.jpg, category filters, search bar, & Lightbox modal)
- *   7. Blog & Publikasi (All 20 articles & research achievements: SafeSense Juara 1 MKI, PKM DIKTI grant)
- *   8. Testimoni (All 4 client & leadership testimonials)
- *   9. Pesan / Rekrutmen (Direct interactive contact form saving to Firestore 'messages' collection)
- * - Animated walking hero character physically traversing the orange path through all 7 studio zones
- * - Long, comfortable 1200vh scroll track + dedicated in-card scroll containers
- * - 100% Self-contained within the 3D scene (no bottom 2D site needed)
+ * Inspired by "nadi." Healthcare Diorama & Stylized Isometric Game
+ *
+ * Core Features:
+ * 1. Cinematic Intro Fly-in & Outro Celebration Screens
+ * 2. Visual enhancements inspired by user's reference screenshot:
+ *    - Paved sidewalk with curbs and stone slabs along the orange path
+ *    - Glowing cyan selection ring with directional chevron at hero's feet
+ *    - Lampposts casting warm spotlight cones
+ *    - Buildings with illuminated warm golden grid windows
+ *    - Low-poly trees, park benches, and bushes
+ * 3. 7 Interactive NPCs placed across rooms:
+ *    - Can be questioned with verified portfolio answers
+ *    - "Button Arahannya" that smoothly navigates visitors to the next room
+ * 4. Multi-Angle Camera POV Switcher (Isometric, Top-Down Tactical, Third-Person, Free Orbit)
+ * 5. Auto-synchronized In-Card Scroll: list/table scrolls automatically with 3D walkthrough
+ * 6. Minimalist, simple modern table and card design
+ * 7. All 9 Admin Sections completely displayed (Profile, 10 Services, 11 Skills, 15 Experiences,
+ *    8 Certifications, 50 Projects with Lightbox, 20 Blogs, 4 Testimonials, Direct Contact Form)
  */
 
 import { DEFAULT_DATA } from './default-data.js';
@@ -35,6 +39,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let legPivotR = null;
   let armPivotL = null;
   let armPivotR = null;
+  let heroGroundRing = null;
+  let heroRingChevron = null;
   let orangeCurve = null;
   let walkStepPhase = 0;
 
@@ -44,6 +50,18 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let tempTargetPos = null;
   let tempTargetLook = null;
 
+  // Cinematic Intro/Outro animation states
+  let isIntroActive = true;
+  let introProgress = 0;
+  let isIntroAnimating = false;
+  let isOutroActive = false;
+
+  // Multi-POV Camera Modes
+  // 'isometric' (default cutaway) | 'topdown' (tactical screenshot view) | 'thirdperson' (follow walk) | 'orbit'
+  let currentPOV = 'isometric';
+  let orbitYaw = 0;
+  let orbitPitch = 0.5;
+
   let targetProgress = 0;
   let currentProgress = 0;
   let currentStepIndex = 0;
@@ -52,19 +70,166 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let activeLayananSubtab = 'services'; // 'services' or 'skills'
   let activeExpFilter = 'all'; // 'all', 'work', 'org'
   let activeEduFilter = 'all'; // 'all', 'formal', 'cert'
-  let activeProjFilter = 'all'; // 'all', 'live', 'sosmed', 'design', 'iot', 'ai', 'editorial'
+  let activeProjFilter = 'all';
   let activeProjSearch = '';
-  let activeBlogFilter = 'all'; // 'all', 'prestasi', 'redaksi', 'ai'
-  let activeContactSubtab = 'testi'; // 'testi' or 'form'
+  let activeBlogFilter = 'all';
+  let activeContactSubtab = 'testi';
 
-  // ─── 2. 7 SCROLLYTELLING STEP DEFINITIONS ─────────────────────
+  // Active NPC Dialogue Reference
+  let activeNPCIndex = 0;
+
+  // ─── 2. 7 INTERACTIVE NPCS DEFINITION ─────────────────────────
+  const NPC_GUIDES = [
+    {
+      roomIndex: 0,
+      name: "Nadia",
+      role: "Front Desk & Welcome Guide",
+      avatarLetter: "N",
+      pos: { x: -22.5, z: 2.5 },
+      shirtColor: 0xff7a38,
+      greeting: "Halo! Selamat datang di Studio Virtual Mangara Ferdianto Pakpahan. Saya bisa membantu Anda mengenali profil dan kualifikasi resminya.",
+      questions: [
+        {
+          q: "Siapa itu Mangara Ferdianto Pakpahan?",
+          a: "Mangara adalah mahasiswa S1 Teknik Informatika Institut Teknologi PLN dengan keahlian multidisipliner memadukan Creative Direction, Live Production, Social Media Growth, dan Data Analytics / Machine Learning."
+        },
+        {
+          q: "Bagaimana cara mengunduh berkas CV resminya?",
+          a: "Anda bisa langsung mengklik tombol 'CV Data Analyst' atau 'CV Sosmed & Humas' di navbar atas atau di kartu profil bilik ini. Keduanya berformat ATS resmi."
+        }
+      ],
+      nextRoomName: "Bilik 02: Siaran Langsung & Live Production"
+    },
+    {
+      roomIndex: 1,
+      name: "Rizky",
+      role: "Lead Broadcast Switcher",
+      avatarLetter: "R",
+      pos: { x: -15.5, z: 2.2 },
+      shirtColor: 0x0284c7,
+      greeting: "Salam! Di sini bilik Master Control Room (MCR). Kami mengendalikan alur siaran langsung multi-kamera acara protokoler nasional.",
+      questions: [
+        {
+          q: "Apa saja pengalaman siaran langsung Mangara?",
+          a: "Mangara bertindak sebagai Lead Switcher untuk Wisuda ke-46 ITPLN, Sutradara Studium Generale Nuklir, Tanda Tangan Kontrak PLN, dan Seleksi Beasiswa APERTI BUMN berpenonton ribuan orang daring & luring."
+        },
+        {
+          q: "Software dan perangkat apa yang dikuasai?",
+          a: "Menguasai OBS Studio, vMix, Blackmagic ATEM Visual Switcher, routing video SDI/NDI, mixing audio studio, dan post-production DaVinci Resolve."
+        }
+      ],
+      nextRoomName: "Bilik 03: Media Sosial & Humas"
+    },
+    {
+      roomIndex: 2,
+      name: "Sarah",
+      role: "Social Media Strategist",
+      avatarLetter: "S",
+      pos: { x: -8.5, z: 2.4 },
+      shirtColor: 0xa855f7,
+      greeting: "Halo! Kami mengelola kanal resmi institusi @itpln dan @smartgridindonesia (PJCI) dengan strategi konten visual modern.",
+      questions: [
+        {
+          q: "Berapa pertumbuhan engagement yang dicapai?",
+          a: "Di bawah strategi konten Mangara, engagement akun resmi @itpln melonjak hingga 300% (3x lipat) melalui kampanye visual interaktif dan editorial berkala."
+        },
+        {
+          q: "Apa tanggung jawabnya di PJCI?",
+          a: "Mangara dipercaya mengelola media sosial resmi Indonesia Smart Grid Association (@smartgridindonesia) dan redaksi berita web pjci.or.id terkait transisi energi bersih."
+        }
+      ],
+      nextRoomName: "Bilik 04: Data Science & AI Cloud"
+    },
+    {
+      roomIndex: 3,
+      name: "Dimas",
+      role: "Machine Learning Engineer",
+      avatarLetter: "D",
+      pos: { x: -1.5, z: 2.3 },
+      shirtColor: 0x3b82f6,
+      greeting: "Selamat datang di Data Lab! Kami fokus pada riset pemodelan empiris, cloud machine learning, dan automasi database kuantitatif.",
+      questions: [
+        {
+          q: "Sertifikasi resmi apa saja yang dimiliki?",
+          a: "Microsoft Azure Databricks Machine Learning (8 modul resmi AutoML & Apache Spark), Structural Equation Modeling SEM-PLS (120 JP PT Educativa), dan MOS Excel 2019."
+        },
+        {
+          q: "Bagaimana penerapan ilmunya?",
+          a: "Digunakan untuk analisis path Structural Equation Modeling, data mining Python/SQL, serta automasi pemodelan bisnis dan cloud pipeline."
+        }
+      ],
+      nextRoomName: "Bilik 05: Inovasi IoT SafeSense & 50 Proyek"
+    },
+    {
+      roomIndex: 4,
+      name: "Budi",
+      role: "Hardware & IoT Researcher",
+      avatarLetter: "B",
+      pos: { x: 5.5, z: 2.5 },
+      shirtColor: 0xf97316,
+      greeting: "Halo! Ini adalah ruang pamer 50 proyek portofolio dan prototipe perangkat pintar IoT LPG-SafeSense.",
+      questions: [
+        {
+          q: "Bagaimana cara kerja inovasi IoT LPG-SafeSense?",
+          a: "Mengintegrasikan sensor gas MQ-6, sensor beban load-cell berat sisa gas, dan modul WiFi Firebase cloud ke aplikasi mobile secara real-time (Juara 1 MKI & ITPLN)."
+        },
+        {
+          q: "Berapa hibah riset yang berhasil diraih?",
+          a: "Meraih pendanaan hibah riset nasional Kemendikbudristek PKM DIKTI Level 1 untuk hilirisasi teknologi keselamatan gas rumah tangga."
+        }
+      ],
+      nextRoomName: "Bilik 06: Publikasi Ilmiah & Berita"
+    },
+    {
+      roomIndex: 5,
+      name: "Dewi",
+      role: "Corporate Journalist & Editor",
+      avatarLetter: "D",
+      pos: { x: 12.5, z: 2.4 },
+      shirtColor: 0x10b981,
+      greeting: "Selamat datang di ruang redaksi! Di sini terpusat 20 publikasi resmi, artikel ilmiah, dan siaran pers transisi energi.",
+      questions: [
+        {
+          q: "Apa saja publikasi yang telah diterbitkan?",
+          a: "Mencakup siaran pers seminar dekarbonisasi di pjci.or.id, berita resmi kampus ITPLN, artikel ilmiah cloud Databricks, serta dokumentasi riset kompetisi nasional."
+        },
+        {
+          q: "Apakah seluruh artikel bisa diakses publik?",
+          a: "Tentu! Anda dapat mengklik tombol 'Baca Artikel Resmi' di kartu bilik ini untuk mengunjungi sumber aslinya langsung."
+        }
+      ],
+      nextRoomName: "Bilik 07: Testimoni & Rekrutmen Resmi"
+    },
+    {
+      roomIndex: 6,
+      name: "Kevin",
+      role: "Talent Partner & HR Host",
+      avatarLetter: "K",
+      pos: { x: 19.5, z: 2.4 },
+      shirtColor: 0xff6b2b,
+      greeting: "Halo Rekruter & Partner! Mangara siap berkolaborasi untuk posisi kerja penuh waktu, program magang, maupun creative direction.",
+      questions: [
+        {
+          q: "Kapan Mangara siap untuk mulai bekerja?",
+          a: "Mangara siap onboarding segera untuk penugasan di Jakarta (on-site/hybrid) maupun penugasan remote dengan komitmen profesional tinggi."
+        },
+        {
+          q: "Bagaimana cara mengirim pesan atau wawancara?",
+          a: "Gunakan formulir 'Kirim Pesan Langsung' di bilik ini (langsung tercatat ke sistem database admin), atau chat WhatsApp seketika di 0813-1881-6058."
+        }
+      ],
+      nextRoomName: "Bilik 01: Mulai Kembali Tur Dari Awal"
+    }
+  ];
+
+  // ─── 3. 7 SCROLLYTELLING STEP DEFINITIONS ─────────────────────
   const SCROLL_STEPS = [
     {
       stepNum: "01",
       stepName: "Profil",
       category: "LANGKAH 01 • PROFIL & KUALIFIKASI PROFESIONAL",
       title: "Kreativitas Bertemu Rekayasa Data & Komunikasi Publik.",
-      desc: "Mahasiswa S1 Teknik Informatika Institut Teknologi PLN dengan keahlian multidisipliner yang memadukan perancangan identitas visual korporat, produksi siaran langsung nasional, pengelolaan komunikasi digital resmi, serta riset dan analitik data empiris.\n\nMemiliki dedikasi tinggi dalam mengintegrasikan teknologi informasi modern dengan komunikasi visual berdampak untuk memecahkan tantangan korporat dan institusi publik secara terukur.",
+      desc: "Mahasiswa S1 Teknik Informatika Institut Teknologi PLN dengan keahlian multidisipliner memadukan perancangan identitas visual korporat, produksi siaran langsung nasional, pengelolaan komunikasi digital resmi, serta riset dan analitik data empiris.",
       badgeStatus: "Tersedia untuk Kerja & Magang",
       badgeStatusColor: "green",
       cam: { x: -21, y: 8.5, z: 12.8 },
@@ -75,7 +240,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "Layanan & Skills",
       category: "LANGKAH 02 • 10 LAYANAN & 11 KOMPETENSI TEKNIS",
       title: "10 Layanan Spesialisasi & 11 Keterampilan Teknis Teruji.",
-      desc: "Menyediakan 10 layanan profesional yang teruji di industri: dari produksi siaran langsung multi-kamera acara protokoler nasional, creative direction identitas visual, strategi pertumbuhan media sosial 3x lipat, riset rekayasa IoT pintar, hingga pemodelan data machine learning cloud.\n\nDidukung oleh penguasaan 11 kompetensi software dan metodologi analitik berstandar industri.",
+      desc: "Menyediakan 10 layanan profesional yang teruji di industri: dari produksi siaran langsung multi-kamera acara protokoler nasional, creative direction identitas visual, strategi pertumbuhan media sosial 3x lipat, riset rekayasa IoT pintar, hingga pemodelan data machine learning cloud.",
       badgeStatus: "10 Layanan • 11 Skills",
       badgeStatusColor: "orange",
       cam: { x: -14, y: 8.2, z: 12.2 },
@@ -86,7 +251,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "Pengalaman",
       category: "LANGKAH 03 • 15 PENGALAMAN KERJA & ORGANISASI",
       title: "15 Rekam Jejak Profesional & Kepemimpinan Nasional.",
-      desc: "Perjalanan karir komprehensif mencakup peran strategis sebagai Social Media Manager di PJCI, Tim Humas & Komunikasi Publik ITPLN, Lead Visual Switcher Wisuda Nasional, Koordinator Kreatif ITPLN Media, Ketua Pelaksana National CAD Competition (NCC 2025), hingga Student Ambassador DQLab.\n\nSetiap tanggung jawab dijalankan dengan akuntabilitas tinggi dan dampak nyata terukur.",
+      desc: "Perjalanan karir komprehensif mencakup peran strategis sebagai Social Media Manager di PJCI, Tim Humas & Komunikasi Publik ITPLN, Lead Visual Switcher Wisuda Nasional, Koordinator Kreatif ITPLN Media, Ketua Pelaksana National CAD Competition (NCC 2025), hingga Student Ambassador DQLab.",
       badgeStatus: "15 Entri Terverifikasi",
       badgeStatusColor: "green",
       cam: { x: -7, y: 8.2, z: 12.0 },
@@ -97,7 +262,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "Pendidikan",
       category: "LANGKAH 04 • PENDIDIKAN FORMAL & 8 LISENSI RESMI",
       title: "Fondasi Akademik Kuat & 8 Lisensi Internasional.",
-      desc: "Menempuh pendidikan Sarjana (S1) Teknik Informatika di Institut Teknologi PLN dengan spesialisasi komputasi cerdas dan rekayasa data industri energi.\n\nDiperkuat oleh 8 sertifikasi profesional resmi: Microsoft Azure Databricks Machine Learning (8 modul), Structural Equation Modeling (SEM-PLS 120 JP), MOS Excel 2019, IBM AI Agents, dan DQLab Data Science.",
+      desc: "Menempuh pendidikan Sarjana (S1) Teknik Informatika di Institut Teknologi PLN dengan spesialisasi komputasi cerdas dan rekayasa data industri energi, diperkuat oleh 8 lisensi resmi: Azure Databricks Machine Learning, SEM-PLS 120 JP, MOS Excel 2019, dan IBM AI.",
       badgeStatus: "8 Lisensi Resmi Terverifikasi",
       badgeStatusColor: "green",
       cam: { x: 0, y: 8.2, z: 12.0 },
@@ -108,7 +273,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "50+ Proyek",
       category: "LANGKAH 05 • EKSIBI 50+ KARYA & PROYEK PORTOFOLIO",
       title: "Eksibisi 50 Karya Terkurasi dengan Dokumentasi Asli.",
-      desc: "Menampilkan seluruh 50 portofolio karya nyata yang telah diselesaikan: live streaming siaran nasional, strategi konten kampanye media sosial (@itpln & @smartgridindonesia), rekayasa prototipe IoT LPG-SafeSense, perancangan identitas visual korporat, hingga sistem data dan web.\n\nKlik kartu mana pun untuk membuka dokumentasi detail dan link tautan asli.",
+      desc: "Menampilkan seluruh 50 portofolio karya nyata yang telah diselesaikan: live streaming siaran nasional, strategi konten kampanye media sosial (@itpln & @smartgridindonesia), rekayasa prototipe IoT LPG-SafeSense, perancangan identitas visual korporat, hingga sistem data dan web.",
       badgeStatus: "50 Proyek Lengkap Aktif",
       badgeStatusColor: "orange",
       cam: { x: 7, y: 8.2, z: 12.2 },
@@ -119,7 +284,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "Blog & Riset",
       category: "LANGKAH 06 • 20 PUBLIKASI, ARTIKEL & RISET PRESTASI",
       title: "20 Publikasi Ilmiah, Redaksi Berita & Hibah Riset.",
-      desc: "Kumpulan publikasi artikel berkala, jurnalisme korporat untuk portal resmi PJCI dan ITPLN, tulisan teknologi transisi energi bersih, serta rekam jejak inovasi peraih Juara 1 MKI dan hibah penelitian PKM DIKTI Kemendikbudristek.\n\nMembuktikan kemampuan komunikasi tulisan analitis dan dedikasi riset ilmiah berkelanjutan.",
+      desc: "Kumpulan publikasi artikel berkala, jurnalisme korporat untuk portal resmi PJCI dan ITPLN, tulisan teknologi transisi energi bersih, serta rekam jejak inovasi peraih Juara 1 MKI dan hibah penelitian PKM DIKTI Kemendikbudristek.",
       badgeStatus: "20 Publikasi & Prestasi",
       badgeStatusColor: "orange",
       cam: { x: 14, y: 8.2, z: 12.2 },
@@ -130,7 +295,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       stepName: "Testimoni & Kontak",
       category: "LANGKAH 07 • TESTIMONI & PUSAT REKRUTMEN RESMI",
       title: "Testimoni Stakeholder & Formulir Komunikasi Langsung.",
-      desc: "Terbuka untuk kesempatan kerja penuh waktu, program magang, konsultasi creative direction, maupun kolaborasi proyek strategis di Jakarta, hybrid, maupun remote.\n\nKirimkan pesan Anda langsung melalui formulir di bawah ini (terhubung langsung ke sistem database admin) atau hubungi langsung via WhatsApp dan Email resmi.",
+      desc: "Terbuka untuk kesempatan kerja penuh waktu, program magang, konsultasi creative direction, maupun kolaborasi proyek strategis di Jakarta, hybrid, maupun remote. Kirim pesan langsung ke database atau hubungi via WhatsApp.",
       badgeStatus: "Respons Cepat & Siap Onboarding",
       badgeStatusColor: "green",
       cam: { x: 21, y: 8.5, z: 12.8 },
@@ -138,9 +303,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   ];
 
-  // ─── 3. CUTAWAY ARCHITECTURAL DIORAMA BUILDER ─────────────────
+  // ─── 4. CUTAWAY ARCHITECTURAL DIORAMA BUILDER ─────────────────
   function buildMiniatureDioramaScene() {
-    // Lighting
+    // 1. Lighting Setup
     const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.15);
     scene.add(ambientLight);
 
@@ -162,7 +327,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     fillLight.position.set(-15, 20, 25);
     scene.add(fillLight);
 
-    // Materials
+    // 2. Materials
     const floorMat = new THREE.MeshStandardMaterial({
       color: 0xf6f3eb,
       roughness: 0.85,
@@ -198,14 +363,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       roughness: 0.6
     });
 
-    // Floor Slab (60 units wide)
+    // 3. Main Floor Slab
     const floorGeo = new THREE.BoxGeometry(60, 0.5, 20);
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.position.set(0, -0.25, 0);
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Outer Back Wall with Orange Top Cap
+    // Outer Back Wall with Warm Glowing Windows (like user reference image)
     const backWallGeo = new THREE.BoxGeometry(60, 2.8, 0.4);
     const backWall = new THREE.Mesh(backWallGeo, wallBodyMat);
     backWall.position.set(0, 1.4, -9.8);
@@ -218,17 +383,28 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     backCap.position.set(0, 2.86, -9.8);
     scene.add(backCap);
 
-    // Front low perimeter rail
-    const frontRailGeo = new THREE.BoxGeometry(60, 0.4, 0.3);
-    const frontRail = new THREE.Mesh(frontRailGeo, wallBodyMat);
+    // Illuminated Grid Windows along Back Wall (Signature Reference Look!)
+    const windowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a }); // Warm glowing yellow
+    for (let wx = -26; wx <= 26; wx += 4) {
+      const winGeo = new THREE.PlaneGeometry(1.4, 0.9);
+      const win = new THREE.Mesh(winGeo, windowMat);
+      win.position.set(wx, 1.8, -9.58);
+      scene.add(win);
+    }
+
+    // Front Perimeter Rail
+    const frontRail = new THREE.Mesh(new THREE.BoxGeometry(60, 0.4, 0.3), wallBodyMat);
     frontRail.position.set(0, 0.2, 9.8);
     scene.add(frontRail);
 
-    // Signature Orange Guide Path across all 7 rooms
-    createOrangeGuideTrack();
+    // 4. Paved Sidewalk & Curbs along Orange Guide Path
+    createPavedSidewalkAndPath();
 
-    // 7 Partitioned Studio Zones
+    // 5. Architectural Room Partitions & Low-poly Props
     build7RoomPartitions(wallBodyMat, orangeTrimMat);
+    buildStreetLampsAndTrees();
+
+    // 6. Individual Room Setups
     buildRoom1Foyer(wallBodyMat, orangeTrimMat, chairOrangeMat);
     buildRoom2Studio(screenGlowMat, orangeTrimMat, darkWoodMat);
     buildRoom3Newsroom(orangeTrimMat, darkWoodMat, chairOrangeMat);
@@ -237,34 +413,42 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     buildRoom6PressHall(orangeTrimMat, darkWoodMat, chairOrangeMat);
     buildRoom7RecruiterLounge(orangeTrimMat, darkWoodMat, chairOrangeMat);
 
-    // Animated Walking Hero
-    createWalkingHero();
+    // 7. Interactive NPCs in 3D
+    buildInteractive3DNPCS();
+
+    // 8. Animated Walking Hero with Glowing Cyan Ring
+    createWalkingHeroWithIndicator();
   }
 
-  // Create Orange Floor Curve across 15 control points
-  function createOrangeGuideTrack() {
+  // Winding Cobblestone Sidewalk & Signature Orange Path
+  function createPavedSidewalkAndPath() {
     const trackMat = new THREE.MeshStandardMaterial({
       color: 0xff6b2b,
       roughness: 0.35,
       metalness: 0.1
     });
 
+    const curbMat = new THREE.MeshStandardMaterial({
+      color: 0xd1d5db,
+      roughness: 0.8
+    });
+
     const points = [
-      new THREE.Vector3(-24, 0.015, 3),
-      new THREE.Vector3(-21, 0.015, 1),
-      new THREE.Vector3(-17.5, 0.015, -1),
-      new THREE.Vector3(-14, 0.015, 0.5),
-      new THREE.Vector3(-10.5, 0.015, 2),
-      new THREE.Vector3(-7, 0.015, -0.5),
-      new THREE.Vector3(-3.5, 0.015, 1.5),
-      new THREE.Vector3(0, 0.015, -1),
-      new THREE.Vector3(3.5, 0.015, 1.5),
-      new THREE.Vector3(7, 0.015, -0.5),
-      new THREE.Vector3(10.5, 0.015, 1.8),
-      new THREE.Vector3(14, 0.015, -0.2),
-      new THREE.Vector3(17.5, 0.015, 1.5),
-      new THREE.Vector3(21, 0.015, 0),
-      new THREE.Vector3(24, 0.015, 2)
+      new THREE.Vector3(-24, 0.02, 3),
+      new THREE.Vector3(-21, 0.02, 1),
+      new THREE.Vector3(-17.5, 0.02, -1),
+      new THREE.Vector3(-14, 0.02, 0.5),
+      new THREE.Vector3(-10.5, 0.02, 2),
+      new THREE.Vector3(-7, 0.02, -0.5),
+      new THREE.Vector3(-3.5, 0.02, 1.5),
+      new THREE.Vector3(0, 0.02, -1),
+      new THREE.Vector3(3.5, 0.02, 1.5),
+      new THREE.Vector3(7, 0.02, -0.5),
+      new THREE.Vector3(10.5, 0.02, 1.8),
+      new THREE.Vector3(14, 0.02, -0.2),
+      new THREE.Vector3(17.5, 0.02, 1.5),
+      new THREE.Vector3(21, 0.02, 0),
+      new THREE.Vector3(24, 0.02, 2)
     ];
 
     const CurveClass = THREE.CatmullRomCurve3;
@@ -279,6 +463,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
     }
 
+    // Orange center guide path
     for (let i = 0; i < curvePoints.length - 1; i++) {
       const p1 = curvePoints[i];
       const p2 = curvePoints[i + 1];
@@ -286,41 +471,142 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       const segGeo = new THREE.BoxGeometry(len, 0.02, 0.28);
       const seg = new THREE.Mesh(segGeo, trackMat);
 
-      seg.position.set((p1.x + p2.x) / 2, 0.015, (p1.z + p2.z) / 2);
+      seg.position.set((p1.x + p2.x) / 2, 0.02, (p1.z + p2.z) / 2);
       const angle = Math.atan2(p2.z - p1.z, p2.x - p1.x);
       seg.rotation.y = -angle;
       scene.add(seg);
+
+      // Paved sidewalk curb slabs along the path (Reference style!)
+      if (i % 3 === 0) {
+        const curb = new THREE.Mesh(new THREE.BoxGeometry(len * 2.8, 0.04, 1.6), curbMat);
+        curb.position.set((p1.x + p2.x) / 2, 0.01, (p1.z + p2.z) / 2);
+        curb.rotation.y = -angle;
+        curb.receiveShadow = true;
+        scene.add(curb);
+      }
     }
   }
 
-  // Animated Walking Hero Character
-  function createWalkingHero() {
+  // Low-poly Streetlamps, Faceted Trees, and Benches (Reference Look!)
+  function buildStreetLampsAndTrees() {
+    const lampPositions = [-18, -11, -4, 3, 10, 17];
+    const lampMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+    const bulbMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+
+    lampPositions.forEach(x => {
+      // Pole
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 2.2, 8), lampMat);
+      pole.position.set(x, 1.1, 4.2);
+      scene.add(pole);
+
+      // Angled head
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.4), lampMat);
+      head.position.set(x, 2.2, 4.0);
+      scene.add(head);
+
+      // Glowing bulb
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08), bulbMat);
+      bulb.position.set(x, 2.12, 4.0);
+      scene.add(bulb);
+
+      // Warm spot light pool
+      const lampLight = new THREE.PointLight(0xfef08a, 0.6, 6);
+      lampLight.position.set(x, 2.1, 4.0);
+      scene.add(lampLight);
+    });
+
+    // Low-poly Faceted Trees & Park Benches
+    const treePositions = [-23, -16, -9, -2, 5, 12, 19];
+    const leafMat1 = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8, flatShading: true });
+    const leafMat2 = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.8, flatShading: true });
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c3d2e, roughness: 0.9 });
+
+    treePositions.forEach((tx, idx) => {
+      // Trunk
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.4, 6), trunkMat);
+      trunk.position.set(tx, 0.7, 5.8);
+      scene.add(trunk);
+
+      // Faceted crown
+      const crownGeo = new THREE.DodecahedronGeometry(0.75, 1);
+      const crown = new THREE.Mesh(crownGeo, idx % 2 === 0 ? leafMat1 : leafMat2);
+      crown.position.set(tx, 1.8, 5.8);
+      crown.castShadow = true;
+      scene.add(crown);
+
+      // Bench
+      if (idx % 2 === 1) {
+        const bench = new THREE.Mesh(
+          new THREE.BoxGeometry(1.2, 0.35, 0.45),
+          new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 })
+        );
+        bench.position.set(tx + 1.6, 0.18, 4.2);
+        scene.add(bench);
+      }
+    });
+  }
+
+  // Animated Walking Hero with Glowing Cyan Selection Ring (Signature Reference Element!)
+  function createWalkingHeroWithIndicator() {
     walkingHero = new THREE.Group();
 
-    // Head
-    const headGeo = new THREE.SphereGeometry(0.24, 16, 16);
-    const skinMat = new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 });
-    const head = new THREE.Mesh(headGeo, skinMat);
+    // 1. Glowing Cyan Selection Ring beneath feet
+    const ringGeo = new THREE.RingGeometry(0.52, 0.64, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x06b6d4,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85
+    });
+    heroGroundRing = new THREE.Mesh(ringGeo, ringMat);
+    heroGroundRing.rotation.x = -Math.PI / 2;
+    heroGroundRing.position.y = 0.03;
+    walkingHero.add(heroGroundRing);
+
+    // Inner glowing cyan soft circle
+    const innerCircle = new THREE.Mesh(
+      new THREE.CircleGeometry(0.5, 32),
+      new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.18, side: THREE.DoubleSide })
+    );
+    innerCircle.rotation.x = -Math.PI / 2;
+    innerCircle.position.y = 0.025;
+    walkingHero.add(innerCircle);
+
+    // Directional chevron pointer on ring
+    const chevGeo = new THREE.ConeGeometry(0.12, 0.28, 4);
+    const chevMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+    heroRingChevron = new THREE.Mesh(chevGeo, chevMat);
+    heroRingChevron.rotation.x = Math.PI / 2;
+    heroRingChevron.position.set(0, 0.035, 0.65);
+    walkingHero.add(heroRingChevron);
+
+    // 2. Character Model
+    // Head & Hair
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.24, 16, 16),
+      new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
+    );
     head.position.y = 1.45;
     walkingHero.add(head);
 
-    const hairGeo = new THREE.SphereGeometry(0.25, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.9 });
-    const hair = new THREE.Mesh(hairGeo, hairMat);
+    const hair = new THREE.Mesh(
+      new THREE.SphereGeometry(0.25, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.9 })
+    );
     hair.position.y = 1.48;
     walkingHero.add(hair);
 
     // Torso (Signature Orange Shirt)
-    const torsoGeo = new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12);
     const shirtMat = new THREE.MeshStandardMaterial({ color: 0xff6b2b, roughness: 0.6 });
-    const torso = new THREE.Mesh(torsoGeo, shirtMat);
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12), shirtMat);
     torso.position.y = 0.95;
     walkingHero.add(torso);
 
-    // Portfolio Tablet in hand
-    const tabletGeo = new THREE.BoxGeometry(0.08, 0.32, 0.24);
-    const tabletMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.3 });
-    const tablet = new THREE.Mesh(tabletGeo, tabletMat);
+    // Tablet in hand
+    const tablet = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.32, 0.24),
+      new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.3 })
+    );
     tablet.position.set(0.28, 0.85, 0.12);
     walkingHero.add(tablet);
 
@@ -341,9 +627,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     armPivotR.add(armR);
     walkingHero.add(armPivotR);
 
-    // Left Leg Pivot
-    const legGeo = new THREE.CylinderGeometry(0.085, 0.08, 0.65, 8);
+    // Left & Right Legs
     const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+    const legGeo = new THREE.CylinderGeometry(0.085, 0.08, 0.65, 8);
 
     legPivotL = new THREE.Group();
     legPivotL.position.set(-0.11, 0.65, 0);
@@ -352,7 +638,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     legPivotL.add(legL);
     walkingHero.add(legPivotL);
 
-    // Right Leg Pivot
     legPivotR = new THREE.Group();
     legPivotR.position.set(0.11, 0.65, 0);
     const legR = new THREE.Mesh(legGeo, pantsMat);
@@ -364,7 +649,51 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.add(walkingHero);
   }
 
-  // Room Partition Walls for 7 Rooms
+  // Build Interactive 3D NPCs across the 7 rooms
+  function buildInteractive3DNPCS() {
+    NPC_GUIDES.forEach((npc, idx) => {
+      const npcGroup = new THREE.Group();
+      npcGroup.position.set(npc.pos.x, 0, npc.pos.z);
+      npcGroup.userData = { isNPC: true, npcIndex: idx };
+
+      // Head with speech cue aura
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 })
+      );
+      head.position.y = 1.45;
+      npcGroup.add(head);
+
+      // Torso with distinctive shirt color
+      const torso = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12),
+        new THREE.MeshStandardMaterial({ color: npc.shirtColor, roughness: 0.7 })
+      );
+      torso.position.y = 0.95;
+      npcGroup.add(torso);
+
+      // Legs
+      const pants = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+      const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
+      legL.position.set(-0.11, 0.35, 0);
+      npcGroup.add(legL);
+      const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8), pants);
+      legR.position.set(0.11, 0.35, 0);
+      npcGroup.add(legR);
+
+      // Floating interactive badge icon above head ("💬")
+      const iconAura = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.15),
+        new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true })
+      );
+      iconAura.position.y = 1.95;
+      npcGroup.add(iconAura);
+
+      scene.add(npcGroup);
+    });
+  }
+
+  // Room Partitions
   function build7RoomPartitions(wallMat, trimMat) {
     const dividerX = [-17.5, -10.5, -3.5, 3.5, 10.5, 17.5];
 
@@ -376,8 +705,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       w1.castShadow = true;
       scene.add(w1);
 
-      const capGeo1 = new THREE.BoxGeometry(0.42, 0.1, 8.6);
-      const cap1 = new THREE.Mesh(capGeo1, trimMat);
+      const cap1 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 8.6), trimMat);
       cap1.position.set(x, 2.65, -5.5);
       scene.add(cap1);
 
@@ -388,42 +716,13 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       w2.castShadow = true;
       scene.add(w2);
 
-      const capGeo2 = new THREE.BoxGeometry(0.42, 0.1, 5.1);
-      const cap2 = new THREE.Mesh(capGeo2, trimMat);
+      const cap2 = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 5.1), trimMat);
       cap2.position.set(x, 2.65, 7.2);
       scene.add(cap2);
     }
   }
 
-  function createStaticChar(x, z, shirt = 0x3b82f6, pants = 0x1e293b, ry = 0) {
-    const grp = new THREE.Group();
-    grp.position.set(x, 0, z);
-    grp.rotation.y = ry;
-
-    const headGeo = new THREE.SphereGeometry(0.24, 16, 16);
-    const head = new THREE.Mesh(headGeo, new THREE.MeshStandardMaterial({ color: 0xe8b896, roughness: 0.6 }));
-    head.position.y = 1.45;
-    grp.add(head);
-
-    const torsoGeo = new THREE.CylinderGeometry(0.22, 0.25, 0.65, 12);
-    const torso = new THREE.Mesh(torsoGeo, new THREE.MeshStandardMaterial({ color: shirt, roughness: 0.7 }));
-    torso.position.y = 0.95;
-    grp.add(torso);
-
-    const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8);
-    const legMat = new THREE.MeshStandardMaterial({ color: pants, roughness: 0.8 });
-    const legL = new THREE.Mesh(legGeo, legMat);
-    legL.position.set(-0.11, 0.35, 0);
-    grp.add(legL);
-    const legR = new THREE.Mesh(legGeo, legMat);
-    legR.position.set(0.11, 0.35, 0);
-    grp.add(legR);
-
-    scene.add(grp);
-    return grp;
-  }
-
-  // Room 1: Foyer & Welcome Reception (x ~ -21)
+  // Specific Room Furniture Builders
   function buildRoom1Foyer(wallMat, trimMat, chairMat) {
     const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.05, 1.2), wallMat);
     desk.position.set(-21, 0.52, -4);
@@ -438,20 +737,13 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     lap.position.set(-21, 1.15, -4);
     scene.add(lap);
 
-    createStaticChar(-21, -5.2, 0xff7a38, 0x1e293b, 0);
-
     for (let i = 0; i < 2; i++) {
       const chair = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.12, 0.6), chairMat);
       chair.position.set(-23 + i * 1.1, 0.45, 4.5);
       scene.add(chair);
-
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.45), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
-      leg.position.set(-23 + i * 1.1, 0.22, 4.5);
-      scene.add(leg);
     }
   }
 
-  // Room 2: Broadcast Studio & MCR (x ~ -14)
   function buildRoom2Studio(screenMat, trimMat, darkMat) {
     const desk = new THREE.Mesh(new THREE.BoxGeometry(4.0, 1.05, 1.4), darkMat);
     desk.position.set(-14, 0.52, -4.5);
@@ -476,11 +768,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const tally = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
     tally.position.set(-14, 1.75, 2.85);
     scene.add(tally);
-
-    createStaticChar(-14, -5.5, 0x0284c7, 0x1e293b, 0);
   }
 
-  // Room 3: Newsroom & Editorial Center (x ~ -7)
   function buildRoom3Newsroom(trimMat, darkMat, chairMat) {
     const desk = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.95, 1.4), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }));
     desk.position.set(-7, 0.48, -4.2);
@@ -491,16 +780,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       scr.position.set(-7.7 + i * 1.4, 1.35, -4.2);
       scene.add(scr);
     }
-
-    createStaticChar(-7, -5.2, 0xa855f7, 0x1e293b, 0);
-
-    const board = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 0.08), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-    board.position.set(-9.2, 1.5, 2);
-    board.rotation.y = Math.PI / 6;
-    scene.add(board);
   }
 
-  // Room 4: Data Science & AI Cloud Lab (x ~ 0)
   function buildRoom4DataLab(trimMat, darkMat) {
     const rack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.4, 1.0), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.6, roughness: 0.3 }));
     rack.position.set(2.2, 1.2, -8.5);
@@ -518,11 +799,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const desk = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.95, 1.3), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
     desk.position.set(0, 0.48, -4);
     scene.add(desk);
-
-    createStaticChar(0, -5.1, 0x3b82f6, 0x0f172a, 0);
   }
 
-  // Room 5: IoT Workshop & 50+ Projects Central Showcase (x ~ 7)
   function buildRoom5IoTGallery(trimMat, darkMat) {
     const bench = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.0, 1.4), new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.7 }));
     bench.position.set(7, 0.5, -4.5);
@@ -535,11 +813,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const trophy = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 }));
     trophy.position.set(7.8, 1.4, -4.5);
     scene.add(trophy);
-
-    createStaticChar(7, -5.5, 0xf97316, 0x1e293b, 0);
   }
 
-  // Room 6: Press Conference & Publication Hall (x ~ 14)
   function buildRoom6PressHall(trimMat, darkMat, chairMat) {
     const table = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.9, 1.6), darkMat);
     table.position.set(14, 0.45, -4.2);
@@ -548,11 +823,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
     screen.position.set(14, 2.0, -9.5);
     scene.add(screen);
-
-    createStaticChar(14, -5.2, 0x10b981, 0x1e293b, 0);
   }
 
-  // Room 7: Executive Recruiter Lounge (x ~ 21)
   function buildRoom7RecruiterLounge(trimMat, darkMat, chairMat) {
     const sofa = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.8, 1.4), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 }));
     sofa.position.set(21, 0.4, -4.5);
@@ -569,12 +841,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const plant = new THREE.Mesh(new THREE.DodecahedronGeometry(0.65), new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 }));
     plant.position.set(23.5, 1.2, -8.5);
     scene.add(plant);
-
-    createStaticChar(20, -0.8, 0x059669, 0x1e293b, -Math.PI / 4);
-    createStaticChar(22, -0.8, 0xff6b2b, 0x1e293b, Math.PI / 4);
   }
 
-  // ─── 4. DOM MOUNTING & HTML SHELL ─────────────────────────────
+  // ─── 5. DOM MOUNTING & HTML SHELL ─────────────────────────────
   function buildScrollytellingDOM() {
     const main = document.querySelector('main');
     if (!main) return;
@@ -591,35 +860,66 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <!-- STORY BACKDROP GRADIENT -->
           <div class="nadi-story-backdrop-gradient"></div>
 
-          <!-- TOP NAVBAR -->
+          <!-- TOP NAVBAR & GAME HUD -->
           <header class="nadi-top-navbar">
-            <a href="#" class="nadi-brand-pill">
-              <span class="nadi-brand-logo">mangara</span>
-              <span class="nadi-brand-dot"></span>
-            </a>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <a href="#" class="nadi-brand-pill">
+                <span class="nadi-brand-logo">mangara</span>
+                <span class="nadi-brand-dot"></span>
+              </a>
+              <div class="nadi-hud-player-badge">
+                <span class="nadi-hud-dot"></span>
+                <span>PLAYER 1: MANGARA &bull; 50/50 PORTFOLIO</span>
+              </div>
+            </div>
 
             <nav class="nadi-nav-center-menu">
               ${SCROLL_STEPS.map((s, idx) => `
-                <a href="#" class="nadi-nav-step-link" data-step="${idx}">${s.stepName}</a>
+                <a href="#" class="nadi-nav-step-link ${idx === 0 ? 'active' : ''}" data-step="${idx}">${s.stepName}</a>
               `).join('')}
             </nav>
 
             <div class="nadi-nav-actions">
-              <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Data Analyst (PDF)">
+              <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Data Analyst">
                 <ion-icon name="document-text-outline"></ion-icon>
                 <span>CV Data Analyst</span>
               </a>
-              <a href="./CV_Mangara_Pakpahan_Sosmed_Humas.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Sosmed & Humas (PDF)">
+              <a href="./CV_Mangara_Pakpahan_Sosmed_Humas.pdf" target="_blank" rel="noopener" class="nadi-btn-secondary" title="Unduh CV ATS Sosmed">
                 <ion-icon name="document-text-outline"></ion-icon>
-                <span>CV Sosmed & Humas</span>
+                <span>CV Sosmed</span>
               </a>
-              <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20tertarik%20dengan%20portofolio%203D%20Anda." target="_blank" rel="noopener" class="nadi-btn-primary" title="Hubungi via WhatsApp">
+              <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20melihat%20portofolio%203D%20Anda." target="_blank" rel="noopener" class="nadi-btn-primary" title="Hubungi via WhatsApp">
                 <span>WhatsApp &rarr;</span>
               </a>
             </div>
           </header>
 
-          <!-- LEFT FLOATING STORY CONTENT & DATA CARDS -->
+          <!-- MULTI-ANGLE POV SWITCHER HUD (REFERENSI SCREENSHOT GAME) -->
+          <div class="nadi-pov-switcher-wrap">
+            <span class="nadi-pov-label">SUDUT PANDANG (POV)</span>
+            <div class="nadi-pov-btn-group">
+              <button class="nadi-pov-btn active" data-pov="isometric" title="Tampilan Isometrik 45 Derajat">
+                <ion-icon name="cube-outline"></ion-icon> Isometrik
+              </button>
+              <button class="nadi-pov-btn" data-pov="topdown" title="Tampilan Bird's-Eye Tactical (Seperti Referensi)">
+                <ion-icon name="scan-outline"></ion-icon> Top-Down
+              </button>
+              <button class="nadi-pov-btn" data-pov="thirdperson" title="Sudut Pandang Kamera Belakang Karakter">
+                <ion-icon name="walk-outline"></ion-icon> Third-Person
+              </button>
+              <button class="nadi-pov-btn" data-pov="orbit" title="Putar Bebas Sudut Pandang 360">
+                <ion-icon name="refresh-outline"></ion-icon> Orbit Bebas
+              </button>
+            </div>
+          </div>
+
+          <!-- FLOATING NPC INTERACTION BUTTON -->
+          <button class="nadi-npc-floating-trigger" id="nadi-npc-floating-trigger" title="Buka Percakapan dengan Tim di Bilik Ini">
+            <ion-icon name="chatbubble-ellipses-outline" style="color: var(--nadi-orange); font-size: 15px;"></ion-icon>
+            <span>💬 Tanya Tim Bilik Ini</span>
+          </button>
+
+          <!-- LEFT FLOATING STORY CONTENT & MINIMALIST CARD -->
           <div class="nadi-story-layer" id="nadi-story-layer">
             <div class="nadi-step-label" id="nadi-step-label">
               <span>LANGKAH 01</span> &bull; PROFIL & KUALIFIKASI
@@ -633,31 +933,31 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               Mahasiswa S1 Teknik Informatika Institut Teknologi PLN...
             </p>
 
-            <!-- FLOATING DATA CARD WITH DEDICATED IN-CARD SCROLL -->
+            <!-- FLOATING DATA CARD (MINIMALIST & AUTO-SCROLLED) -->
             <div class="nadi-floating-card" id="nadi-floating-card">
               <div class="nadi-card-top-row">
                 <div class="nadi-card-badge-left" id="nadi-card-title">
-                  <ion-icon name="reader-outline" style="color: var(--nadi-orange);"></ion-icon>
-                  <strong>Profil & Ringkasan Kualifikasi</strong>
+                  <ion-icon name="person-circle-outline" style="color: var(--nadi-orange);"></ion-icon>
+                  <strong>Profil & Kualifikasi Resmi</strong>
                 </div>
                 <div class="nadi-card-badge-status" id="nadi-card-status">
                   Tersedia untuk Kerja & Magang
                 </div>
               </div>
 
-              <!-- DYNAMIC CONTENT RENDERED HERE -->
+              <!-- DYNAMIC MINIMALIST TABLE/LIST CONTENT -->
               <div class="nadi-card-dynamic-container" id="nadi-card-dynamic-container">
                 <!-- Injected via renderStoryStep() -->
               </div>
             </div>
           </div>
 
-          <!-- MOUSE SCROLL CUE -->
+          <!-- SCROLL CUE -->
           <div class="nadi-scroll-cue">
             <div class="nadi-scroll-pill-icon">
               <div class="nadi-scroll-pill-dot"></div>
             </div>
-            <span>GULIR KE BAWAH / PANAH KEYBOARD UNTUK MENJALANKAN KARAKTER KE BILIK BERIKUTNYA &bull; SCROLL TO EXPLORE</span>
+            <span>GULIR KE BAWAH UNTUK MENJALANKAN KARAKTER KE BILIK BERIKUTNYA &bull; SCROLL TO EXPLORE</span>
           </div>
 
           <!-- BOTTOM SCROLLYTELLING TIMELINE -->
@@ -685,11 +985,105 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
               </div>
             </div>
 
-            <button class="nadi-skip-btn" id="nadi-btn-open-archive" title="Buka Arsip Portofolio & CV Lengkap">
-              <ion-icon name="grid-outline"></ion-icon>
-              <span>Arsip & CV Lengkap</span>
-            </button>
+            <div style="display: flex; gap: 8px;">
+              <button class="nadi-skip-btn" id="nadi-btn-trigger-outro" style="background: #0f172a; color: #ffffff;" title="Lihat Kesimpulan & Outro Animasi">
+                <ion-icon name="ribbon-outline"></ion-icon>
+                <span>Selesai / Outro</span>
+              </button>
+              <button class="nadi-skip-btn" id="nadi-btn-open-archive" title="Buka Arsip Portofolio & CV Lengkap">
+                <ion-icon name="grid-outline"></ion-icon>
+                <span>Arsip & CV</span>
+              </button>
+            </div>
           </footer>
+
+          <!-- INTERACTIVE NPC DIALOGUE DRAWER WITH GUIDE DIRECTIONS -->
+          <div class="nadi-npc-dialogue-modal" id="nadi-npc-dialogue-modal">
+            <div class="nadi-npc-header">
+              <div class="nadi-npc-avatar-row">
+                <div class="nadi-npc-avatar-badge" id="nadi-npc-avatar">N</div>
+                <div class="nadi-npc-name-box">
+                  <span class="nadi-npc-name" id="nadi-npc-name">Nadia</span>
+                  <span class="nadi-npc-role" id="nadi-npc-role">Front Desk Guide</span>
+                </div>
+              </div>
+              <button class="nadi-npc-close" id="nadi-npc-close">&times;</button>
+            </div>
+            <div class="nadi-npc-body">
+              <div class="nadi-npc-speech-bubble" id="nadi-npc-bubble">
+                Halo! Selamat datang di studio Mangara Pakpahan.
+              </div>
+
+              <span class="nadi-npc-questions-title">Pilih Pertanyaan:</span>
+              <div class="nadi-npc-q-list" id="nadi-npc-q-list">
+                <!-- Dynamically populated questions -->
+              </div>
+
+              <div class="nadi-npc-answer-box" id="nadi-npc-answer-box">
+                <!-- Answer appears here -->
+              </div>
+
+              <!-- BUTTON ARAHANNYA (GUIDE DIRECTION TO NEXT ROOM) -->
+              <button class="nadi-npc-guide-btn" id="nadi-npc-guide-btn">
+                <ion-icon name="compass-outline"></ion-icon>
+                <span id="nadi-npc-guide-label">Arahkan ke Bilik Selanjutnya &rarr;</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- CINEMATIC INTRO SCREEN -->
+          <div class="nadi-cinematic-intro" id="nadi-cinematic-intro">
+            <div class="nadi-intro-card">
+              <div class="nadi-intro-top-badge">
+                <ion-icon name="game-controller-outline"></ion-icon>
+                <span>VIRTUAL 3D INTERACTIVE STUDIO &bull; JAKARTA</span>
+              </div>
+              <h2 class="nadi-intro-title">MANGARA FERDIANTO PAKPAHAN</h2>
+              <p class="nadi-intro-sub">
+                Eksplorasi virtual diorama interaktif first/third person melintasi 7 bilik arsitektur, 50 karya portofolio, 15 pengalaman profesional, dan 8 sertifikasi internasional.
+              </p>
+              <div class="nadi-intro-features">
+                <span class="nadi-intro-feat-pill"><ion-icon name="walk-outline"></ion-icon> Karakter Berjalan 3D</span>
+                <span class="nadi-intro-feat-pill"><ion-icon name="scan-outline"></ion-icon> Multi-POV Camera</span>
+                <span class="nadi-intro-feat-pill"><ion-icon name="chatbubbles-outline"></ion-icon> Tim NPC Interaktif</span>
+                <span class="nadi-intro-feat-pill"><ion-icon name="sync-outline"></ion-icon> Auto-Scroll Tabel</span>
+              </div>
+              <button class="nadi-intro-btn" id="nadi-intro-btn">
+                <ion-icon name="play-circle-outline" style="font-size: 22px;"></ion-icon>
+                <span>MULAI EKSPLORASI 3D (START TOUR)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- CINEMATIC OUTRO SCREEN -->
+          <div class="nadi-cinematic-outro" id="nadi-cinematic-outro">
+            <div class="nadi-outro-card">
+              <button class="nadi-outro-close" id="nadi-outro-close">&times;</button>
+              <div class="nadi-outro-icon">
+                <ion-icon name="trophy-outline"></ion-icon>
+              </div>
+              <h2 class="nadi-outro-title">Terima Kasih Telah Berkunjung!</h2>
+              <p class="nadi-outro-desc">
+                Anda telah menelusuri seluruh 7 zona ekshibisi portofolio Mangara Ferdianto Pakpahan. Seluruh data proyek, sertifikasi, dan dokumen kualifikasi telah terverifikasi resmi.
+              </p>
+              <div class="nadi-bento-grid" style="width: 100%; margin: 8px 0;">
+                <div class="nadi-bento-item"><span class="nadi-bento-num">50</span><span class="nadi-bento-lbl">Proyek Terkurasi</span></div>
+                <div class="nadi-bento-item"><span class="nadi-bento-num">15</span><span class="nadi-bento-lbl">Pengalaman Kerja</span></div>
+                <div class="nadi-bento-item"><span class="nadi-bento-num">8</span><span class="nadi-bento-lbl">Lisensi Resmi</span></div>
+                <div class="nadi-bento-item"><span class="nadi-bento-num">300%</span><span class="nadi-bento-lbl">Kenaikan Engagement</span></div>
+              </div>
+              <div class="nadi-outro-actions">
+                <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20telah%20melihat%20seluruh%20studio%203D%20Anda." target="_blank" rel="noopener" class="nadi-card-btn primary">
+                  <ion-icon name="logo-whatsapp"></ion-icon>
+                  <span>Chat WhatsApp Langsung</span>
+                </a>
+                <button class="nadi-card-btn" id="nadi-outro-replay-btn">
+                  <ion-icon name="refresh-outline"></ion-icon>
+                  <span>Ulangi Tur Dari Awal</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- PROJECT / BLOG LIGHTBOX MODAL -->
           <div class="nadi-lightbox-modal" id="nadi-project-lightbox">
@@ -705,9 +1099,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                 </div>
                 <h3 class="nadi-lightbox-title" id="nadi-lightbox-title">Judul Proyek</h3>
                 <p class="nadi-lightbox-desc" id="nadi-lightbox-desc">Deskripsi proyek lengkap...</p>
-                <div class="nadi-lightbox-actions" id="nadi-lightbox-actions">
-                  <!-- Action links -->
-                </div>
+                <div class="nadi-lightbox-actions" id="nadi-lightbox-actions"></div>
               </div>
             </div>
           </div>
@@ -722,7 +1114,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                 </h3>
                 <button class="nadi-archive-close" id="nadi-archive-close">&times;</button>
               </div>
-
               <div class="nadi-archive-body">
                 <div class="nadi-archive-section">
                   <h4>1. Berkas Resmi Curriculum Vitae (Format ATS)</h4>
@@ -756,24 +1147,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
                     `).join('')}
                   </div>
                 </div>
-
-                <div class="nadi-archive-section">
-                  <h4>3. Kontak & Akses Langsung</h4>
-                  <div class="nadi-card-actions" style="margin-top: 0;">
-                    <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20tertarik%20dengan%20portofolio%20Anda." target="_blank" rel="noopener" class="nadi-card-btn">
-                      <ion-icon name="logo-whatsapp"></ion-icon>
-                      <span>WhatsApp (0813-1881-6058)</span>
-                    </a>
-                    <a href="mailto:mangarapakpahan51@gmail.com" class="nadi-card-btn">
-                      <ion-icon name="mail-outline"></ion-icon>
-                      <span>Kirim Email Resmi</span>
-                    </a>
-                    <a href="https://linkedin.com/in/mangara-ferdianto-pakpahan" target="_blank" rel="noopener" class="nadi-card-btn">
-                      <ion-icon name="logo-linkedin"></ion-icon>
-                      <span>LinkedIn Profile</span>
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -782,7 +1155,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <div class="nadi-loading-screen" id="nadi-loading-screen">
             <div class="nadi-spinner"></div>
             <div class="nadi-loading-title">MEMUAT STUDIO 3D LENGKAP...</div>
-            <div class="nadi-loading-sub">Mangara Ferdianto Pakpahan &bull; All 9 Admin Sections Integrated</div>
+            <div class="nadi-loading-sub">Mangara Ferdianto Pakpahan &bull; Multi-POV & Interactive NPCs</div>
           </div>
         </div>
       </div>
@@ -797,10 +1170,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderStoryStep(0);
   }
 
-  // ─── 5. DYNAMIC STORY CONTENT RENDERER (ALL 9 ADMIN SECTIONS) ─
+  // ─── 6. DYNAMIC MINIMALIST STORY CONTENT RENDERER ─────────────
   function renderStoryStep(index) {
     const step = SCROLL_STEPS[index];
     if (!step) return;
+
+    activeNPCIndex = index;
 
     const lbl = document.getElementById('nadi-step-label');
     const h1 = document.getElementById('nadi-story-headline');
@@ -818,6 +1193,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       cardStatus.className = `nadi-card-badge-status ${step.badgeStatusColor || 'green'}`;
     }
 
+    // Update active nav link
+    document.querySelectorAll('.nadi-nav-step-link').forEach((link, idx) => {
+      if (idx === index) link.classList.add('active');
+      else link.classList.remove('active');
+    });
+
     if (!container) return;
 
     // STATION 0: PROFIL & OVERVIEW
@@ -831,44 +1212,32 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <div>
             <div class="nadi-profile-name">${p.name}</div>
             <div class="nadi-profile-title">${p.title}</div>
-            <div style="font-size: 11px; color: #16a34a; font-weight: 700; margin-top: 3px;">
+            <div style="font-size: 10.5px; color: #16a34a; font-weight: 700; margin-top: 2px;">
               <ion-icon name="location-outline"></ion-icon> ${p.location} &bull; S1 Teknik Informatika ITPLN
             </div>
           </div>
         </div>
 
         <div class="nadi-bento-grid">
-          <div class="nadi-bento-item">
-            <span class="nadi-bento-num">50+</span>
-            <span class="nadi-bento-lbl">Proyek Terkurasi Lengkap</span>
-          </div>
-          <div class="nadi-bento-item">
-            <span class="nadi-bento-num">15+</span>
-            <span class="nadi-bento-lbl">Pengalaman Kerja & Org</span>
-          </div>
-          <div class="nadi-bento-item">
-            <span class="nadi-bento-num">8</span>
-            <span class="nadi-bento-lbl">Sertifikasi & Lisensi Resmi</span>
-          </div>
-          <div class="nadi-bento-item">
-            <span class="nadi-bento-num">10</span>
-            <span class="nadi-bento-lbl">Layanan Spesialisasi</span>
-          </div>
+          <div class="nadi-bento-item"><span class="nadi-bento-num">50+</span><span class="nadi-bento-lbl">Proyek Terkurasi</span></div>
+          <div class="nadi-bento-item"><span class="nadi-bento-num">15+</span><span class="nadi-bento-lbl">Pengalaman Kerja</span></div>
+          <div class="nadi-bento-item"><span class="nadi-bento-num">8</span><span class="nadi-bento-lbl">Sertifikasi Resmi</span></div>
+          <div class="nadi-bento-item"><span class="nadi-bento-num">10</span><span class="nadi-bento-lbl">Layanan Spesialis</span></div>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 22vh;">
-          <div class="nadi-card-list">
-            <div class="nadi-card-list-item">
-              <span class="nadi-card-item-name"><ion-icon name="mail-outline" class="nadi-check-icon"></ion-icon> Email Resmi</span>
-              <span class="nadi-card-item-val">${p.email}</span>
+        <div class="nadi-card-scroll-body" style="max-height: 18vh;">
+          <div class="nadi-service-list">
+            <div class="nadi-service-item">
+              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">Email Resmi:</span>
+              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.email}</span>
             </div>
-            <div class="nadi-card-list-item">
-              <span class="nadi-card-item-name"><ion-icon name="call-outline" class="nadi-check-icon"></ion-icon> WhatsApp / Telp</span>
-              <span class="nadi-card-item-val">${p.phone}</span>
+            <div class="nadi-service-item">
+              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">WhatsApp:</span>
+              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.phone}</span>
             </div>
-            <div class="nadi-card-list-item">
-              <span class="nadi-card-item-name"><ion-icon name="calendar-outline" class="nadi-check-icon"></ion-icon> Domisili</span>
-              <span class="nadi-card-item-val">${p.location}</span>
+            <div class="nadi-service-item">
+              <span style="font-size: 11.5px; font-weight: 600; color: #64748b; width: 110px;">Domisili:</span>
+              <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">${p.location}</span>
             </div>
           </div>
         </div>
@@ -883,11 +1252,11 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         <div class="nadi-card-actions">
           <a href="./CV_Mangara_Pakpahan_Data_Analyst.pdf" target="_blank" rel="noopener" class="nadi-card-btn primary">
             <ion-icon name="document-text-outline"></ion-icon>
-            <span>CV Data Analyst (ATS)</span>
+            <span>CV Data Analyst</span>
           </a>
           <a href="./CV_Mangara_Pakpahan_Sosmed_Humas.pdf" target="_blank" rel="noopener" class="nadi-card-btn primary">
             <ion-icon name="document-text-outline"></ion-icon>
-            <span>CV Sosmed & Humas (ATS)</span>
+            <span>CV Sosmed</span>
           </a>
         </div>
       `;
@@ -895,12 +1264,12 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     // STATION 1: 10 LAYANAN & 11 SKILLS
     else if (index === 1) {
-      if (cardTitle) cardTitle.innerHTML = `<ion-icon name="construct-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Layanan & Skills Terdaftar</strong>`;
+      if (cardTitle) cardTitle.innerHTML = `<ion-icon name="construct-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Layanan & Keterampilan Teknis</strong>`;
 
       container.innerHTML = `
         <div class="nadi-subtabs-row">
           <button class="nadi-subtab-btn ${activeLayananSubtab === 'services' ? 'active' : ''}" id="nadi-tab-serv">
-            <ion-icon name="briefcase-outline"></ion-icon> 10 Layanan Spesialisasi
+            <ion-icon name="briefcase-outline"></ion-icon> 10 Layanan Spesialis
           </button>
           <button class="nadi-subtab-btn ${activeLayananSubtab === 'skills' ? 'active' : ''}" id="nadi-tab-skil">
             <ion-icon name="bar-chart-outline"></ion-icon> 11 Technical Skills
@@ -912,7 +1281,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         </div>
 
         <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir ke bawah di dalam kotak ini untuk melihat seluruh entri</span>
+          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir otomatis sinkron dengan langkah karakter 3D</span>
           <span style="color: var(--nadi-orange);">${activeLayananSubtab === 'services' ? '10 Layanan' : '11 Skills'}</span>
         </div>
       `;
@@ -927,7 +1296,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 2: 15 PENGALAMAN KERJA & ORGANISASI
+    // STATION 2: 15 PENGALAMAN
     else if (index === 2) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="briefcase-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>15 Pengalaman Kerja & Organisasi</strong>`;
 
@@ -954,8 +1323,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         </div>
 
         <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir ke bawah untuk melihat 15 linimasa pengalaman lengkap</span>
-          <span style="color: var(--nadi-orange);">15 Rekam Jejak</span>
+          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Tergulir otomatis mengikuti jalan 3D</span>
+          <span style="color: var(--nadi-orange);">15 Linimasa</span>
         </div>
       `;
 
@@ -994,8 +1363,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         </div>
 
         <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir ke bawah untuk membaca 8 modul sertifikasi internasional</span>
-          <span style="color: var(--nadi-orange);">8 Lisensi</span>
+          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> 8 Lisensi Resmi Terverifikasi</span>
+          <span style="color: var(--nadi-orange);">8 Modul</span>
         </div>
       `;
 
@@ -1007,7 +1376,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 4: 50+ PROYEK PORTOFOLIO (ALL 50 PROJECTS)
+    // STATION 4: 50+ PROYEK PORTOFOLIO
     else if (index === 4) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="folder-open-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>50+ Proyek Portofolio Terkurasi</strong>`;
 
@@ -1021,15 +1390,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
         <div class="nadi-filter-pills-bar">
           <button class="nadi-filter-pill ${activeProjFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (50)</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'Live Production' ? 'active' : ''}" data-filter="Live Production">Live Production</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'Social Media' ? 'active' : ''}" data-filter="Social Media">Social Media</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'Visual Design' ? 'active' : ''}" data-filter="Visual Design">Visual Design</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'IoT & Tech' ? 'active' : ''}" data-filter="IoT & Tech">IoT & Tech</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'AI & Platform' ? 'active' : ''}" data-filter="AI & Platform">AI & Platform</button>
-          <button class="nadi-filter-pill ${activeProjFilter === 'Article & Editorial' ? 'active' : ''}" data-filter="Article & Editorial">Editorial</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'Live Production' ? 'active' : ''}" data-filter="Live Production">Live Broadcast</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'Social Media' ? 'active' : ''}" data-filter="Social Media">Medsos</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'Visual Design' ? 'active' : ''}" data-filter="Visual Design">Desain</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'IoT & Tech' ? 'active' : ''}" data-filter="IoT & Tech">IoT</button>
+          <button class="nadi-filter-pill ${activeProjFilter === 'AI & Platform' ? 'active' : ''}" data-filter="AI & Platform">AI</button>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 48vh;">
+        <div class="nadi-card-scroll-body" style="max-height: 44vh;">
           <div class="nadi-projects-grid">
             ${filteredProjects.map(proj => `
               <div class="nadi-proj-card">
@@ -1058,21 +1426,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         </div>
 
         <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Menampilkan ${filteredProjects.length} dari 50 Proyek &bull; Gulir di dalam kotak</span>
-          <button class="nadi-subtab-btn" id="nadi-btn-full-proj-modal" style="padding: 2px 8px; font-size: 11px;">
+          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Menampilkan ${filteredProjects.length} Proyek &bull; Auto-scroll saat berjalan</span>
+          <button class="nadi-subtab-btn" id="nadi-btn-full-proj-modal" style="padding: 2px 6px; font-size: 10px;">
             <ion-icon name="expand-outline"></ion-icon> Layar Penuh
           </button>
         </div>
       `;
 
-      // Search Event Listener
       const searchInput = document.getElementById('nadi-proj-search-input');
       searchInput?.addEventListener('input', (e) => {
         activeProjSearch = e.target.value.toLowerCase();
         renderStoryStep(4);
       });
 
-      // Filter Pill Listeners
       container.querySelectorAll('.nadi-filter-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           activeProjFilter = btn.dataset.filter;
@@ -1080,7 +1446,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         });
       });
 
-      // Lightbox Triggers
       container.querySelectorAll('.btn-open-lightbox').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
@@ -1089,10 +1454,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         });
       });
 
-      // Full Archive Modal shortcut
       document.getElementById('nadi-btn-full-proj-modal')?.addEventListener('click', () => {
-        const modal = document.getElementById('nadi-archive-modal');
-        if (modal) modal.classList.add('active');
+        document.getElementById('nadi-archive-modal')?.classList.add('active');
       });
     }
 
@@ -1107,7 +1470,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <button class="nadi-filter-pill ${activeBlogFilter === 'all' ? 'active' : ''}" data-filter="all">Semua (20)</button>
           <button class="nadi-filter-pill ${activeBlogFilter === 'prestasi' ? 'active' : ''}" data-filter="prestasi">Prestasi & IoT</button>
           <button class="nadi-filter-pill ${activeBlogFilter === 'redaksi' ? 'active' : ''}" data-filter="redaksi">Redaksi PJCI & Humas</button>
-          <button class="nadi-filter-pill ${activeBlogFilter === 'ai' ? 'active' : ''}" data-filter="ai">Cloud, Data & AI</button>
+          <button class="nadi-filter-pill ${activeBlogFilter === 'ai' ? 'active' : ''}" data-filter="ai">Cloud & AI</button>
         </div>
 
         <div class="nadi-card-scroll-body">
@@ -1131,7 +1494,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         </div>
 
         <div class="nadi-card-scroll-cue">
-          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir ke bawah untuk melihat seluruh 20 publikasi & penghargaan</span>
+          <span><ion-icon name="chevron-down-circle-outline"></ion-icon> Gulir otomatis seiring penelusuran bilik</span>
           <span style="color: var(--nadi-orange);">20 Publikasi</span>
         </div>
       `;
@@ -1144,21 +1507,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 6: TESTIMONI & KIRIM PESAN LANGSUNG (INBOX)
+    // STATION 6: TESTIMONI & KIRIM PESAN LANGSUNG
     else if (index === 6) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="chatbubbles-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Testimoni & Kontak Rekrutmen</strong>`;
 
       container.innerHTML = `
         <div class="nadi-subtabs-row">
           <button class="nadi-subtab-btn ${activeContactSubtab === 'testi' ? 'active' : ''}" id="nadi-tab-testi">
-            <ion-icon name="chatbubble-ellipses-outline"></ion-icon> 4 Testimoni Pimpinan
+            <ion-icon name="chatbubble-ellipses-outline"></ion-icon> 4 Testimoni Rekan
           </button>
           <button class="nadi-subtab-btn ${activeContactSubtab === 'form' ? 'active' : ''}" id="nadi-tab-form">
             <ion-icon name="paper-plane-outline"></ion-icon> Kirim Pesan Langsung
           </button>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 48vh;">
+        <div class="nadi-card-scroll-body" style="max-height: 44vh;">
           ${activeContactSubtab === 'testi' ? `
             <div class="nadi-testi-list">
               ${DEFAULT_DATA.testimonials.map(t => `
@@ -1177,16 +1540,16 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           ` : `
             <form class="nadi-contact-form" id="nadi-direct-contact-form">
               <div class="nadi-form-group">
-                <label class="nadi-form-label">Nama Lengkap</label>
-                <input type="text" name="fullname" class="nadi-form-input" placeholder="Masukkan nama atau nama instansi..." required>
+                <label class="nadi-form-label">Nama Lengkap / Instansi</label>
+                <input type="text" name="fullname" class="nadi-form-input" placeholder="Nama atau instansi Anda..." required>
               </div>
               <div class="nadi-form-group">
                 <label class="nadi-form-label">Alamat Email</label>
-                <input type="email" name="email" class="nadi-form-input" placeholder="contoh@perusahaan.com" required>
+                <input type="email" name="email" class="nadi-form-input" placeholder="email@perusahaan.com" required>
               </div>
               <div class="nadi-form-group">
                 <label class="nadi-form-label">Pesan / Undangan Rekrutmen</label>
-                <textarea name="message" class="nadi-form-textarea" placeholder="Tuliskan pesan, peluang kerja, atau undangan kolaborasi..." required></textarea>
+                <textarea name="message" class="nadi-form-textarea" placeholder="Tuliskan pesan, tawaran kerja, atau proyek..." required></textarea>
               </div>
               <button type="submit" class="nadi-form-btn" id="nadi-form-submit-btn">
                 <ion-icon name="send-outline"></ion-icon>
@@ -1217,7 +1580,6 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         renderStoryStep(6);
       });
 
-      // Hook direct Firestore contact form
       const contactForm = document.getElementById('nadi-direct-contact-form');
       if (contactForm) {
         contactForm.addEventListener('submit', handleDirectContactSubmit);
@@ -1225,7 +1587,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
 
-  // ─── 6. HELPER DATA RETRIEVAL FUNCTIONS ───────────────────────
+  // Helper functions for content rendering
   function renderServicesOrSkillsHTML() {
     if (activeLayananSubtab === 'services') {
       return `
@@ -1321,7 +1683,61 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     return DEFAULT_DATA.blog;
   }
 
-  // ─── 7. DIRECT FIRESTORE CONTACT FORM HANDLER ─────────────────
+  // ─── 7. INTERACTIVE NPC DIALOGUE CONTROLLER ───────────────────
+  function openNPCDialogue(index) {
+    const npc = NPC_GUIDES[index] || NPC_GUIDES[0];
+    const modal = document.getElementById('nadi-npc-dialogue-modal');
+    if (!modal) return;
+
+    document.getElementById('nadi-npc-avatar').textContent = npc.avatarLetter;
+    document.getElementById('nadi-npc-name').textContent = npc.name;
+    document.getElementById('nadi-npc-role').textContent = npc.role;
+    document.getElementById('nadi-npc-bubble').textContent = npc.greeting;
+
+    const answerBox = document.getElementById('nadi-npc-answer-box');
+    if (answerBox) answerBox.style.display = 'none';
+
+    const qList = document.getElementById('nadi-npc-q-list');
+    if (qList) {
+      qList.innerHTML = npc.questions.map((item, qIdx) => `
+        <button class="nadi-npc-q-btn" data-qidx="${qIdx}">
+          <span>${item.q}</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      `).join('');
+
+      qList.querySelectorAll('.nadi-npc-q-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const qIdx = parseInt(btn.dataset.qidx, 10);
+          const chosen = npc.questions[qIdx];
+          if (chosen && answerBox) {
+            answerBox.innerHTML = `<strong>Jawaban ${npc.name}:</strong><br>${chosen.a}`;
+            answerBox.style.display = 'block';
+          }
+        });
+      });
+    }
+
+    const guideBtn = document.getElementById('nadi-npc-guide-btn');
+    const guideLbl = document.getElementById('nadi-npc-guide-label');
+    if (guideLbl) guideLbl.textContent = `Arahkan ke ${npc.nextRoomName} \u2192`;
+
+    if (guideBtn) {
+      guideBtn.onclick = () => {
+        const nextIdx = (index + 1) % SCROLL_STEPS.length;
+        jumpToStep(nextIdx);
+        closeNPCDialogue();
+      };
+    }
+
+    modal.classList.add('active');
+  }
+
+  function closeNPCDialogue() {
+    document.getElementById('nadi-npc-dialogue-modal')?.classList.remove('active');
+  }
+
+  // ─── 8. DIRECT FIRESTORE CONTACT FORM HANDLER ─────────────────
   async function handleDirectContactSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -1345,15 +1761,13 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         read: false
       });
 
-      submitBtn.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Pesan Berhasil Terkirim! 🎉</span>`;
+      submitBtn.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Pesan Terkirim ke Admin! 🎉</span>`;
       submitBtn.style.background = '#16a34a';
-      submitBtn.style.borderColor = '#16a34a';
       form.reset();
 
       setTimeout(() => {
         submitBtn.innerHTML = origHTML;
         submitBtn.style.background = '';
-        submitBtn.style.borderColor = '';
         submitBtn.disabled = false;
       }, 4000);
 
@@ -1361,19 +1775,17 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       console.warn('Firestore direct send error:', err);
       submitBtn.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>Pesan Diterima Sistem Lokal!</span>`;
       submitBtn.style.background = '#16a34a';
-      submitBtn.style.borderColor = '#16a34a';
       form.reset();
 
       setTimeout(() => {
         submitBtn.innerHTML = origHTML;
         submitBtn.style.background = '';
-        submitBtn.style.borderColor = '';
         submitBtn.disabled = false;
       }, 4000);
     }
   }
 
-  // ─── 8. LIGHTBOX MODAL HANDLER ────────────────────────────────
+  // ─── 9. LIGHTBOX MODAL HANDLER ────────────────────────────────
   function openProjectLightbox(proj) {
     const modal = document.getElementById('nadi-project-lightbox');
     if (!modal) return;
@@ -1410,11 +1822,10 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   }
 
   function closeProjectLightbox() {
-    const modal = document.getElementById('nadi-project-lightbox');
-    if (modal) modal.classList.remove('active');
+    document.getElementById('nadi-project-lightbox')?.classList.remove('active');
   }
 
-  // ─── 9. SCROLL & INTERACTION CONTROLLER ───────────────────────
+  // ─── 10. SCROLL & AUTO-SYNC IN-CARD TABLE CONTROLLER ──────────
   function handleScroll() {
     if (!scrollyTrack) return;
 
@@ -1440,7 +1851,26 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       renderStoryStep(currentStepIndex);
     }
 
+    // AUTO-SYNCHRONIZE IN-CARD TABLE SCROLL WITH 3D WALKTHROUGH!
+    // (User Feedback: "kontrol scroll tabelnya otomatiskan mengikuti scroll 3d gamenya")
+    autoSyncCardScroll(progress, currentStepIndex, stepRange);
+
     updateTimelineUI(progress);
+  }
+
+  function autoSyncCardScroll(progress, stepIdx, stepRange) {
+    const scrollBody = document.querySelector('.nadi-card-scroll-body');
+    if (!scrollBody) return;
+
+    // Calculate normalized progress within the current station
+    const stepCenter = stepIdx * stepRange;
+    const stepHalf = stepRange * 0.5;
+    const localProg = Math.max(0, Math.min(1, (progress - (stepCenter - stepHalf * 0.8)) / (stepHalf * 1.6)));
+
+    const maxScroll = scrollBody.scrollHeight - scrollBody.clientHeight;
+    if (maxScroll > 0) {
+      scrollBody.scrollTop = localProg * maxScroll;
+    }
   }
 
   function updateTimelineUI(progress) {
@@ -1485,7 +1915,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
   }
 
-  // ─── 10. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
+  // ─── 11. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
   function initThreeDiorama() {
     canvas = document.getElementById('nadi-webgl-canvas');
     stickyViewport = document.getElementById('nadi-sticky-viewport');
@@ -1496,8 +1926,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     const width = stickyViewport.clientWidth || window.innerWidth;
     const height = stickyViewport.clientHeight || window.innerHeight;
 
-    currentCamPos = new THREE.Vector3(SCROLL_STEPS[0].cam.x, SCROLL_STEPS[0].cam.y, SCROLL_STEPS[0].cam.z);
-    currentLookAt = new THREE.Vector3(SCROLL_STEPS[0].look.x, SCROLL_STEPS[0].look.y, SCROLL_STEPS[0].look.z);
+    // Camera initial high drone position for cinematic intro fly-in!
+    currentCamPos = new THREE.Vector3(-21, 35, 28);
+    currentLookAt = new THREE.Vector3(-21, 1.3, 0);
     tempTargetPos = new THREE.Vector3();
     tempTargetLook = new THREE.Vector3();
 
@@ -1528,22 +1959,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       renderer.outputEncoding = THREE.sRGBEncoding;
     }
 
-    // Build the architectural diorama & walking hero
+    // Build the architectural diorama with reference features
     buildMiniatureDioramaScene();
 
-    // Event Listeners
+    // Listeners
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', onWindowResize);
 
     stickyViewport.addEventListener('wheel', (e) => {
-      // If user is hovering over an in-card scroll body, let the card scroll naturally!
-      if (e.target.closest('.nadi-card-scroll-body, .nadi-archive-card, .nadi-lightbox-card')) {
+      if (e.target.closest('.nadi-card-scroll-body, .nadi-archive-card, .nadi-lightbox-card, .nadi-npc-dialogue-modal')) {
         return;
       }
       window.scrollBy({ top: e.deltaY, behavior: 'auto' });
     }, { passive: true });
 
-    // Clickable Navigation Step Pills
+    // Step item navigation
     document.querySelectorAll('.nadi-step-item').forEach(item => {
       item.addEventListener('click', () => {
         const idx = parseInt(item.dataset.index, 10);
@@ -1559,13 +1989,58 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     });
 
-    // Prev & Next Room Buttons
+    // Prev / Next Arrows
     document.getElementById('nadi-btn-prev')?.addEventListener('click', () => {
       jumpToStep(currentStepIndex - 1);
     });
-
     document.getElementById('nadi-btn-next')?.addEventListener('click', () => {
       jumpToStep(currentStepIndex + 1);
+    });
+
+    // POV Switcher Buttons
+    document.querySelectorAll('.nadi-pov-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nadi-pov-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPOV = btn.dataset.pov;
+      });
+    });
+
+    // NPC Dialogue Triggers
+    document.getElementById('nadi-npc-floating-trigger')?.addEventListener('click', () => {
+      openNPCDialogue(currentStepIndex);
+    });
+    document.getElementById('nadi-npc-close')?.addEventListener('click', closeNPCDialogue);
+
+    // Cinematic Intro Fly-in Trigger
+    function startIntroExperience() {
+      const intro = document.getElementById('nadi-cinematic-intro');
+      if (intro) intro.classList.add('hidden');
+      isIntroActive = false;
+      isIntroAnimating = true;
+      introProgress = 0;
+    }
+
+    document.getElementById('nadi-intro-btn')?.addEventListener('click', startIntroExperience);
+
+    // Outro Celebration Modal Triggers
+    function openOutroModal() {
+      const outro = document.getElementById('nadi-cinematic-outro');
+      if (outro) outro.classList.add('active');
+      isOutroActive = true;
+    }
+
+    function closeOutroModal() {
+      const outro = document.getElementById('nadi-cinematic-outro');
+      if (outro) outro.classList.remove('active');
+      isOutroActive = false;
+    }
+
+    document.getElementById('nadi-btn-trigger-outro')?.addEventListener('click', openOutroModal);
+    document.getElementById('nadi-outro-close')?.addEventListener('click', closeOutroModal);
+    document.getElementById('nadi-outro-replay-btn')?.addEventListener('click', () => {
+      closeOutroModal();
+      jumpToStep(0);
     });
 
     // Keyboard Arrow Controls
@@ -1579,17 +2054,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         jumpToStep(prevIdx);
       } else if (e.code === 'Escape') {
         closeProjectLightbox();
-        closeArchiveModal();
+        closeNPCDialogue();
+        closeOutroModal();
+        document.getElementById('nadi-archive-modal')?.classList.remove('active');
       }
     });
 
-    // Drag-to-Scrub Controls
+    // Free Orbit Mouse Drag
     let isDragging = false;
-    let startY = 0;
+    let startX = 0, startY = 0;
 
-    stickyViewport.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button, a, input, textarea, .nadi-card-scroll-body, .nadi-archive-modal, .nadi-lightbox-modal')) return;
+    canvas.addEventListener('mousedown', (e) => {
       isDragging = true;
+      startX = e.clientX;
       startY = e.clientY;
     });
 
@@ -1597,21 +2074,27 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     window.addEventListener('mousemove', (e) => {
       if (isDragging) {
-        const delta = startY - e.clientY;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        startX = e.clientX;
         startY = e.clientY;
-        window.scrollBy({ top: delta * 3, behavior: 'auto' });
+
+        if (currentPOV === 'orbit') {
+          orbitYaw -= dx * 0.008;
+          orbitPitch = Math.max(0.1, Math.min(1.4, orbitPitch + dy * 0.008));
+        } else {
+          window.scrollBy({ top: -dy * 2.5, behavior: 'auto' });
+        }
       }
     });
 
-    // Touch Swipe Controls
+    // Touch Controls
     let touchStartY = 0;
-    stickyViewport.addEventListener('touchstart', (e) => {
-      if (e.target.closest('.nadi-card-scroll-body, .nadi-archive-modal, .nadi-lightbox-modal')) return;
+    canvas.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
-    stickyViewport.addEventListener('touchmove', (e) => {
-      if (e.target.closest('.nadi-card-scroll-body, .nadi-archive-modal, .nadi-lightbox-modal')) return;
+    canvas.addEventListener('touchmove', (e) => {
       const touchY = e.touches[0].clientY;
       const delta = touchStartY - touchY;
       touchStartY = touchY;
@@ -1619,34 +2102,51 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }, { passive: true });
 
     // Full In-3D Archive Modal Handlers
-    function openArchiveModal() {
-      const modal = document.getElementById('nadi-archive-modal');
-      if (modal) modal.classList.add('active');
-    }
-
-    function closeArchiveModal() {
-      const modal = document.getElementById('nadi-archive-modal');
-      if (modal) modal.classList.remove('active');
-    }
-
-    window.__nadiOpenArchive = openArchiveModal;
-
-    document.getElementById('nadi-btn-open-archive')?.addEventListener('click', openArchiveModal);
-    document.getElementById('nadi-archive-close')?.addEventListener('click', closeArchiveModal);
+    document.getElementById('nadi-btn-open-archive')?.addEventListener('click', () => {
+      document.getElementById('nadi-archive-modal')?.classList.add('active');
+    });
+    document.getElementById('nadi-archive-close')?.addEventListener('click', () => {
+      document.getElementById('nadi-archive-modal')?.classList.remove('active');
+    });
     document.getElementById('nadi-archive-modal')?.addEventListener('click', (e) => {
-      if (e.target.id === 'nadi-archive-modal') closeArchiveModal();
+      if (e.target.id === 'nadi-archive-modal') {
+        document.getElementById('nadi-archive-modal')?.classList.remove('active');
+      }
     });
 
-    // Lightbox Modal Close Handlers
+    // Lightbox Modal Close
     document.getElementById('nadi-lightbox-close')?.addEventListener('click', closeProjectLightbox);
     document.getElementById('nadi-project-lightbox')?.addEventListener('click', (e) => {
       if (e.target.id === 'nadi-project-lightbox') closeProjectLightbox();
     });
 
-    // Hide loading screen
+    // Raycast click on 3D NPCs
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(scene.children, true);
+
+      for (const hit of intersects) {
+        let cur = hit.object;
+        while (cur && cur !== scene) {
+          if (cur.userData && cur.userData.isNPC) {
+            openNPCDialogue(cur.userData.npcIndex);
+            return;
+          }
+          cur = cur.parent;
+        }
+      }
+    });
+
+    // Hide loader
     setTimeout(() => {
-      const loader = document.getElementById('nadi-loading-screen');
-      if (loader) loader.classList.add('hidden');
+      document.getElementById('nadi-loading-screen')?.classList.add('hidden');
     }, 400);
 
     handleScroll();
@@ -1662,6 +2162,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderer.setSize(width, height);
   }
 
+  // Camera Flight Pose Calculator with Multi-POV Support
   function getCameraPoseAtProgress(t) {
     const numIntervals = SCROLL_STEPS.length - 1;
     const scaled = t * numIntervals;
@@ -1670,20 +2171,69 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     const stepA = SCROLL_STEPS[i];
     const stepB = SCROLL_STEPS[i + 1] || SCROLL_STEPS[i];
-
     const ease = frac * frac * (3 - 2 * frac);
 
-    const pos = {
-      x: stepA.cam.x + (stepB.cam.x - stepA.cam.x) * ease,
-      y: stepA.cam.y + (stepB.cam.y - stepA.cam.y) * ease,
-      z: stepA.cam.z + (stepB.cam.z - stepA.cam.z) * ease
-    };
-
-    const look = {
+    const baseLook = {
       x: stepA.look.x + (stepB.look.x - stepA.look.x) * ease,
       y: stepA.look.y + (stepB.look.y - stepA.look.y) * ease,
       z: stepA.look.z + (stepB.look.z - stepA.look.z) * ease
     };
+
+    let pos = { x: 0, y: 0, z: 0 };
+    let look = { ...baseLook };
+
+    // Get current hero world coordinates
+    let heroPos = { x: baseLook.x, y: 0, z: baseLook.z };
+    if (walkingHero) {
+      heroPos.x = walkingHero.position.x;
+      heroPos.z = walkingHero.position.z;
+    }
+
+    // MULTI-POV CALCULATIONS
+    if (currentPOV === 'topdown') {
+      // High-angle bird's-eye view looking directly down on hero and winding path (Reference Screenshot!)
+      pos.x = heroPos.x;
+      pos.y = 19.5;
+      pos.z = heroPos.z + 4.5;
+      look.x = heroPos.x;
+      look.y = 0;
+      look.z = heroPos.z;
+
+    } else if (currentPOV === 'thirdperson') {
+      // Over-the-shoulder follow walk angle behind the hero
+      pos.x = heroPos.x - 2.8;
+      pos.y = 2.4;
+      pos.z = heroPos.z + 4.2;
+      look.x = heroPos.x + 3.5;
+      look.y = 1.3;
+      look.z = heroPos.z - 0.5;
+
+    } else if (currentPOV === 'orbit') {
+      // Free orbit drag
+      const dist = 14;
+      pos.x = heroPos.x + Math.sin(orbitYaw) * dist * Math.cos(orbitPitch);
+      pos.y = Math.sin(orbitPitch) * dist + 1.5;
+      pos.z = heroPos.z + Math.cos(orbitYaw) * dist * Math.cos(orbitPitch);
+      look.x = heroPos.x;
+      look.y = 1.2;
+      look.z = heroPos.z;
+
+    } else {
+      // Default: Isometric Cutaway Perspective
+      pos.x = stepA.cam.x + (stepB.cam.x - stepA.cam.x) * ease;
+      pos.y = stepA.cam.y + (stepB.cam.y - stepA.cam.y) * ease;
+      pos.z = stepA.cam.z + (stepB.cam.z - stepA.cam.z) * ease;
+    }
+
+    // If Outro is active, pull back camera into celebratory sky overview
+    if (isOutroActive) {
+      pos.x = 0;
+      pos.y = 28;
+      pos.z = 26;
+      look.x = 0;
+      look.y = 1.2;
+      look.z = 0;
+    }
 
     return { pos, look };
   }
@@ -1695,6 +2245,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     currentProgress += (targetProgress - currentProgress) * 0.08;
     const deltaProg = currentProgress - prevProg;
 
+    const time = performance.now() * 0.002;
+
     // 1. ANIMATE WALKING HERO ALONG ORANGE FLOOR PATH
     if (walkingHero && orangeCurve) {
       const curveT = Math.min(0.999, Math.max(0.001, currentProgress));
@@ -1703,6 +2255,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
       walkingHero.position.set(heroPt.x, 0, heroPt.z);
       walkingHero.rotation.y = Math.atan2(heroTangent.x, heroTangent.z);
+
+      // Pulse cyan target ring (Reference signature feature!)
+      if (heroGroundRing) {
+        const pulse = 1.0 + Math.sin(time * 3) * 0.08;
+        heroGroundRing.scale.set(pulse, pulse, 1);
+      }
+      if (heroRingChevron) {
+        heroRingChevron.position.z = 0.65 + Math.sin(time * 4) * 0.04;
+      }
 
       // Walking cycle animation when moving
       if (Math.abs(deltaProg) > 0.0001) {
@@ -1713,24 +2274,48 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         if (armPivotR) armPivotR.rotation.x = Math.sin(walkStepPhase) * 0.5;
         walkingHero.position.y = Math.abs(Math.sin(walkStepPhase * 2)) * 0.06;
       } else {
-        // Return to natural standing pose when idle
+        // Natural idle breathing pose
         if (legPivotL) legPivotL.rotation.x *= 0.85;
         if (legPivotR) legPivotR.rotation.x *= 0.85;
         if (armPivotL) armPivotL.rotation.x *= 0.85;
         if (armPivotR) armPivotR.rotation.x *= 0.85;
-        walkingHero.position.y *= 0.85;
+        walkingHero.position.y = Math.sin(time * 1.5) * 0.015;
       }
     }
 
-    // 2. SMOOTH CAMERA FLIGHT
+    // 2. CINEMATIC INTRO FLY-IN ANIMATION
+    if (isIntroAnimating) {
+      introProgress += 0.025;
+      if (introProgress >= 1) {
+        introProgress = 1;
+        isIntroAnimating = false;
+      }
+    }
+
+    // 3. SMOOTH CAMERA FLIGHT & POV INTERPOLATION
     const { pos, look } = getCameraPoseAtProgress(currentProgress);
 
     if (currentCamPos && currentLookAt && tempTargetPos && tempTargetLook) {
-      tempTargetPos.set(pos.x, pos.y, pos.z);
-      tempTargetLook.set(look.x, look.y, look.z);
+      if (isIntroActive) {
+        // Drone sky view while intro modal is open
+        tempTargetPos.set(-21, 35, 28);
+        tempTargetLook.set(-21, 1.3, 0);
+      } else if (isIntroAnimating) {
+        // Fly-down swooping curve from sky to ground
+        const tEase = introProgress * introProgress * (3 - 2 * introProgress);
+        tempTargetPos.set(
+          -21 * (1 - tEase) + pos.x * tEase,
+          35 * (1 - tEase) + pos.y * tEase,
+          28 * (1 - tEase) + pos.z * tEase
+        );
+        tempTargetLook.set(look.x, look.y, look.z);
+      } else {
+        tempTargetPos.set(pos.x, pos.y, pos.z);
+        tempTargetLook.set(look.x, look.y, look.z);
+      }
 
-      currentCamPos.lerp(tempTargetPos, 0.1);
-      currentLookAt.lerp(tempTargetLook, 0.1);
+      currentCamPos.lerp(tempTargetPos, 0.08);
+      currentLookAt.lerp(tempTargetLook, 0.08);
 
       camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
       camera.lookAt(currentLookAt);
@@ -1739,7 +2324,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     renderer.render(scene, camera);
   }
 
-  // ─── 11. ENTRY POINT ──────────────────────────────────────────
+  // ─── 12. ENTRY POINT ──────────────────────────────────────────
   function init() {
     buildScrollytellingDOM();
 
@@ -1754,7 +2339,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       document.head.appendChild(script);
     }
 
-    console.log('✨ 3D Scrollytelling Diorama Experience (All 9 Admin Sections Integrated) initialized successfully!');
+    console.log('✨ 3D Diorama (Intro/Outro, Reference Aesthetics, Multi-POV & NPCs) initialized successfully!');
   }
 
   if (document.readyState === 'loading') {
