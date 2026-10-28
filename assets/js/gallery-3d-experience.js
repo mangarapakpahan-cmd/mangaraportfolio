@@ -2707,6 +2707,35 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
           <!-- FLOATING CENTERED BOTTOM SEGMENTED DOCK (STEPS 01 - 07) -->
           <!-- User Feedback: Rapikan blok 1-7 agar tidak berantakan & tidak bertabrakan dengan kartu! -->
+                    <!-- INTERACTIVE JOYSTICK SCROLL CONTROLLER (GAYA JOYSTICK) -->
+          <div class="nadi-joystick-controller" id="nadi-joystick-controller" aria-label="Joystick Kontrol Karakter Berjalan">
+            <div class="nadi-joystick-guide-label" id="nadi-joystick-label">
+              <ion-icon name="game-controller-outline"></ion-icon>
+              <span>JOYSTICK JALAN</span>
+            </div>
+
+            <div class="nadi-joystick-pad" id="nadi-joystick-pad">
+              <!-- Directional Guides / Tap Buttons -->
+              <button class="nadi-joy-dir nadi-joy-up" id="nadi-joy-btn-up" type="button" title="Maju (Walk Forward)">
+                <ion-icon name="caret-up-outline"></ion-icon>
+                <span class="nadi-joy-dir-label">MAJU</span>
+              </button>
+              <button class="nadi-joy-dir nadi-joy-down" id="nadi-joy-btn-down" type="button" title="Mundur (Walk Backward)">
+                <span class="nadi-joy-dir-label">MUNDUR</span>
+                <ion-icon name="caret-down-outline"></ion-icon>
+              </button>
+              <div class="nadi-joy-crosshair horizontal"></div>
+              <div class="nadi-joy-crosshair vertical"></div>
+
+              <!-- Luminous Center Movable Thumbstick Knob -->
+              <div class="nadi-joystick-knob" id="nadi-joystick-knob">
+                <div class="nadi-joystick-knob-core">
+                  <ion-icon name="walk-outline" class="nadi-joystick-walk-icon"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <footer class="nadi-bottom-timeline">
             <button class="nadi-arrow-btn" id="nadi-btn-prev" title="Bilik Sebelumnya (&larr;)">
               <ion-icon name="arrow-back-outline"></ion-icon>
@@ -2914,6 +2943,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       const layer = document.getElementById('nadi-story-layer');
       if (!layer) return;
       const isMin = layer.classList.toggle('nadi-minimized');
+      const joy = document.getElementById('nadi-joystick-controller');
+      if (joy) joy.classList.toggle('docked-low', isMin);
       const toggleBtn = document.getElementById('nadi-mobile-sheet-toggle');
       if (toggleBtn) {
         const textSpan = toggleBtn.querySelector('.toggle-text');
@@ -2932,7 +2963,8 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       const isMin = document.getElementById('nadi-story-layer')?.classList.contains('nadi-minimized');
       lbl.innerHTML = `
         <div class="nadi-step-label-text">
-          <span>${stepPrefix}</span> &bull; ${stepName}
+          <span class="nadi-step-badge-tag">Bilik ${step.stepNum}</span>
+          <span class="nadi-step-title-short">${step.stepName}</span>
         </div>
         <button class="nadi-mobile-sheet-toggle" id="nadi-mobile-sheet-toggle" type="button" aria-label="Toggle Mode 3D">
           <span class="toggle-text">${isMin ? 'Buka Detail' : '3D Penuh'}</span>
@@ -3652,6 +3684,177 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   window.jumpToStep = jumpToStep;
   window.renderStoryStep = renderStoryStep;
 
+
+  // ─── 16. INTERACTIVE JOYSTICK SCROLL CONTROLLER (GAYA JOYSTICK) ───
+  function initJoystickController() {
+    const pad = document.getElementById('nadi-joystick-pad');
+    const knob = document.getElementById('nadi-joystick-knob');
+    const btnUp = document.getElementById('nadi-joy-btn-up');
+    const btnDown = document.getElementById('nadi-joy-btn-down');
+    if (!pad || !knob) return;
+
+    let isInteracting = false;
+    let animId = null;
+    let curDY = 0; // -1 to 1 (Y deflection)
+    let curDX = 0; // -1 to 1 (X deflection)
+    const MAX_RADIUS = 26;
+
+    function applyKnobPosition(dx, dy) {
+      const dist = Math.hypot(dx, dy);
+      let cx = dx;
+      let cy = dy;
+      if (dist > MAX_RADIUS) {
+        cx = (dx / dist) * MAX_RADIUS;
+        cy = (dy / dist) * MAX_RADIUS;
+      }
+      knob.style.transform = `translate(${cx}px, ${cy}px)`;
+      knob.classList.add('active');
+
+      curDX = cx / MAX_RADIUS;
+      curDY = cy / MAX_RADIUS;
+    }
+
+    function resetJoystick() {
+      isInteracting = false;
+      curDX = 0;
+      curDY = 0;
+      knob.style.transform = 'translate(0px, 0px)';
+      knob.classList.remove('active');
+      btnUp?.classList.remove('active');
+      btnDown?.classList.remove('active');
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+    }
+
+    function runWalkLoop() {
+      if (animId) return;
+      function loop() {
+        if (!isInteracting) return;
+
+        // curDY < 0 = pushed forward (UP) -> scroll down window -> walk forward
+        // curDY > 0 = pushed backward (DOWN) -> scroll up window -> walk backward
+        if (Math.abs(curDY) > 0.06) {
+          const baseSpeed = 16.0; // px per frame
+          const sign = curDY < 0 ? 1 : -1;
+          const mag = Math.pow(Math.abs(curDY), 1.35);
+          const scrollSpeed = sign * mag * baseSpeed;
+
+          window.scrollBy({ top: scrollSpeed, behavior: 'auto' });
+        }
+
+        animId = requestAnimationFrame(loop);
+      }
+      animId = requestAnimationFrame(loop);
+    }
+
+    function handlePointerStart(clientX, clientY) {
+      isInteracting = true;
+      const rect = pad.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      applyKnobPosition(clientX - cx, clientY - cy);
+      runWalkLoop();
+    }
+
+    function handlePointerMove(clientX, clientY) {
+      if (!isInteracting) return;
+      const rect = pad.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      applyKnobPosition(clientX - cx, clientY - cy);
+    }
+
+    // Touch events for mobile phones
+    pad.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        e.preventDefault();
+        handlePointerStart(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isInteracting) return;
+      if (e.touches.length > 0) {
+        e.preventDefault();
+        handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+      if (isInteracting) resetJoystick();
+    });
+
+    window.addEventListener('touchcancel', () => {
+      if (isInteracting) resetJoystick();
+    });
+
+    // Pointer events for desktop / laptop testing
+    pad.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      try { pad.setPointerCapture(e.pointerId); } catch (_) {}
+      handlePointerStart(e.clientX, e.clientY);
+    });
+
+    pad.addEventListener('pointermove', (e) => {
+      if (!isInteracting) return;
+      e.preventDefault();
+      handlePointerMove(e.clientX, e.clientY);
+    });
+
+    pad.addEventListener('pointerup', (e) => {
+      try { pad.releasePointerCapture(e.pointerId); } catch (_) {}
+      resetJoystick();
+    });
+
+    pad.addEventListener('pointercancel', (e) => {
+      try { pad.releasePointerCapture(e.pointerId); } catch (_) {}
+      resetJoystick();
+    });
+
+    // Directional buttons (Maju & Mundur tap / hold)
+    function bindDirButton(btn, dirVal) {
+      if (!btn) return;
+      const startDir = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        isInteracting = true;
+        btn.classList.add('active');
+        applyKnobPosition(0, dirVal * MAX_RADIUS * 0.9);
+        runWalkLoop();
+      };
+      const endDir = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        resetJoystick();
+      };
+
+      btn.addEventListener('pointerdown', startDir);
+      btn.addEventListener('pointerup', endDir);
+      btn.addEventListener('pointercancel', endDir);
+      btn.addEventListener('pointerleave', endDir);
+
+      btn.addEventListener('touchstart', startDir, { passive: false });
+      btn.addEventListener('touchend', endDir);
+    }
+
+    bindDirButton(btnUp, -1); // Up = Forward (MAJU)
+    bindDirButton(btnDown, 1); // Down = Backward (MUNDUR)
+
+    // Double-click to leap directly to next / prev step
+    btnUp?.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      jumpToStep(currentStepIndex + 1);
+    });
+    btnDown?.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      jumpToStep(currentStepIndex - 1);
+    });
+  }
+
   // ─── 14. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
   function initThreeDiorama() {
     canvas = document.getElementById('nadi-webgl-canvas');
@@ -3697,6 +3900,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     // Build bustling miniature studio
     buildMiniatureDioramaScene();
+
+    // Initialize Interactive Joystick Scroll Controller
+    initJoystickController();
 
     // Event Listeners
     window.addEventListener('scroll', handleScroll, { passive: true });
