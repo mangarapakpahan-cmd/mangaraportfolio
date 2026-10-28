@@ -436,14 +436,16 @@ html, body {
   }
   .nadi-floating-card {
     pointer-events: auto;
-    padding: 10px 12px;
-    border-radius: 14px;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
     flex: 1;
     min-height: 0;
-    max-height: calc(46vh - 65px);
+    max-height: calc(46vh - 50px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   }
 }
 
@@ -529,30 +531,27 @@ html, body {
 }
 
 /* ─── ULTRA-MINIMALIST TABLE & CARD (USER: TABELNYA LEBIH SIMPLE & MINIMALIS) ─── */
+/* FRAMELESS & BOXLESS ARCHITECTURE (USER: GA USH PAKE BOXNYA LANGSUNG SAJA) */
 .nadi-floating-card {
   pointer-events: auto;
-  background: var(--nadi-card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--nadi-card-border);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
   position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  max-height: calc(100vh - 270px); /* Never extends into bottom dock! */
-  overflow: hidden;
+  max-height: calc(100vh - 260px);
+  overflow: visible;
 }
 
 .nadi-card-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  gap: 8px;
+  display: none !important; /* Hide redundant box header so content flows directly */
 }
 
 .nadi-card-badge-left {
@@ -2422,5 +2421,249 @@ html, body {
   }
   .nadi-floorplan-widget.mobile-expanded .nadi-floorplan-body {
     display: block;
+  }
+}
+
+
+/* ─── 2-PER-VIEW LARGE MINIMALIST PROJECT CARDS (USER REQUEST) ─── */
+.nadi-scroll-two-items {
+  height: 295px;
+  max-height: 295px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  padding-bottom: 4px;
+  scroll-behavior: smooth;
+}
+.nadi-scroll-two-items::-webkit-scrollbar {
+  width: 4px;
+}
+.nadi-scroll-two-items::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+.nadi-scroll-two-items::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 4px;
+}
+.nadi-scroll-two-items::-webkit-scrollbar-thumb:hover {
+  background: var(--nadi-orange);
+}
+
+.nadi-proj-card-large {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 12px 14px !important;
+  margin-bottom: 12px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  scroll-snap-align: start !important;
+  flex-shrink: 0 !important;
+  height: 135px !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.nadi-proj-card-large:hover {
+  background: #ffffff !important;
+  border-color: rgba(255, 107, 43, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 43, 0.12) !important;
+  transform: translateY(-2px) !important;
+}
+.nadi-proj-card-large .nadi-proj-thumb-wrap {
+  width: 125px !important;
+  height: 111px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: #f1f5f9 !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+.nadi-proj-card-large .nadi-proj-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.3s ease !important;
+}
+.nadi-proj-card-large:hover .nadi-proj-img {
+  transform: scale(1.05) !important;
+}
+.nadi-proj-card-large .nadi-proj-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  min-width: 0 !important;
+}
+.nadi-proj-card-large .nadi-proj-meta-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin-bottom: 3px !important;
+}
+.nadi-proj-card-large .nadi-proj-badge {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  letter-spacing: 0.02em !important;
+}
+.nadi-proj-card-large .nadi-proj-order {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: var(--nadi-orange) !important;
+}
+.nadi-proj-card-large .nadi-proj-title {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.35 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  margin-bottom: 6px !important;
+}
+.nadi-proj-card-large .nadi-proj-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: auto !important;
+}
+.nadi-proj-card-large .nadi-proj-btn {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.2s ease !important;
+  font-family: var(--nadi-font) !important;
+}
+.nadi-proj-card-large .nadi-proj-btn:hover {
+  background: var(--nadi-orange) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 43, 0.3) !important;
+}
+.nadi-proj-card-large .nadi-proj-btn-link {
+  background: rgba(255, 107, 43, 0.1) !important;
+  color: var(--nadi-orange) !important;
+  border: 1px solid rgba(255, 107, 43, 0.3) !important;
+  border-radius: 6px !important;
+  padding: 5px 11px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: all 0.2s ease !important;
+  font-family: var(--nadi-font) !important;
+}
+.nadi-proj-card-large .nadi-proj-btn-link:hover {
+  background: var(--nadi-orange) !important;
+  color: #ffffff !important;
+  border-color: var(--nadi-orange) !important;
+}
+
+/* Search Box & Filter Pills seamless styling */
+.nadi-search-box-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 100px;
+  padding: 8px 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+.nadi-search-box-wrap:focus-within {
+  border-color: var(--nadi-orange);
+  box-shadow: 0 4px 16px rgba(255, 107, 43, 0.15);
+  background: #ffffff;
+}
+.nadi-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12.5px;
+  font-family: var(--nadi-font);
+  color: #0f172a;
+  width: 100%;
+}
+.nadi-filter-pills-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.nadi-filter-pill {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--nadi-font);
+}
+.nadi-filter-pill:hover {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+.nadi-filter-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+}
+
+/* Mobile Specific Tuning */
+@media (max-width: 768px) {
+  .nadi-scroll-two-items {
+    height: 236px;
+    max-height: 236px;
+  }
+  .nadi-proj-card-large {
+    height: 110px !important;
+    padding: 9px 10px !important;
+    gap: 10px !important;
+    margin-bottom: 8px !important;
+  }
+  .nadi-proj-card-large .nadi-proj-thumb-wrap {
+    width: 95px !important;
+    height: 92px !important;
+  }
+  .nadi-proj-card-large .nadi-proj-title {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+  }
+  .nadi-proj-card-large .nadi-proj-btn,
+  .nadi-proj-card-large .nadi-proj-btn-link {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
   }
 }

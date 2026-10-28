@@ -3134,11 +3134,38 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 4: 50+ PROYEK PORTOFOLIO (COMPACT MINIMALIST ROWS!)
+    // STATION 4: 50+ PROYEK PORTOFOLIO (2-PER-VIEW LARGE MINIMALIST CARDS - FRAMELESS!)
     else if (index === 4) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="folder-open-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>50+ Proyek Portofolio Terkurasi</strong>`;
 
       const filteredProjects = getFilteredProjects();
+
+      function renderProjectsCardsHTML(list) {
+        return list.map(proj => `
+          <div class="nadi-proj-card nadi-proj-card-large">
+            <div class="nadi-proj-thumb-wrap">
+              <img src="${proj.imageUrl}" class="nadi-proj-img" alt="${proj.title}" onerror="this.src='./assets/images/portfolio/card-1.jpg'">
+            </div>
+            <div class="nadi-proj-content">
+              <div class="nadi-proj-meta-row">
+                <span class="nadi-proj-badge">${proj.category}</span>
+                <span class="nadi-proj-order">#${proj.order}</span>
+              </div>
+              <div class="nadi-proj-title" title="${proj.title}">${proj.title}</div>
+              <div class="nadi-proj-actions">
+                <button class="nadi-proj-btn btn-open-lightbox" data-id="${proj.order}">
+                  <ion-icon name="eye-outline"></ion-icon> Detail
+                </button>
+                ${proj.projectUrl ? `
+                  <a href="${proj.projectUrl}" target="_blank" rel="noopener" class="nadi-proj-btn-link">
+                    <ion-icon name="open-outline"></ion-icon> Link
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
 
       container.innerHTML = `
         <div class="nadi-search-box-wrap">
@@ -3155,50 +3182,40 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <button class="nadi-filter-pill ${activeProjFilter === 'AI & Platform' ? 'active' : ''}" data-filter="AI & Platform">AI</button>
         </div>
 
-        <div class="nadi-card-scroll-body">
+        <div class="nadi-card-scroll-body nadi-scroll-two-items">
           <div class="nadi-projects-grid">
-            ${filteredProjects.map(proj => `
-              <div class="nadi-proj-card">
-                <div class="nadi-proj-thumb-wrap">
-                  <img src="${proj.imageUrl}" class="nadi-proj-img" alt="${proj.title}" onerror="this.src='./assets/images/portfolio/card-1.jpg'">
-                </div>
-                <div class="nadi-proj-content">
-                  <div class="nadi-proj-title">${proj.title}</div>
-                  <div class="nadi-proj-meta-row">
-                    <span class="nadi-proj-badge">${proj.category}</span>
-                    <span class="nadi-proj-order">#${proj.order}</span>
-                  </div>
-                </div>
-                <div class="nadi-proj-actions">
-                  <button class="nadi-proj-btn btn-open-lightbox" data-id="${proj.order}">Detail</button>
-                  ${proj.projectUrl ? `
-                    <a href="${proj.projectUrl}" target="_blank" rel="noopener" class="nadi-proj-btn" style="color: var(--nadi-orange);">Link</a>
-                  ` : ''}
-                </div>
-              </div>
-            `).join('')}
+            ${renderProjectsCardsHTML(filteredProjects)}
           </div>
         </div>
       `;
 
+      function attachLightboxEvents() {
+        container.querySelectorAll('.btn-open-lightbox').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.dataset.id, 10);
+            const p = DEFAULT_DATA.projects.find(x => x.order === id);
+            if (p) openProjectLightbox(p);
+          });
+        });
+      }
+
+      attachLightboxEvents();
+
       const searchInput = document.getElementById('nadi-proj-search-input');
       searchInput?.addEventListener('input', (e) => {
         activeProjSearch = e.target.value.toLowerCase();
-        renderStoryStep(4);
+        const grid = container.querySelector('.nadi-projects-grid');
+        if (grid) {
+          const updatedProjects = getFilteredProjects();
+          grid.innerHTML = renderProjectsCardsHTML(updatedProjects);
+          attachLightboxEvents();
+        }
       });
 
       container.querySelectorAll('.nadi-filter-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           activeProjFilter = btn.dataset.filter;
           renderStoryStep(4);
-        });
-      });
-
-      container.querySelectorAll('.btn-open-lightbox').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = parseInt(btn.dataset.id, 10);
-          const p = DEFAULT_DATA.projects.find(x => x.order === id);
-          if (p) openProjectLightbox(p);
         });
       });
     }
@@ -3633,6 +3650,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
   }
   window.jumpToStep = jumpToStep;
+  window.renderStoryStep = renderStoryStep;
 
   // ─── 14. INITIALIZE THREE.JS & ANIMATION LOOP ─────────────────
   function initThreeDiorama() {
