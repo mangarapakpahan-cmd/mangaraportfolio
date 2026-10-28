@@ -68,6 +68,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let poolWaterMesh = null;
   let heroHumanObj = null;
 
+  // ─── FESTIVE OFFICE & MINI-GAME SYSTEMS ─────────────────────────
+  let questCollectibles = [];
+  let collectedQuestCount = 0;
+  let festiveFairyLights = [];
+  let mascotDog = null;
+  let baristaEspressoMachine = null;
+  let heroSpeedBoostUntil = 0;
+  let arcadeMachineObj = null;
+
   // ─── PROCEDURAL WEB AUDIO SYNTHESIZER (ZERO EXTERNAL ASSETS) ──
   class ProceduralAudioEngine {
     constructor() {
@@ -193,6 +202,111 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
         osc.start(this.ctx.currentTime + i * 0.1);
         osc.stop(this.ctx.currentTime + i * 0.1 + 0.85);
       });
+    }
+
+    playCollect() {
+      if (!this.isEnabled || !this.ctx) return;
+      const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+      chord.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.05);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime + i * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.05 + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.05);
+        osc.stop(this.ctx.currentTime + i * 0.05 + 0.38);
+      });
+    }
+
+    playVictory() {
+      if (!this.isEnabled || !this.ctx) return;
+      const fanfare = [
+        { f: 523.25, t: 0.0, d: 0.12 },
+        { f: 659.25, t: 0.12, d: 0.12 },
+        { f: 783.99, t: 0.24, d: 0.14 },
+        { f: 1046.50, t: 0.40, d: 0.5 }
+      ];
+      fanfare.forEach(n => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(n.f, this.ctx.currentTime + n.t);
+        gain.gain.setValueAtTime(0.09, this.ctx.currentTime + n.t);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + n.t + n.d);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + n.t);
+        osc.stop(this.ctx.currentTime + n.t + n.d + 0.05);
+      });
+    }
+
+    playCoffeeHiss() {
+      if (!this.isEnabled || !this.ctx) return;
+      const bufferSize = this.ctx.sampleRate * 0.5;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.08;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1200, this.ctx.currentTime);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start();
+    }
+
+    playBark() {
+      if (!this.isEnabled || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(780, this.ctx.currentTime + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.16);
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.2);
+    }
+
+    playJump() {
+      if (!this.isEnabled || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.07, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.14);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.15);
+    }
+
+    playCoin() {
+      if (!this.isEnabled || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(987.77, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(1318.51, this.ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.3);
     }
   }
 
@@ -866,6 +980,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     // 9. 7 Interactive NPCs placed across rooms
     buildInteractive3DNPCS();
 
+    // 12. Festive Office Amenities, Neon Signs, Interactive Dog & Mini-Games
+    buildFestiveOfficeElements();
+
     // 10. 4 Mobile Patrolling Office Workers across corridors
     buildPatrollingOfficeWorkers();
 
@@ -1166,29 +1283,319 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   }
 
   // ─── ARCHITECTURAL SIGNATURE CARPET INLAYS ───────────────────
+
+  // ─── FESTIVE OFFICE AMENITIES, DECORATIONS, NEON SIGNS & MINI-GAMES ────
+  function buildFestiveOfficeElements() {
+    festiveFairyLights = [];
+    questCollectibles = [];
+
+    // 1. NEON 3D ILLUMINATED WALL SIGNS (Cyber Tech Office Vibes)
+    const neonSigns = [
+      { text: "LIVE ON AIR", color: 0xef4444, pos: [-32.55, 2.7, 0], rotY: Math.PI / 2, lightColor: 0xef4444 },
+      { text: "AI CORE LAB", color: 0x06b6d4, pos: [32.55, 2.7, -17], rotY: -Math.PI / 2, lightColor: 0x06b6d4 },
+      { text: "IOT HARDWARE", color: 0x10b981, pos: [32.55, 2.7, 0], rotY: -Math.PI / 2, lightColor: 0x10b981 },
+      { text: "PRESS GALLERY", color: 0xa855f7, pos: [32.55, 2.7, 19], rotY: -Math.PI / 2, lightColor: 0xa855f7 },
+      { text: "ARCADE LOUNGE", color: 0xec4899, pos: [0, 2.7, 24.8], rotY: Math.PI, lightColor: 0xec4899 },
+      { text: "CAFE ATRIUM", color: 0xfbbf24, pos: [0, 2.2, -5.8], rotY: 0, lightColor: 0xfbbf24 }
+    ];
+
+    neonSigns.forEach(s => {
+      const signGrp = new THREE.Group();
+      signGrp.position.set(s.pos[0], s.pos[1], s.pos[2]);
+      signGrp.rotation.y = s.rotY;
+
+      // Dark Backplate
+      const plate = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 0.45, 0.08),
+        new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.3 })
+      );
+      signGrp.add(plate);
+
+      // Glowing Neon Tube
+      const tubeMat = new THREE.MeshBasicMaterial({ color: s.color });
+      const tube = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.28, 0.1), tubeMat);
+      tube.position.z = 0.02;
+      signGrp.add(tube);
+
+      // Neon Colored Point Light
+      const pLight = new THREE.PointLight(s.lightColor, 1.2, 7.5);
+      pLight.position.set(0, 0, 0.4);
+      signGrp.add(pLight);
+
+      scene.add(signGrp);
+    });
+
+    // 2. FESTIVE OVERHEAD FAIRY STRING LIGHTS IN COURTYARD ATRIUM
+    // Sagging catenary strings between the 4 architectural tree tops
+    const treePositions = [
+      { x: -6.0, z: -4.5 },
+      { x: 6.0, z: -4.5 },
+      { x: 6.0, z: 4.5 },
+      { x: -6.0, z: 4.5 }
+    ];
+    const bulbColors = [0xfef08a, 0xf43f5e, 0x38bdf8, 0x4ade80, 0xfb923c, 0xa855f7];
+
+    for (let i = 0; i < treePositions.length; i++) {
+      const p1 = treePositions[i];
+      const p2 = treePositions[(i + 1) % treePositions.length];
+      const segments = 8;
+
+      for (let s = 0; s <= segments; s++) {
+        const t = s / segments;
+        const bx = p1.x + (p2.x - p1.x) * t;
+        const bz = p1.z + (p2.z - p1.z) * t;
+        const sag = Math.sin(t * Math.PI) * 0.45;
+        const by = 3.6 - sag;
+
+        const bColor = bulbColors[(i * segments + s) % bulbColors.length];
+        const bulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.09, 8, 8),
+          new THREE.MeshBasicMaterial({ color: bColor })
+        );
+        bulb.position.set(bx, by, bz);
+        scene.add(bulb);
+
+        festiveFairyLights.push({
+          mesh: bulb,
+          baseY: by,
+          phase: i * 2.0 + s * 0.65,
+          color: bColor
+        });
+      }
+    }
+
+    // 3. COLORFUL ATRIUM BEANBAG LOUNGERS (Vibrant Tech Campus Life!)
+    const beanbags = [
+      { x: -3.6, z: 2.8, color: 0xff6b2b, rot: 0.3 },
+      { x: 3.6, z: 2.8, color: 0x06b6d4, rot: -0.4 },
+      { x: -2.8, z: -2.8, color: 0xa855f7, rot: 0.8 },
+      { x: 4.2, z: -2.2, color: 0x84cc16, rot: -0.9 }
+    ];
+    beanbags.forEach(b => {
+      const bagMat = new THREE.MeshStandardMaterial({ color: b.color, roughness: 0.85, metalness: 0.05 });
+      const bagGeo = new THREE.SphereGeometry(0.48, 12, 10);
+      bagGeo.scale(1.2, 0.65, 1.1);
+      const bagMesh = new THREE.Mesh(bagGeo, bagMat);
+      bagMesh.position.set(b.x, 0.22, b.z);
+      bagMesh.rotation.y = b.rot;
+      bagMesh.castShadow = true;
+      scene.add(bagMesh);
+    });
+
+    // 4. COLORFUL ACOUSTIC HEXAGONAL SOUND PANELS IN BILIK 03 (NEWSROOM)
+    const hexColors = [0xfacc15, 0xf97316, 0x14b8a6, 0xa855f7, 0x3b82f6];
+    for (let hi = 0; hi < 8; hi++) {
+      const hexMat = new THREE.MeshStandardMaterial({
+        color: hexColors[hi % hexColors.length],
+        roughness: 0.75
+      });
+      const hex = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.04, 6), hexMat);
+      hex.position.set(-20 - (hi % 4) * 0.9, 1.8 + Math.floor(hi / 4) * 0.7, -24.8);
+      hex.rotation.x = Math.PI / 2;
+      scene.add(hex);
+    }
+
+    // 5. INTERACTIVE BARISTA ESPRESSO MACHINE AT COURTYARD COFFEE BAR
+    const coffeeGrp = new THREE.Group();
+    coffeeGrp.position.set(2.2, 0.95, -1.8);
+
+    const espressoBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.75, 0.45, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6, roughness: 0.3 })
+    );
+    coffeeGrp.add(espressoBody);
+
+    const portafilter = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.25, 8),
+      new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.8 })
+    );
+    portafilter.position.set(0, -0.15, 0.28);
+    portafilter.rotation.x = Math.PI / 2;
+    coffeeGrp.add(portafilter);
+
+    const steamWand = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.22, 6),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9 })
+    );
+    steamWand.position.set(-0.25, -0.12, 0.24);
+    coffeeGrp.add(steamWand);
+
+    scene.add(coffeeGrp);
+    baristaEspressoMachine = coffeeGrp;
+
+    // 6. CUTE INTERACTIVE OFFICE MASCOT DOG "BIMO"
+    const dogGrp = new THREE.Group();
+    dogGrp.position.set(-1.8, 0, 1.6);
+
+    const dogBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.28, 0.55),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.8 })
+    );
+    dogBody.position.y = 0.28;
+    dogGrp.add(dogBody);
+
+    const dogHead = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 0.3, 0.32),
+      new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.8 })
+    );
+    dogHead.position.set(0, 0.46, 0.32);
+    dogGrp.add(dogHead);
+
+    const dogSnout = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.14, 0.18),
+      new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.5 })
+    );
+    dogSnout.position.set(0, 0.42, 0.5);
+    dogGrp.add(dogSnout);
+
+    const dogTail = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.22, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0xd97706 })
+    );
+    dogTail.position.set(0, 0.4, -0.32);
+    dogTail.rotation.x = -0.5;
+    dogGrp.add(dogTail);
+
+    scene.add(dogGrp);
+    mascotDog = { group: dogGrp, tail: dogTail, angle: 0 };
+
+    // 7. RETRO 3D ARCADE MACHINE IN BILIK 07 (RECRUITER LOUNGE)
+    const arcadeGrp = new THREE.Group();
+    arcadeGrp.position.set(-6.5, 0, 20.5);
+    arcadeGrp.rotation.y = Math.PI / 4;
+
+    const cabBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.85, 1.85, 0.75),
+      new THREE.MeshStandardMaterial({ color: 0x312e81, roughness: 0.4, metalness: 0.2 })
+    );
+    cabBody.position.y = 0.92;
+    arcadeGrp.add(cabBody);
+
+    const marquee = new THREE.Mesh(
+      new THREE.BoxGeometry(0.82, 0.25, 0.1),
+      new THREE.MeshBasicMaterial({ color: 0xec4899 })
+    );
+    marquee.position.set(0, 1.75, 0.36);
+    arcadeGrp.add(marquee);
+
+    const crtScreen = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.68, 0.5),
+      new THREE.MeshBasicMaterial({ color: 0x06b6d4 })
+    );
+    crtScreen.position.set(0, 1.25, 0.39);
+    crtScreen.rotation.x = -0.15;
+    arcadeGrp.add(crtScreen);
+
+    const stick = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.14, 8),
+      new THREE.MeshBasicMaterial({ color: 0xef4444 })
+    );
+    stick.position.set(-0.15, 0.88, 0.45);
+    arcadeGrp.add(stick);
+
+    scene.add(arcadeGrp);
+    arcadeMachineObj = arcadeGrp;
+
+    // 8. 5 FLOATING COLLECTIBLE QUEST ITEMS ("MISI 5 IDE INOVASI MANGARA")
+    const questDefs = [
+      { id: "trophy", name: "Piala Emas MKI IoT", room: "Bilik 05: IoT Lab", pos: [29.0, 1.45, 1.0], color: 0xf59e0b, icon: "trophy-outline" },
+      { id: "clapper", name: "Clapperboard Emas Broadcast", room: "Bilik 02: Broadcast MCR", pos: [-27.0, 1.45, 3.0], color: 0xef4444, icon: "videocam-outline" },
+      { id: "coffee", name: "Cangkir Kopi Spesial Barista", room: "Central Atrium Garden", pos: [2.5, 1.35, -1.5], color: 0xd97706, icon: "cafe-outline" },
+      { id: "cube", name: "Kubus Kuantum AI", room: "Bilik 04: Data Lab", pos: [27.0, 1.45, -18.0], color: 0x06b6d4, icon: "hardware-chip-outline" },
+      { id: "badge", name: "Lencana Pers Kehormatan", room: "Bilik 03: Newsroom", pos: [-25.0, 1.45, -18.0], color: 0x8b5cf6, icon: "newspaper-outline" }
+    ];
+
+    questDefs.forEach((q, idx) => {
+      const qGrp = new THREE.Group();
+      qGrp.position.set(q.pos[0], q.pos[1], q.pos[2]);
+
+      // Golden Halo Glow Ring
+      const haloMat = new THREE.MeshBasicMaterial({ color: q.color, wireframe: true });
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.03, 8, 24), haloMat);
+      halo.rotation.x = Math.PI / 2;
+      qGrp.add(halo);
+
+      // Core Collectible Mesh
+      let coreMesh;
+      if (q.id === "trophy") {
+        coreMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.08, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15 }));
+      } else if (q.id === "cube") {
+        coreMesh = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.32), new THREE.MeshStandardMaterial({ color: 0x06b6d4, metalness: 0.8, roughness: 0.2 }));
+      } else if (q.id === "clapper") {
+        coreMesh = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.28, 0.06), new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.5, roughness: 0.4 }));
+      } else if (q.id === "coffee") {
+        coreMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.12, 0.26, 12), new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.4 }));
+      } else {
+        coreMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.24), new THREE.MeshStandardMaterial({ color: 0x8b5cf6, metalness: 0.7, roughness: 0.2 }));
+      }
+      qGrp.add(coreMesh);
+
+      const qLight = new THREE.PointLight(q.color, 1.4, 5.0);
+      qGrp.add(qLight);
+
+      scene.add(qGrp);
+
+      questCollectibles.push({
+        id: q.id,
+        name: q.name,
+        room: q.room,
+        group: qGrp,
+        halo: halo,
+        core: coreMesh,
+        collected: false,
+        pos: q.pos,
+        color: q.color
+      });
+    });
+  }
+
   function buildRoomZoneInlays() {
+    // VIBRANT, FESTIVE & EXCITING OFFICE ZONE FLOORING WITH NEON RUNNER LIGHTS!
     const zones = [
-      { x: -21, z: 19, w: 18, d: 11, color: 0xe2e8f0, roughness: 0.8 }, // 01 Foyer (Warm Sand Cream)
-      { x: -25, z: 0, w: 15, d: 18, color: 0x18181b, roughness: 0.9 },  // 02 Broadcast MCR (Dark Acoustic Studio)
-      { x: -20, z: -17, w: 18, d: 14, color: 0x1e3a8a, roughness: 0.7 },// 03 Newsroom (Corporate Navy Carpet)
-      { x: 20, z: -17, w: 18, d: 14, color: 0x0f172a, roughness: 0.6 }, // 04 Data Lab (Deep Slate Tech Grid)
-      { x: 25, z: 0, w: 15, d: 18, color: 0x334155, roughness: 0.8 },   // 05 IoT Workshop (Industrial Slate)
-      { x: 21, z: 19, w: 18, d: 11, color: 0x881337, roughness: 0.75 }, // 06 Press Hall (Executive Crimson Velvet)
-      { x: 0, z: 19, w: 16, d: 10, color: 0xffffff, roughness: 0.25 }    // 07 Recruiter Suite (White Carrara Marble)
+      { name: "Foyer", x: -21, z: 19, w: 18, d: 11, color: 0xffedd5, runnerColor: 0xff6b2b, roughness: 0.65 },
+      { name: "Broadcast", x: -25, z: 0, w: 15, d: 18, color: 0x111827, runnerColor: 0xef4444, roughness: 0.85 },
+      { name: "Newsroom", x: -20, z: -17, w: 18, d: 14, color: 0xd97706, runnerColor: 0xfbbf24, roughness: 0.55 },
+      { name: "DataLab", x: 20, z: -17, w: 18, d: 14, color: 0x0b0f19, runnerColor: 0x06b6d4, roughness: 0.5 },
+      { name: "IoTWorkshop", x: 25, z: 0, w: 15, d: 18, color: 0x064e3b, runnerColor: 0x10b981, roughness: 0.6 },
+      { name: "PressHall", x: 21, z: 19, w: 18, d: 11, color: 0x4c1d95, runnerColor: 0xa855f7, roughness: 0.7 },
+      { name: "RecruiterLounge", x: 0, z: 19, w: 16, d: 10, color: 0x1e1b4b, runnerColor: 0xec4899, roughness: 0.6 }
     ];
 
     zones.forEach(z => {
+      // Main plush carpet base
       const carpet = new THREE.Mesh(
-        new THREE.BoxGeometry(z.w, 0.015, z.d),
+        new THREE.BoxGeometry(z.w, 0.016, z.d),
         new THREE.MeshStandardMaterial({
           color: z.color,
           roughness: z.roughness,
-          metalness: z.color === 0xffffff ? 0.3 : 0.05
+          metalness: 0.12
         })
       );
       carpet.position.set(z.x, 0.01, z.z);
       carpet.receiveShadow = true;
       scene.add(carpet);
+
+      // Glowing Neon Floor Border Runner
+      const borderMat = new THREE.MeshBasicMaterial({ color: z.runnerColor });
+      const borderThickness = 0.12;
+      const hBorderGeo = new THREE.BoxGeometry(z.w, 0.02, borderThickness);
+      const vBorderGeo = new THREE.BoxGeometry(borderThickness, 0.02, z.d);
+
+      const bTop = new THREE.Mesh(hBorderGeo, borderMat);
+      bTop.position.set(z.x, 0.018, z.z - z.d / 2);
+      scene.add(bTop);
+
+      const bBottom = new THREE.Mesh(hBorderGeo, borderMat);
+      bBottom.position.set(z.x, 0.018, z.z + z.d / 2);
+      scene.add(bBottom);
+
+      const bLeft = new THREE.Mesh(vBorderGeo, borderMat);
+      bLeft.position.set(z.x - z.w / 2, 0.018, z.z);
+      scene.add(bLeft);
+
+      const bRight = new THREE.Mesh(vBorderGeo, borderMat);
+      bRight.position.set(z.x + z.w / 2, 0.018, z.z);
+      scene.add(bRight);
     });
   }
 
@@ -2680,6 +3087,15 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
 
             <div class="nadi-nav-actions">
+              <!-- TOP QUEST & ARCADE HUD PILLS -->
+              <div class="nadi-quest-hud-pill" id="nadi-quest-hud-pill" title="Misi Kantor: Kumpulkan 5 Ide Inovasi Mangara">
+                <ion-icon name="trophy"></ion-icon>
+                <span id="nadi-quest-hud-text">Misi: 0/5 Ide</span>
+              </div>
+              <button class="nadi-arcade-trigger-btn" id="nadi-arcade-trigger-btn" type="button" title="Main Game Retro Data Runner">
+                <ion-icon name="game-controller"></ion-icon>
+                <span>Game Arkade</span>
+              </button>
               <button class="nadi-btn-audio" id="nadi-btn-audio-toggle" title="Suara Ambience Kantor (Web Audio)">
                 <ion-icon name="volume-mute-outline" id="nadi-audio-icon"></ion-icon>
                 <span id="nadi-audio-text">Audio: Off</span>
@@ -3026,6 +3442,51 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
             </div>
           </div>
 
+          <!-- RETRO ARCADE MINI-GAME MODAL -->
+          <div class="nadi-arcade-modal" id="nadi-arcade-modal">
+            <div class="nadi-arcade-card">
+              <div class="nadi-arcade-header">
+                <div class="nadi-arcade-title">
+                  <ion-icon name="game-controller" style="color: #06b6d4;"></ion-icon>
+                  <strong>MANGARA DATA RUNNER (8-BIT)</strong>
+                </div>
+                <button class="nadi-modal-close" id="nadi-btn-close-arcade" type="button">&times;</button>
+              </div>
+              <div class="nadi-arcade-canvas-wrap">
+                <canvas id="nadi-arcade-canvas" width="320" height="180"></canvas>
+              </div>
+              <div class="nadi-arcade-controls-row">
+                <div class="nadi-arcade-score-info">
+                  <span>Skor: <strong id="nadi-arcade-score">0</strong></span> &bull; 
+                  <span>Tertinggi: <strong id="nadi-arcade-highscore">0</strong></span>
+                </div>
+                <button class="nadi-arcade-jump-btn" id="nadi-arcade-jump-btn" type="button">
+                  <ion-icon name="arrow-up-circle"></ion-icon> LOMPAT (Space/Tap)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUEST VICTORY CELEBRATION MODAL -->
+          <div class="nadi-victory-modal" id="nadi-victory-modal">
+            <div class="nadi-victory-card">
+              <div class="nadi-victory-trophy-icon">🏆</div>
+              <h2 class="nadi-victory-h2">MASTER PENJELAJAH STUDIO!</h2>
+              <p class="nadi-victory-desc">
+                Selamat! Anda berhasil menemukan seluruh <strong>5 Ide Inovasi Mangara</strong> yang tersebar di bilik siaran, data lab, IoT, redaksi, dan kafe atrium!
+              </p>
+              <div class="nadi-victory-badge-box">
+                <span class="nadi-victory-badge">🌟 VIP Recruiter & Innovator Explorer</span>
+              </div>
+              <div class="nadi-victory-actions">
+                <a href="https://wa.me/6281318816058?text=Halo%20Mangara,%20saya%20telah%20menyelesaikan%20Misi%205%20Ide%20Inovasi%20di%20Portofolio%203D%20Anda!" target="_blank" rel="noopener" class="nadi-btn-primary" style="justify-content: center;">
+                  <ion-icon name="logo-whatsapp"></ion-icon> Klaim Jalur Cepat WhatsApp &rarr;
+                </a>
+                <button class="nadi-btn-secondary" id="nadi-btn-close-victory" type="button">Lanjut Eksplorasi 3D</button>
+              </div>
+            </div>
+          </div>
+
           <!-- LOADING SCREEN -->
           <div class="nadi-loading-screen" id="nadi-loading-screen">
             <div class="nadi-spinner"></div>
@@ -3216,7 +3677,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 2: 15 PENGALAMAN
+    // STATION 2: 15 PENGALAMAN (2-PER-VIEW LARGE MINIMALIST CARDS)
     else if (index === 2) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="briefcase-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>15 Pengalaman Kerja & Organisasi</strong>`;
 
@@ -3227,19 +3688,17 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <button class="nadi-filter-pill ${activeExpFilter === 'org' ? 'active' : ''}" data-filter="org">Organisasi</button>
         </div>
 
-        <div class="nadi-card-scroll-body">
-          <div class="nadi-exp-list">
-            ${getFilteredExperience().map(exp => `
-              <div class="nadi-exp-item">
-                <div class="nadi-exp-header">
-                  <span class="nadi-exp-role">${exp.position}</span>
-                  <span class="nadi-exp-period">${exp.period}</span>
-                </div>
-                <div class="nadi-exp-company">${exp.company}</div>
-                <p class="nadi-exp-desc">${exp.description}</p>
+        <div class="nadi-card-scroll-body nadi-scroll-two-items">
+          ${getFilteredExperience().map(exp => `
+            <div class="nadi-exp-card-large">
+              <div class="nadi-exp-header">
+                <span class="nadi-exp-role">${exp.position}</span>
+                <span class="nadi-exp-period">${exp.period}</span>
               </div>
-            `).join('')}
-          </div>
+              <div class="nadi-exp-company"><ion-icon name="business-outline"></ion-icon> ${exp.company}</div>
+              <p class="nadi-exp-desc">${exp.description}</p>
+            </div>
+          `).join('')}
         </div>
       `;
 
@@ -3251,7 +3710,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 3: PENDIDIKAN & 8 SERTIFIKASI
+    // STATION 3: PENDIDIKAN & 8 SERTIFIKASI (2-PER-VIEW LARGE MINIMALIST CARDS)
     else if (index === 3) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="school-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>Pendidikan & Sertifikasi Resmi</strong>`;
 
@@ -3262,19 +3721,20 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <button class="nadi-filter-pill ${activeEduFilter === 'cert' ? 'active' : ''}" data-filter="cert">Sertifikasi</button>
         </div>
 
-        <div class="nadi-card-scroll-body">
-          <div class="nadi-edu-list">
-            ${getFilteredEducation().map(edu => `
-              <div class="nadi-edu-item">
+        <div class="nadi-card-scroll-body nadi-scroll-two-items">
+          ${getFilteredEducation().map(edu => `
+            <div class="nadi-edu-card-large">
+              <div class="nadi-edu-header-row">
                 <div class="nadi-edu-school">
-                  <ion-icon name="checkmark-circle"></ion-icon>
+                  <ion-icon name="school-outline"></ion-icon>
                   <span>${edu.institution}</span>
                 </div>
-                <div class="nadi-edu-period">${edu.period}</div>
-                <p class="nadi-edu-desc">${edu.description}</p>
+                <span class="nadi-edu-period">${edu.period}</span>
               </div>
-            `).join('')}
-          </div>
+              <p class="nadi-edu-desc">${edu.description}</p>
+              <div class="nadi-edu-meta-badge"><ion-icon name="ribbon-outline"></ion-icon> Kualifikasi & Kompetensi Terverifikasi</div>
+            </div>
+          `).join('')}
         </div>
       `;
 
@@ -3372,7 +3832,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       });
     }
 
-    // STATION 5: 20 BLOG & RISET PRESTASI
+    // STATION 5: 20 BLOG & RISET PRESTASI (2-PER-VIEW LARGE EDITORIAL CARDS)
     else if (index === 5) {
       if (cardTitle) cardTitle.innerHTML = `<ion-icon name="newspaper-outline" style="color: var(--nadi-orange);"></ion-icon> <strong>20 Blog & Publikasi Riset</strong>`;
 
@@ -3386,24 +3846,22 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           <button class="nadi-filter-pill ${activeBlogFilter === 'ai' ? 'active' : ''}" data-filter="ai">Cloud & AI</button>
         </div>
 
-        <div class="nadi-card-scroll-body">
-          <div class="nadi-blog-list">
-            ${filteredBlog.map(b => `
-              <div class="nadi-blog-item">
-                <div class="nadi-blog-top">
-                  <span class="nadi-blog-date">${b.date}</span>
-                  <span class="nadi-blog-cat">${b.category}</span>
-                </div>
-                <div class="nadi-blog-title">${b.title}</div>
-                <p class="nadi-blog-desc">${b.excerpt}</p>
-                ${b.url ? `
-                  <a href="${b.url}" target="_blank" rel="noopener" class="nadi-blog-link">
-                    <span>Baca Artikel</span> &rarr;
-                  </a>
-                ` : ''}
+        <div class="nadi-card-scroll-body nadi-scroll-two-items">
+          ${filteredBlog.map(b => `
+            <div class="nadi-blog-card-large">
+              <div class="nadi-blog-top">
+                <span class="nadi-blog-cat">${b.category}</span>
+                <span class="nadi-blog-date"><ion-icon name="calendar-outline"></ion-icon> ${b.date}</span>
               </div>
-            `).join('')}
-          </div>
+              <div class="nadi-blog-title">${b.title}</div>
+              <p class="nadi-blog-desc">${b.excerpt}</p>
+              ${b.url ? `
+                <a href="${b.url}" target="_blank" rel="noopener" class="nadi-blog-link-btn">
+                  <span>Baca Publikasi Lengkap</span> <ion-icon name="arrow-forward-outline"></ion-icon>
+                </a>
+              ` : ''}
+            </div>
+          `).join('')}
         </div>
       `;
 
@@ -3429,22 +3887,21 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
           </button>
         </div>
 
-        <div class="nadi-card-scroll-body" style="max-height: 38vh;">
+        <div class="nadi-card-scroll-body ${activeContactSubtab === 'testi' ? 'nadi-scroll-two-items' : ''}">
           ${activeContactSubtab === 'testi' ? `
-            <div class="nadi-testi-list">
-              ${DEFAULT_DATA.testimonials.map(t => `
-                <div class="nadi-testi-item">
-                  <div class="nadi-testi-header">
-                    <img src="${t.avatarUrl}" class="nadi-testi-avatar" alt="${t.name}">
-                    <div>
-                      <div class="nadi-testi-name">${t.name}</div>
-                      <div class="nadi-testi-date">${t.date}</div>
-                    </div>
+            ${DEFAULT_DATA.testimonials.map(t => `
+              <div class="nadi-testi-card-large">
+                <div class="nadi-testi-header">
+                  <img src="${t.avatarUrl}" class="nadi-testi-avatar" alt="${t.name}">
+                  <div class="nadi-testi-meta">
+                    <div class="nadi-testi-name">${t.name}</div>
+                    <div class="nadi-testi-date">${t.date}</div>
                   </div>
-                  <p class="nadi-testi-quote">"${t.text}"</p>
+                  <div class="nadi-testi-stars">⭐⭐⭐⭐⭐</div>
                 </div>
-              `).join('')}
-            </div>
+                <p class="nadi-testi-text">"${t.text}"</p>
+              </div>
+            `).join('')}
           ` : `
             <form class="nadi-contact-form" id="nadi-direct-contact-form">
               <div class="nadi-form-group">
@@ -3498,18 +3955,19 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   function renderServicesOrSkillsHTML() {
     if (activeLayananSubtab === 'services') {
       return `
-        <div class="nadi-service-list">
+        <div class="nadi-scroll-two-items">
           ${DEFAULT_DATA.services.map(s => `
-            <div class="nadi-service-item">
+            <div class="nadi-service-card-large">
               <div class="nadi-service-icon-box">
                 <img src="${s.iconUrl}" alt="${s.title}" onerror="this.src='./assets/images/icon-dev.svg'">
               </div>
               <div class="nadi-service-info">
                 <div class="nadi-service-title-row">
                   <span class="nadi-service-title">${s.title}</span>
-                  <span class="nadi-service-num">#${s.order}</span>
+                  <span class="nadi-service-order">#${s.order}</span>
                 </div>
                 <p class="nadi-service-desc">${s.description}</p>
+                <div class="nadi-service-meta-tag"><ion-icon name="checkmark-circle"></ion-icon> Tersedia untuk Penugasan Profesional</div>
               </div>
             </div>
           `).join('')}
@@ -3517,16 +3975,20 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       `;
     } else {
       return `
-        <div class="nadi-skills-list">
+        <div class="nadi-scroll-two-items">
           ${DEFAULT_DATA.skills.map(sk => `
-            <div class="nadi-skill-item">
+            <div class="nadi-skill-card-large">
               <div class="nadi-skill-top">
-                <span class="nadi-skill-name">${sk.name}</span>
+                <div class="nadi-skill-icon-pill">
+                  <ion-icon name="hardware-chip-outline"></ion-icon>
+                  <span class="nadi-skill-name">${sk.name}</span>
+                </div>
                 <span class="nadi-skill-pct">${sk.percentage}%</span>
               </div>
               <div class="nadi-skill-bar">
                 <div class="nadi-skill-fill" style="width: ${sk.percentage}%;"></div>
               </div>
+              <div class="nadi-skill-subtext">Penguasaan Tingkat Lanjut & Praktik Industri Terverifikasi</div>
             </div>
           `).join('')}
         </div>
@@ -4214,6 +4676,76 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     });
 
     // Keyboard Arrow Controls
+
+    // Event listeners for Quest & Arcade HUD and Modals
+    document.getElementById('nadi-arcade-trigger-btn')?.addEventListener('click', openArcadeModal);
+    document.getElementById('nadi-btn-close-arcade')?.addEventListener('click', closeArcadeModal);
+    document.getElementById('nadi-btn-close-victory')?.addEventListener('click', () => {
+      document.getElementById('nadi-victory-modal')?.classList.remove('active');
+    });
+
+    // 3D Canvas Raycast Click Interactivity (Click items, dog, coffee machine, arcade)
+    stickyViewport.addEventListener('pointerdown', (e) => {
+      if (isDragging) return;
+      const rect = stickyViewport.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      // Check quest collectibles
+      for (const q of questCollectibles) {
+        if (!q.collected) {
+          const hits = raycaster.intersectObjects(q.group.children, true);
+          if (hits.length > 0) {
+            collectQuestItem(q);
+            return;
+          }
+        }
+      }
+
+      // Check espresso machine
+      if (baristaEspressoMachine) {
+        const hits = raycaster.intersectObjects(baristaEspressoMachine.children, true);
+        if (hits.length > 0) {
+          if (window.audioEngine) window.audioEngine.playCoffeeHiss();
+          heroSpeedBoostUntil = Date.now() + 12000;
+          showToastNotification("☕ ESPRESSO BOOST! Karakter Mendapat Tambahan Energi!");
+          return;
+        }
+      }
+
+      // Check mascot dog
+      if (mascotDog) {
+        const hits = raycaster.intersectObjects(mascotDog.group.children, true);
+        if (hits.length > 0) {
+          if (window.audioEngine) window.audioEngine.playBark();
+          showToastNotification("🐶 Guk guk! Bimo si maskot kantor senang bermain dengan Anda!");
+          return;
+        }
+      }
+
+      // Check arcade machine
+      if (arcadeMachineObj) {
+        const hits = raycaster.intersectObjects(arcadeMachineObj.children, true);
+        if (hits.length > 0) {
+          openArcadeModal();
+          return;
+        }
+      }
+
+      // Check interactive NPCs
+      for (const npc of animatedNPCs) {
+        const hits = raycaster.intersectObjects(npc.group.children, true);
+        if (hits.length > 0) {
+          openNPCDialogue(npc.guide.roomIndex);
+          return;
+        }
+      }
+    });
+
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.code === 'ArrowDown' || e.code === 'ArrowRight' || e.code === 'PageDown') {
@@ -4409,6 +4941,249 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     }
 
     return { pos, look };
+  }
+
+
+  // ─── QUEST NOTIFICATION & LOGIC CONTROLLERS ───────────────────
+  function showToastNotification(msg) {
+    let toast = document.getElementById('nadi-toast-notification');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'nadi-toast-notification';
+      toast.className = 'nadi-toast-notification';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('visible'), 3200);
+  }
+
+  function collectQuestItem(q) {
+    if (q.collected) return;
+    q.collected = true;
+    collectedQuestCount++;
+
+    if (window.audioEngine) window.audioEngine.playCollect();
+
+    // Scale down & hide
+    q.group.visible = false;
+
+    // Update Top HUD
+    const textEl = document.getElementById('nadi-quest-hud-text');
+    const pillEl = document.getElementById('nadi-quest-hud-pill');
+    if (textEl) textEl.textContent = `Misi: ${collectedQuestCount}/5 Ide`;
+    if (pillEl) {
+      pillEl.classList.add('pulse');
+      setTimeout(() => pillEl.classList.remove('pulse'), 600);
+      if (collectedQuestCount >= 5) pillEl.classList.add('nadi-quest-all-done');
+    }
+
+    showToastNotification(`🎉 KARYA DITEMUKAN: ${q.name}! (${collectedQuestCount}/5)`);
+
+    if (collectedQuestCount >= 5) {
+      setTimeout(() => {
+        if (window.audioEngine) window.audioEngine.playVictory();
+        document.getElementById('nadi-victory-modal')?.classList.add('active');
+      }, 700);
+    }
+  }
+
+  // ─── 8-BIT RETRO ARCADE RUNNER MINI-GAME ──────────────────────
+  let arcadeAnimId = null;
+  let arcadeState = null;
+
+  function initArcadeGame() {
+    const canvas = document.getElementById('nadi-arcade-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let highscore = parseInt(localStorage.getItem('nadi_arcade_hs') || '0', 10);
+    const hsEl = document.getElementById('nadi-arcade-highscore');
+    if (hsEl) hsEl.textContent = highscore;
+
+    arcadeState = {
+      ctx: ctx,
+      width: canvas.width,
+      height: canvas.height,
+      player: { x: 30, y: 130, vy: 0, isGrounded: true, w: 14, h: 22 },
+      obstacles: [],
+      coins: [],
+      score: 0,
+      highscore: highscore,
+      gameOver: false,
+      frame: 0
+    };
+
+    function jump() {
+      if (!arcadeState) return;
+      if (arcadeState.gameOver) {
+        arcadeState.gameOver = false;
+        arcadeState.score = 0;
+        arcadeState.obstacles = [];
+        arcadeState.coins = [];
+        arcadeState.player.y = 130;
+        arcadeState.player.vy = 0;
+        arcadeState.player.isGrounded = true;
+        return;
+      }
+      if (arcadeState.player.isGrounded) {
+        arcadeState.player.vy = -7.5;
+        arcadeState.player.isGrounded = false;
+        if (window.audioEngine) window.audioEngine.playJump();
+      }
+    }
+
+    document.getElementById('nadi-arcade-jump-btn')?.addEventListener('click', jump);
+    canvas.addEventListener('pointerdown', jump);
+
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('nadi-arcade-modal')?.classList.contains('active')) {
+        if (e.code === 'Space' || e.code === 'ArrowUp') {
+          e.preventDefault();
+          jump();
+        }
+      }
+    });
+  }
+
+  function runArcadeGameLoop() {
+    if (!arcadeState) return;
+    const { ctx, width, height, player } = arcadeState;
+
+    if (!arcadeState.gameOver) {
+      arcadeState.frame++;
+      arcadeState.score += 0.1;
+      const sEl = document.getElementById('nadi-arcade-score');
+      if (sEl) sEl.textContent = Math.floor(arcadeState.score);
+
+      // Physics
+      player.vy += 0.42;
+      player.y += player.vy;
+      if (player.y >= 130) {
+        player.y = 130;
+        player.vy = 0;
+        player.isGrounded = true;
+      }
+
+      // Spawn obstacles & items
+      if (arcadeState.frame % 110 === 0) {
+        arcadeState.obstacles.push({ x: width + 10, y: 134, w: 14, h: 18, color: '#ef4444' });
+      }
+      if (arcadeState.frame % 85 === 0) {
+        arcadeState.coins.push({ x: width + 10, y: 105, w: 10, h: 10, color: '#fbbf24' });
+      }
+
+      // Move & collide obstacles
+      for (let i = arcadeState.obstacles.length - 1; i >= 0; i--) {
+        const obs = arcadeState.obstacles[i];
+        obs.x -= 3.2;
+        if (
+          player.x < obs.x + obs.w &&
+          player.x + player.w > obs.x &&
+          player.y < obs.y + obs.h &&
+          player.y + player.h > obs.y
+        ) {
+          arcadeState.gameOver = true;
+          if (Math.floor(arcadeState.score) > arcadeState.highscore) {
+            arcadeState.highscore = Math.floor(arcadeState.score);
+            localStorage.setItem('nadi_arcade_hs', arcadeState.highscore);
+            const hsEl = document.getElementById('nadi-arcade-highscore');
+            if (hsEl) hsEl.textContent = arcadeState.highscore;
+          }
+          if (window.audioEngine) window.audioEngine.playClick();
+        }
+        if (obs.x < -20) arcadeState.obstacles.splice(i, 1);
+      }
+
+      // Move & collect items
+      for (let i = arcadeState.coins.length - 1; i >= 0; i--) {
+        const c = arcadeState.coins[i];
+        c.x -= 3.2;
+        if (
+          player.x < c.x + c.w &&
+          player.x + player.w > c.x &&
+          player.y < c.y + c.h &&
+          player.y + player.h > c.y
+        ) {
+          arcadeState.score += 15;
+          if (window.audioEngine) window.audioEngine.playCoin();
+          arcadeState.coins.splice(i, 1);
+          continue;
+        }
+        if (c.x < -20) arcadeState.coins.splice(i, 1);
+      }
+    }
+
+    // Render Canvas
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(0, 0, width, height);
+
+    // Grid Floor
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+    ctx.lineWidth = 1;
+    for (let x = (arcadeState.frame * -3.2) % 20; x < width; x += 20) {
+      ctx.beginPath();
+      ctx.moveTo(x, 152);
+      ctx.lineTo(x - 30, height);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 152, width, height - 152);
+    ctx.fillStyle = '#06b6d4';
+    ctx.fillRect(0, 151, width, 2);
+
+    // Player (8-bit Mangara)
+    ctx.fillStyle = '#ff6b2b'; // Blazer
+    ctx.fillRect(player.x, player.y + 6, player.w, 12);
+    ctx.fillStyle = '#fed7aa'; // Face
+    ctx.fillRect(player.x + 2, player.y, player.w - 4, 6);
+    ctx.fillStyle = '#0f172a'; // Trousers
+    ctx.fillRect(player.x + 2, player.y + 18, player.w - 4, 4);
+
+    // Obstacles
+    arcadeState.obstacles.forEach(obs => {
+      ctx.fillStyle = obs.color;
+      ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(obs.x + 3, obs.y + 3, 3, 3);
+    });
+
+    // Coins
+    arcadeState.coins.forEach(c => {
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(c.x + 5, c.y + 5, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (arcadeState.gameOver) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER!', width / 2, height / 2 - 8);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('Ketuk Layar / Tombol Lompat untuk Ulang', width / 2, height / 2 + 14);
+      ctx.textAlign = 'start';
+    }
+
+    arcadeAnimId = requestAnimationFrame(runArcadeGameLoop);
+  }
+
+  function openArcadeModal() {
+    const modal = document.getElementById('nadi-arcade-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    initArcadeGame();
+    if (arcadeAnimId) cancelAnimationFrame(arcadeAnimId);
+    arcadeAnimId = requestAnimationFrame(runArcadeGameLoop);
+  }
+
+  function closeArcadeModal() {
+    document.getElementById('nadi-arcade-modal')?.classList.remove('active');
+    if (arcadeAnimId) cancelAnimationFrame(arcadeAnimId);
   }
 
   function animate() {
@@ -4621,6 +5396,52 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     // 10. ANIMATE DYNAMIC CANVAS TEXTURES (MCR, GRAFANA, TOTEM)
     updateDynamicCanvasTextures(time);
+
+    // 11. ANIMATE 5 FLOATING QUEST COLLECTIBLES & CHECK PROXIMITY
+    questCollectibles.forEach(q => {
+      if (!q.collected) {
+        q.group.rotation.y += 0.035;
+        q.core.rotation.x += 0.02;
+        q.core.rotation.z += 0.015;
+        q.group.position.y = q.pos[1] + Math.sin(time * 3.5 + q.pos[0]) * 0.09;
+        q.halo.rotation.z += 0.025;
+
+        // Proximity detection with walking hero
+        if (walkingHero) {
+          const dx = walkingHero.position.x - q.pos[0];
+          const dz = walkingHero.position.z - q.pos[2];
+          const dist = Math.hypot(dx, dz);
+          if (dist < 3.8) {
+            collectQuestItem(q);
+          }
+        }
+      }
+    });
+
+    // 12. ANIMATE FESTIVE FAIRY STRING LIGHTS IN ATRIUM
+    festiveFairyLights.forEach(f => {
+      f.mesh.position.y = f.baseY + Math.sin(time * 2.0 + f.phase) * 0.03;
+    });
+
+    // 13. ANIMATE CUTE MASCOT DOG BIMO (TROTTING & WAGGING)
+    if (mascotDog) {
+      mascotDog.angle += 0.018;
+      const dogRadius = 2.4;
+      mascotDog.group.position.x = -1.5 + Math.cos(mascotDog.angle) * dogRadius;
+      mascotDog.group.position.z = 1.6 + Math.sin(mascotDog.angle) * dogRadius;
+      mascotDog.group.rotation.y = -mascotDog.angle + Math.PI / 2;
+      mascotDog.tail.rotation.z = Math.sin(time * 12) * 0.45;
+      mascotDog.group.position.y = Math.abs(Math.sin(time * 8)) * 0.035;
+    }
+
+    // 14. ANIMATE RETRO ARCADE CABINET CRT MONITOR
+    if (arcadeMachineObj && arcadeMachineObj.children[2]) {
+      const crtMat = arcadeMachineObj.children[2].material;
+      if (crtMat && crtMat.color) {
+        crtMat.color.setHex(Math.sin(time * 6) > 0 ? 0x06b6d4 : 0x3b82f6);
+      }
+    }
+
 
     // 4E. SYNC LIVE PLAYER RADAR BLIP ON FLOOR PLAN MINI-MAP
     if (walkingHero) {

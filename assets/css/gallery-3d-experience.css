@@ -3106,3 +3106,671 @@ html, body {
     margin: 0 2px !important;
   }
 }
+
+/* ==========================================================================
+   UNIVERSAL 2-ITEM-PER-VIEW LARGE MINIMALIST CARDS & VIBRANT STYLING
+   ========================================================================== */
+
+.nadi-scroll-two-items {
+  height: 312px !important;
+  max-height: 312px !important;
+  overflow-y: auto !important;
+  scroll-snap-type: y mandatory !important;
+  overscroll-behavior: contain !important;
+  padding: 4px 6px 4px 2px !important;
+  scroll-behavior: smooth !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* Service Card Large */
+.nadi-service-card-large {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 14px 16px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.nadi-service-card-large:hover {
+  background: #ffffff !important;
+  border-color: rgba(255, 107, 43, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 43, 0.12) !important;
+}
+.nadi-service-card-large .nadi-service-icon-box {
+  width: 48px !important;
+  height: 48px !important;
+  flex-shrink: 0 !important;
+  border-radius: 12px !important;
+  background: #fff7ed !important;
+  border: 1px solid #ffedd5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.nadi-service-card-large .nadi-service-icon-box img {
+  width: 28px !important;
+  height: 28px !important;
+}
+.nadi-service-card-large .nadi-service-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+.nadi-service-card-large .nadi-service-order {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: var(--nadi-orange) !important;
+  background: #fff7ed !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+}
+.nadi-service-card-large .nadi-service-desc {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  color: #475569 !important;
+  margin: 4px 0 6px 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+.nadi-service-meta-tag {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #16a34a !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Skill Card Large */
+.nadi-skill-card-large {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 16px 18px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+}
+.nadi-skill-card-large .nadi-skill-icon-pill {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.nadi-skill-card-large .nadi-skill-icon-pill ion-icon {
+  font-size: 18px !important;
+  color: var(--nadi-orange) !important;
+}
+.nadi-skill-card-large .nadi-skill-name {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+.nadi-skill-card-large .nadi-skill-pct {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: var(--nadi-orange) !important;
+}
+.nadi-skill-card-large .nadi-skill-bar {
+  width: 100% !important;
+  height: 8px !important;
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  margin: 8px 0 !important;
+}
+.nadi-skill-card-large .nadi-skill-fill {
+  height: 100% !important;
+  background: linear-gradient(90deg, #ff6b2b, #ea580c) !important;
+  border-radius: 4px !important;
+}
+.nadi-skill-subtext {
+  font-size: 11px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+/* Experience Card Large */
+.nadi-exp-card-large {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 16px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.nadi-exp-card-large:hover {
+  background: #ffffff !important;
+  border-color: rgba(255, 107, 43, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 43, 0.12) !important;
+}
+.nadi-exp-card-large .nadi-exp-role {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+.nadi-exp-card-large .nadi-exp-period {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--nadi-orange) !important;
+  background: #fff7ed !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+}
+.nadi-exp-card-large .nadi-exp-company {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #0284c7 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin: 2px 0 4px 0 !important;
+}
+.nadi-exp-card-large .nadi-exp-desc {
+  font-size: 11.5px !important;
+  line-height: 1.4 !important;
+  color: #475569 !important;
+  margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* Education Card Large */
+.nadi-edu-card-large {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 16px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+}
+.nadi-edu-card-large .nadi-edu-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.nadi-edu-card-large .nadi-edu-school {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.nadi-edu-card-large .nadi-edu-school ion-icon {
+  color: #16a34a !important;
+  font-size: 16px !important;
+}
+.nadi-edu-card-large .nadi-edu-period {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--nadi-orange) !important;
+  background: #fff7ed !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+}
+.nadi-edu-card-large .nadi-edu-desc {
+  font-size: 11.5px !important;
+  line-height: 1.4 !important;
+  color: #475569 !important;
+  margin: 4px 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+.nadi-edu-meta-badge {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: #0284c7 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Blog / Publication Card Large */
+.nadi-blog-card-large {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 16px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.nadi-blog-card-large:hover {
+  background: #ffffff !important;
+  border-color: rgba(255, 107, 43, 0.45) !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 43, 0.12) !important;
+}
+.nadi-blog-card-large .nadi-blog-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.nadi-blog-card-large .nadi-blog-cat {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--nadi-orange) !important;
+  background: #fff7ed !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+}
+.nadi-blog-card-large .nadi-blog-date {
+  font-size: 10.5px !important;
+  color: #64748b !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.nadi-blog-card-large .nadi-blog-title {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.35 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+.nadi-blog-card-large .nadi-blog-desc {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+  color: #475569 !important;
+  margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 1 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+.nadi-blog-link-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: var(--nadi-orange) !important;
+  text-decoration: none !important;
+}
+
+/* Testimonial Card Large */
+.nadi-testi-card-large {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 16px !important;
+  height: 150px !important;
+  flex: 0 0 150px !important;
+  scroll-snap-align: start !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+}
+.nadi-testi-card-large .nadi-testi-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+.nadi-testi-card-large .nadi-testi-avatar {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 2px solid var(--nadi-orange) !important;
+}
+.nadi-testi-card-large .nadi-testi-meta {
+  flex: 1 !important;
+}
+.nadi-testi-card-large .nadi-testi-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+.nadi-testi-card-large .nadi-testi-date {
+  font-size: 11px !important;
+  color: #64748b !important;
+}
+.nadi-testi-card-large .nadi-testi-stars {
+  font-size: 12px !important;
+  letter-spacing: 1px !important;
+}
+.nadi-testi-card-large .nadi-testi-text {
+  font-size: 12px !important;
+  font-style: italic !important;
+  line-height: 1.4 !important;
+  color: #334155 !important;
+  margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* TOP QUEST & ARCADE HUD PILLS */
+.nadi-quest-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(254, 243, 199, 0.9);
+  border: 1px solid #fde68a;
+  color: #b45309;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nadi-quest-hud-pill ion-icon {
+  font-size: 14px;
+  color: #d97706;
+}
+.nadi-quest-hud-pill.nadi-quest-all-done {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+}
+.nadi-arcade-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border: none;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+  transition: all 0.2s ease;
+}
+.nadi-arcade-trigger-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45);
+}
+.nadi-arcade-trigger-btn ion-icon {
+  font-size: 15px;
+}
+
+/* RETRO ARCADE MODAL */
+.nadi-arcade-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10001;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.nadi-arcade-modal.active {
+  display: flex !important;
+}
+.nadi-arcade-card {
+  width: 100%;
+  max-width: 460px;
+  background: #0f172a;
+  border: 2px solid #06b6d4;
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgba(6, 182, 212, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.nadi-arcade-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #f8fafc;
+}
+.nadi-arcade-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+.nadi-modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+}
+.nadi-modal-close:hover {
+  color: #ffffff;
+}
+.nadi-arcade-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000000;
+}
+.nadi-arcade-canvas-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  image-rendering: pixelated;
+}
+.nadi-arcade-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #1e293b;
+  border-top: 1px solid #334155;
+}
+.nadi-arcade-score-info {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+.nadi-arcade-score-info strong {
+  color: #06b6d4;
+  font-size: 14px;
+}
+.nadi-arcade-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #ff6b2b;
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 107, 43, 0.35);
+}
+.nadi-arcade-jump-btn:active {
+  transform: scale(0.96);
+}
+
+/* QUEST VICTORY CELEBRATION MODAL */
+.nadi-victory-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10002;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.nadi-victory-modal.active {
+  display: flex !important;
+}
+.nadi-victory-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  border: 2px solid #fbbf24;
+}
+.nadi-victory-trophy-icon {
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.nadi-victory-h2 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.nadi-victory-desc {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #475569;
+  margin-bottom: 16px;
+}
+.nadi-victory-badge-box {
+  margin-bottom: 20px;
+}
+.nadi-victory-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 9999px;
+}
+.nadi-victory-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* TOAST NOTIFICATION */
+.nadi-toast-notification {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid #334155;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10003;
+}
+.nadi-toast-notification.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* MOBILE RESPONSIVE TUNING FOR 2-ITEM CARDS & MODALS */
+@media (max-width: 768px) {
+  .nadi-scroll-two-items {
+    height: 242px !important;
+    max-height: 242px !important;
+    gap: 8px !important;
+    padding: 2px 4px 2px 2px !important;
+  }
+  .nadi-service-card-large,
+  .nadi-skill-card-large,
+  .nadi-exp-card-large,
+  .nadi-edu-card-large,
+  .nadi-proj-card-large,
+  .nadi-blog-card-large,
+  .nadi-testi-card-large {
+    height: 116px !important;
+    flex: 0 0 116px !important;
+    padding: 9px 12px !important;
+    border-radius: 12px !important;
+  }
+  .nadi-service-card-large .nadi-service-title,
+  .nadi-skill-card-large .nadi-skill-name,
+  .nadi-exp-card-large .nadi-exp-role,
+  .nadi-edu-card-large .nadi-edu-school,
+  .nadi-blog-card-large .nadi-blog-title,
+  .nadi-testi-card-large .nadi-testi-name {
+    font-size: 12.5px !important;
+  }
+  .nadi-service-card-large .nadi-service-desc,
+  .nadi-exp-card-large .nadi-exp-desc,
+  .nadi-edu-card-large .nadi-edu-desc,
+  .nadi-blog-card-large .nadi-blog-desc,
+  .nadi-testi-card-large .nadi-testi-text {
+    font-size: 10.5px !important;
+    line-height: 1.3 !important;
+  }
+  .nadi-quest-hud-pill {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+  }
+  .nadi-arcade-trigger-btn {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+  }
+}
