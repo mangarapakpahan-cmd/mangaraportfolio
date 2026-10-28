@@ -57,6 +57,17 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
   let dustParticles = null;
   let dynamicFrameCounter = 0;
 
+  // Ultra-Dynamic Motion Entities (Alive Studio Atmosphere!)
+  let animatedNPCs = [];
+  let studioCameras = [];
+  let holoDataCore = null;
+  let sonarPulseRing = null;
+  let rotatingTrophy = null;
+  let steamParticles = null;
+  let swayingPlants = [];
+  let poolWaterMesh = null;
+  let heroHumanObj = null;
+
   // ─── PROCEDURAL WEB AUDIO SYNTHESIZER (ZERO EXTERNAL ASSETS) ──
   class ProceduralAudioEngine {
     constructor() {
@@ -696,6 +707,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     patrollingStaff = [];
     activeWorkers = [];
     serverLEDs = [];
+    animatedNPCs = [];
+    studioCameras = [];
+    holoDataCore = null;
+    sonarPulseRing = null;
+    rotatingTrophy = null;
+    steamParticles = null;
+    swayingPlants = [];
+    poolWaterMesh = null;
 
     // Initialize Canvas Textures
     initDynamicCanvasTextures();
@@ -893,6 +912,28 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     );
     poolWater.position.set(0, 0.08, 0);
     atriumGrp.add(poolWater);
+    poolWaterMesh = poolWater;
+
+    // Rising Hot Coffee Steam Particles at Courtyard Coffee Zone
+    const steamCount = 28;
+    const steamGeo = new THREE.BufferGeometry();
+    const steamPos = new Float32Array(steamCount * 3);
+    for (let si = 0; si < steamCount; si++) {
+      steamPos[si * 3 + 0] = (Math.random() - 0.5) * 3.5;
+      steamPos[si * 3 + 1] = 0.4 + Math.random() * 1.5;
+      steamPos[si * 3 + 2] = (Math.random() - 0.5) * 3.0;
+    }
+    steamGeo.setAttribute('position', new THREE.BufferAttribute(steamPos, 3));
+    const steamMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.14,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending
+    });
+    steamParticles = new THREE.Points(steamGeo, steamMat);
+    steamParticles.position.set(0, 0, 0);
+    atriumGrp.add(steamParticles);
 
     // 4 Modern Planter Boxes with Lush Architectural Trees
     const planterCoords = [
@@ -935,6 +976,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       crown2.position.set(p.x + 0.2, 3.1, p.z - 0.2);
       crown2.castShadow = true;
       atriumGrp.add(crown2);
+
+      swayingPlants.push({ crown: crown1, phase: idx * 1.2 });
+      swayingPlants.push({ crown: crown2, phase: idx * 1.2 + 0.5 });
 
       const uplight = new THREE.PointLight(0xfef08a, 0.6, 6);
       uplight.position.set(p.x, 0.5, p.z);
@@ -1685,7 +1729,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     scene.add(audioMixer);
 
     // 2 Broadcast Cameras on Pedestal Tripods pointing West toward MCR/Presenter
-    [-3.2, 3.2].forEach(cz => {
+    [-3.2, 3.2].forEach((cz, idx) => {
       const camGrp = new THREE.Group();
       camGrp.position.set(-25, 0, rz + cz);
 
@@ -1697,20 +1741,43 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       pedCol.position.y = 0.7;
       camGrp.add(pedCol);
 
+      // Panning & tilting camera head mounted on pedestal
+      const headGrp = new THREE.Group();
+      headGrp.position.set(0, 1.35, 0);
+
       const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.3), frameMat);
-      camBody.position.set(0, 1.4, 0);
-      camGrp.add(camBody);
+      camBody.position.set(0, 0.05, 0);
+      headGrp.add(camBody);
 
       const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.35, 12), frameMat);
-      lens.position.set(-0.45, 1.4, 0);
+      lens.position.set(-0.45, 0.05, 0);
       lens.rotation.z = Math.PI / 2;
-      camGrp.add(lens);
+      headGrp.add(lens);
 
-      const tally = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.1), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-      tally.position.set(0.15, 1.62, 0);
-      camGrp.add(tally);
+      // Teleprompter / operator monitor on the back
+      const prompter = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.28), frameMat);
+      prompter.position.set(0.38, 0.1, 0);
+      headGrp.add(prompter);
+      const prompterScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.18), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
+      prompterScreen.position.set(0.42, 0.1, 0);
+      prompterScreen.rotation.y = Math.PI / 2;
+      headGrp.add(prompterScreen);
 
+      // Dynamic blinking ON AIR tally LED light
+      const tallyMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+      const tally = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.1), tallyMat);
+      tally.position.set(0.15, 0.27, 0);
+      headGrp.add(tally);
+
+      camGrp.add(headGrp);
       scene.add(camGrp);
+
+      // Register for dynamic studio panning animation
+      studioCameras.push({
+        head: headGrp,
+        tallyMat: tallyMat,
+        phase: idx * 1.57 + cz * 0.4
+      });
     });
 
     // 2 Softbox Studio Lights
@@ -1976,6 +2043,36 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     grafanaScr.rotation.y = -Math.PI / 2;
     scene.add(grafanaScr);
 
+    // Floating Holographic AI Core (Signature Futuristic Tech Element!)
+    const holoGrp = new THREE.Group();
+    holoGrp.position.set(20.5, 2.3, -15.5);
+
+    const holoMat = new THREE.MeshBasicMaterial({
+      color: 0x06b6d4,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.8
+    });
+    const holoCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.48, 1), holoMat);
+    holoGrp.add(holoCore);
+
+    const ring1Geo = new THREE.TorusGeometry(0.78, 0.018, 8, 32);
+    const ring1Mat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65 });
+    const holoRing1 = new THREE.Mesh(ring1Geo, ring1Mat);
+    holoGrp.add(holoRing1);
+
+    const ring2Geo = new THREE.TorusGeometry(0.98, 0.018, 8, 32);
+    const ring2Mat = new THREE.MeshBasicMaterial({ color: 0xff6b2b, transparent: true, opacity: 0.55 });
+    const holoRing2 = new THREE.Mesh(ring2Geo, ring2Mat);
+    holoRing2.rotation.x = Math.PI / 3;
+    holoGrp.add(holoRing2);
+
+    const holoLight = new THREE.PointLight(0x06b6d4, 1.2, 7);
+    holoGrp.add(holoLight);
+
+    scene.add(holoGrp);
+    holoDataCore = { group: holoGrp, core: holoCore, ring1: holoRing1, ring2: holoRing2, light: holoLight };
+
     // Active Data Scientists & ML Engineers (Clear of walkway!):
     createDeskWorker(22.6, 0, -17.2, 0, 0x0284c7, true, true);  // Lead Data Scientist
     createDeskWorker(24.2, 0, -17.2, 0, 0x10b981, true, false); // Machine Learning Engineer
@@ -2072,6 +2169,20 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     );
     trophy.position.set(24, 1.25, rz + 5.5);
     scene.add(trophy);
+    rotatingTrophy = trophy;
+
+    // SafeSense 50 Concentric Sonar Pulse Wave
+    const sonarGeo = new THREE.RingGeometry(0.08, 0.16, 32);
+    const sonarMat = new THREE.MeshBasicMaterial({
+      color: 0x06b6d4,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.85
+    });
+    sonarPulseRing = new THREE.Mesh(sonarGeo, sonarMat);
+    sonarPulseRing.rotation.x = -Math.PI / 2;
+    sonarPulseRing.position.set(29.4, 0.96, rz + 0.3);
+    scene.add(sonarPulseRing);
 
     const trophyLight = new THREE.PointLight(0xfef08a, 0.8, 5);
     trophyLight.position.set(24, 1.6, rz + 5.5);
@@ -2471,6 +2582,14 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       grp.add(sprite);
 
       scene.add(grp);
+
+      animatedNPCs.push({
+        group: grp,
+        human: guideHuman,
+        sprite: sprite,
+        npc: npc,
+        phase: idx * 1.3
+      });
     });
   }
 
@@ -2521,6 +2640,7 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
     legPivotR = heroHuman.legPivotR;
     armPivotL = heroHuman.armPivotL;
     armPivotR = heroHuman.armPivotR;
+    heroHumanObj = heroHuman;
 
     walkingHero.add(heroHuman.group);
 
@@ -4300,42 +4420,89 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
 
     const time = performance.now() * 0.002;
 
-    // 1. ANIMATE WALKING HERO ALONG ORANGE FLOOR PATH
+    // 1. ANIMATE WALKING HERO WITH BANKING, ATHLETIC LEAN & IDLE BEHAVIORS
     if (walkingHero && orangeCurve) {
       const curveT = Math.min(0.999, Math.max(0.001, currentProgress));
       const heroPt = orangeCurve.getPointAt(curveT);
       const heroTangent = orangeCurve.getTangentAt(curveT);
 
       walkingHero.position.set(heroPt.x, 0, heroPt.z);
-      walkingHero.rotation.y = Math.atan2(heroTangent.x, heroTangent.z);
+      const heading = Math.atan2(heroTangent.x, heroTangent.z);
+      walkingHero.rotation.y = heading;
 
-      // Pulse cyan target ring (Reference feature!)
+      // Pulse cyan target ring & chevron
       if (heroGroundRing) {
-        const pulse = 1.0 + Math.sin(time * 3) * 0.08;
+        const pulse = 1.0 + Math.sin(time * 3.5) * 0.1;
         heroGroundRing.scale.set(pulse, pulse, 1);
       }
       if (heroRingChevron) {
-        heroRingChevron.position.z = 0.65 + Math.sin(time * 4) * 0.04;
+        heroRingChevron.position.z = 0.65 + Math.sin(time * 4.5) * 0.05;
       }
 
-      // Walking cycle animation when moving
+      // Dynamic Walking vs Idle Transitions
       if (Math.abs(deltaProg) > 0.0001) {
-        walkStepPhase += Math.abs(deltaProg) * 85;
-        if (legPivotL) legPivotL.rotation.x = Math.sin(walkStepPhase) * 0.65;
-        if (legPivotR) legPivotR.rotation.x = -Math.sin(walkStepPhase) * 0.65;
-        if (armPivotL) armPivotL.rotation.x = -Math.sin(walkStepPhase) * 0.5;
-        if (armPivotR) armPivotR.rotation.x = Math.sin(walkStepPhase) * 0.5;
-        walkingHero.position.y = Math.abs(Math.sin(walkStepPhase * 2)) * 0.06;
+        // Fast dynamic walk / jog
+        walkStepPhase += Math.abs(deltaProg) * 92;
+        if (legPivotL) legPivotL.rotation.x = Math.sin(walkStepPhase) * 0.72;
+        if (legPivotR) legPivotR.rotation.x = -Math.sin(walkStepPhase) * 0.72;
+        if (armPivotL) armPivotL.rotation.x = -Math.sin(walkStepPhase) * 0.58;
+        if (armPivotR) armPivotR.rotation.x = Math.sin(walkStepPhase) * 0.58;
+
+        walkingHero.position.y = Math.abs(Math.sin(walkStepPhase * 2)) * 0.065;
+        walkingHero.rotation.z = -heroTangent.x * 0.12; // Dynamic banking into turns!
+        walkingHero.rotation.x = Math.min(0.12, Math.abs(deltaProg) * 35); // Forward momentum lean
+
+        if (heroHumanObj && heroHumanObj.head) {
+          heroHumanObj.head.rotation.y = Math.sin(walkStepPhase) * 0.08;
+          heroHumanObj.head.rotation.x = 0.05;
+        }
       } else {
+        // Natural Idle Micro-Behaviors (Alive human posture!)
         if (legPivotL) legPivotL.rotation.x *= 0.85;
         if (legPivotR) legPivotR.rotation.x *= 0.85;
         if (armPivotL) armPivotL.rotation.x *= 0.85;
-        if (armPivotR) armPivotR.rotation.x *= 0.85;
-        walkingHero.position.y = Math.sin(time * 1.5) * 0.015;
+        if (armPivotR) armPivotR.rotation.x = -0.35 + Math.sin(time * 1.5) * 0.12; // Checking tablet
+
+        walkingHero.position.y = Math.sin(time * 2.0) * 0.022; // Breathing bounce
+        walkingHero.rotation.z = Math.sin(time * 1.1) * 0.02;  // Natural weight shift
+        walkingHero.rotation.x = 0;
+
+        if (heroHumanObj && heroHumanObj.head) {
+          heroHumanObj.head.rotation.y = Math.sin(time * 0.75) * 0.28; // Looking around room
+          heroHumanObj.head.rotation.x = Math.sin(time * 1.5) * 0.04;
+        }
       }
     }
 
-    // 2. ANIMATE MOBILE PATROLLING EMPLOYEES (WEST, NORTH & EAST WINGS)
+    // 2. ANIMATE 7 INTERACTIVE NPCS (GREETING & PROXIMITY WAVE)
+    animatedNPCs.forEach(npc => {
+      npc.group.position.y = Math.sin(time * 2.2 + npc.phase) * 0.02; // Idle breathing
+
+      if (npc.sprite) {
+        npc.sprite.position.y = 2.15 + Math.sin(time * 3.2 + npc.phase) * 0.08;
+      }
+
+      if (walkingHero) {
+        const dx = walkingHero.position.x - npc.group.position.x;
+        const dz = walkingHero.position.z - npc.group.position.z;
+        const dist = Math.hypot(dx, dz);
+
+        if (dist < 5.2) {
+          // Welcoming the player when nearby!
+          const angleToHero = Math.atan2(dx, dz) - npc.group.rotation.y;
+          npc.human.head.rotation.y = Math.max(-0.6, Math.min(0.6, angleToHero));
+          npc.human.armPivotR.rotation.x = -Math.PI / 1.7;
+          npc.human.armPivotR.rotation.z = Math.sin(time * 9) * 0.32; // Friendly waving gesture!
+        } else {
+          // Standing scanning room
+          npc.human.head.rotation.y = Math.sin(time * 0.9 + npc.phase) * 0.22;
+          npc.human.armPivotR.rotation.x = -0.3 + Math.sin(time * 1.4 + npc.phase) * 0.08;
+          npc.human.armPivotR.rotation.z = 0;
+        }
+      }
+    });
+
+    // 3. ANIMATE 8 PATROLLING EMPLOYEES ACROSS CORRIDORS
     patrollingStaff.forEach(w => {
       if (w.axis === 'z') {
         w.currentZ += w.speed * w.dir;
@@ -4362,37 +4529,87 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
 
       w.stepPhase += 0.12;
-      if (w.legL) w.legL.rotation.x = Math.sin(w.stepPhase) * 0.5;
-      if (w.legR) w.legR.rotation.x = -Math.sin(w.stepPhase) * 0.5;
-      if (w.armL) w.armL.rotation.x = -Math.sin(w.stepPhase) * 0.4;
-      if (w.armR) w.armR.rotation.x = Math.sin(w.stepPhase) * 0.4;
-      w.group.position.y = Math.abs(Math.sin(w.stepPhase * 2)) * 0.04;
+      if (w.legL) w.legL.rotation.x = Math.sin(w.stepPhase) * 0.55;
+      if (w.legR) w.legR.rotation.x = -Math.sin(w.stepPhase) * 0.55;
+      if (w.armL) w.armL.rotation.x = -Math.sin(w.stepPhase) * 0.45;
+      if (w.armR) w.armR.rotation.x = Math.sin(w.stepPhase) * 0.45;
+      w.group.position.y = Math.abs(Math.sin(w.stepPhase * 2)) * 0.045;
     });
 
-    // 3. ANIMATE DESK WORKERS (Typing / subtle head nodding)
+    // 4. ANIMATE ACTIVE SEATED WORKERS (Natural Typing Bursts & Sipping Coffee)
     activeWorkers.forEach(w => {
       if (w.isTyping) {
-        w.armL.rotation.x = Math.PI / 3 + Math.sin(time * 8 + w.phase) * 0.08;
-        w.armR.rotation.x = Math.PI / 3 + Math.cos(time * 8 + w.phase) * 0.08;
+        const isTypingBurst = Math.sin(time * 1.8 + w.phase) > -0.3;
+        if (isTypingBurst) {
+          w.armL.rotation.x = Math.PI / 3 + Math.sin(time * 14 + w.phase) * 0.1;
+          w.armR.rotation.x = Math.PI / 3 + Math.cos(time * 14 + w.phase) * 0.1;
+        } else {
+          w.armL.rotation.x = Math.PI / 3.2;
+          w.armR.rotation.x = Math.PI / 3.2;
+        }
+      } else {
+        w.armR.rotation.x = -Math.PI / 3.6 + Math.sin(time * 1.3 + w.phase) * 0.12;
+        w.head.rotation.x = Math.sin(time * 1.6 + w.phase) * 0.08;
       }
-      w.head.rotation.y = Math.sin(time * 1.2 + w.phase) * 0.12;
+      w.head.rotation.y = Math.sin(time * 1.0 + w.phase) * 0.15;
+      w.group.position.y = Math.sin(time * 2.0 + w.phase) * 0.01;
     });
 
-    // 4. ANIMATE BLINKING SERVER LEDS
+    // 5. ANIMATE BROADCAST CAMERAS & TALLY LIGHTS (BILIK 02)
+    studioCameras.forEach(cam => {
+      cam.head.rotation.y = Math.sin(time * 1.2 + cam.phase) * 0.45;
+      cam.head.rotation.x = Math.sin(time * 0.9 + cam.phase) * 0.06;
+      const isTallyOn = Math.sin(time * 5.5 + cam.phase) > 0.1;
+      cam.tallyMat.color.setHex(isTallyOn ? 0xef4444 : 0x450a0a);
+    });
+
+    // 6. ANIMATE HOLOGRAPHIC AI DATA CORE (BILIK 04)
+    if (holoDataCore) {
+      holoDataCore.core.rotation.y += 0.025;
+      holoDataCore.core.rotation.x += 0.012;
+      holoDataCore.ring1.rotation.z += 0.018;
+      holoDataCore.ring2.rotation.y -= 0.022;
+      holoDataCore.group.position.y = 2.3 + Math.sin(time * 2.5) * 0.09;
+      holoDataCore.light.intensity = 1.1 + Math.sin(time * 4) * 0.45;
+    }
+
+    // 7. ANIMATE IOT SAFE-SENSE SONAR RADAR & 3D PRINTER (BILIK 05)
+    if (printerExtruder) {
+      printerExtruder.position.x = 29.5 + Math.sin(time * 4.2) * 0.18;
+      printerExtruder.position.z = -3.5 + Math.cos(time * 5.5) * 0.15;
+    }
+    if (sonarPulseRing) {
+      const sonarCycle = (time * 1.5) % 1.0;
+      const sonarScale = 1.0 + sonarCycle * 4.5;
+      sonarPulseRing.scale.set(sonarScale, sonarScale, 1);
+      sonarPulseRing.material.opacity = Math.max(0, 0.85 * (1 - sonarCycle));
+    }
+    if (rotatingTrophy) {
+      rotatingTrophy.rotation.y += 0.025;
+    }
+
+    // 8. ANIMATE ATRIUM RISING COFFEE STEAM & SWAYING TREES
+    if (steamParticles) {
+      const sArr = steamParticles.geometry.attributes.position.array;
+      for (let si = 0; si < 28; si++) {
+        sArr[si * 3 + 1] += 0.008;
+        sArr[si * 3 + 0] += Math.sin(time * 2 + si) * 0.002;
+        if (sArr[si * 3 + 1] > 2.0) sArr[si * 3 + 1] = 0.4;
+      }
+      steamParticles.geometry.attributes.position.needsUpdate = true;
+    }
+    swayingPlants.forEach(p => {
+      p.crown.rotation.z = Math.sin(time * 1.5 + p.phase) * 0.045;
+      p.crown.rotation.x = Math.cos(time * 1.2 + p.phase) * 0.035;
+    });
+    if (poolWaterMesh) {
+      poolWaterMesh.position.y = 0.08 + Math.sin(time * 2.5) * 0.004;
+    }
+
+    // 9. ANIMATE BLINKING SERVER LEDS & ATRIUM DUST PARTICLES
     serverLEDs.forEach((led, idx) => {
       led.visible = Math.sin(time * 6 + idx) > -0.2;
     });
-
-    // 4B. ANIMATE DYNAMIC CANVAS TEXTURES (MCR, GRAFANA, TOTEM)
-    updateDynamicCanvasTextures(time);
-
-    // 4C. ANIMATE IOT 3D PRINTER HEAD
-    if (printerExtruder) {
-      printerExtruder.position.x = 29.5 + Math.sin(time * 3.5) * 0.12;
-      printerExtruder.position.z = -3.5 + Math.cos(time * 4.2) * 0.10;
-    }
-
-    // 4D. ANIMATE ATRIUM SUNBEAM PARTICLES
     if (dustParticles) {
       const pArr = dustParticles.geometry.attributes.position.array;
       for (let i = 0; i < 40; i++) {
@@ -4401,6 +4618,9 @@ import { collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/fir
       }
       dustParticles.geometry.attributes.position.needsUpdate = true;
     }
+
+    // 10. ANIMATE DYNAMIC CANVAS TEXTURES (MCR, GRAFANA, TOTEM)
+    updateDynamicCanvasTextures(time);
 
     // 4E. SYNC LIVE PLAYER RADAR BLIP ON FLOOR PLAN MINI-MAP
     if (walkingHero) {

@@ -585,7 +585,7 @@ html, body {
   max-height: 36vh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 4px;
+  padding: 6px 4px 6px 2px;
   margin-bottom: 6px;
   scroll-behavior: smooth;
 }
