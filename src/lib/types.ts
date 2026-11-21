@@ -56,6 +56,8 @@ export type CameraStateMode = 'free' | 'inspecting';
 export interface WorkstationSpatialPosition {
   id: WorkstationCategory;
   name: string;
+  shortTag?: string;
+  portfolioTag?: string;
   position: [number, number, number];
   lookAt: [number, number, number];
   inspectCamPosition: [number, number, number];

@@ -1,68 +1,91 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
+import { useFrame, useThree, useLoader } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '@/lib/store';
-import { WorkstationSpatialPosition } from '@/lib/types';
+import { WorkstationSpatialPosition, WorkstationCategory } from '@/lib/types';
 import CharacterController from './CharacterController';
+import { audioEngine } from '@/lib/audioEngine';
 
 export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
   {
     id: 'led_broadcast',
     name: 'Operator LED & Broadcast',
-    position: [-11, 0, -6],
-    lookAt: [-11, 2.5, -9],
-    inspectCamPosition: [-11, 2.2, -3.8],
+    shortTag: 'LED & BROADCAST',
+    portfolioTag: 'MAIN LED WALL & BROADCAST',
+    position: [-10.5, 0, -5.5],
+    lookAt: [-10.5, 2.5, -8.0],
+    inspectCamPosition: [-10.5, 2.0, -3.5],
     radarCoord: { x: -0.65, y: -0.5 },
   },
   {
     id: 'foh_av',
     name: 'FOH Audio-Visual & Stage',
-    position: [0, 0, -4.5],
-    lookAt: [0, 1.4, -7.0],
-    inspectCamPosition: [0, 1.6, -2.4],
+    shortTag: 'FOH',
+    portfolioTag: 'LEAD FOH & LIVE EVENT',
+    position: [0, 0, -3.8],
+    lookAt: [0, 1.4, -6.5],
+    inspectCamPosition: [0, 1.5, -2.2],
     radarCoord: { x: 0, y: -0.4 },
   },
   {
     id: 'uiux_motion',
     name: 'Designer / UI/UX & Motion',
-    position: [6.5, 0, -5],
-    lookAt: [6.5, 1.8, -7.5],
-    inspectCamPosition: [6.5, 1.7, -3.0],
+    shortTag: 'UI/UX & MOTION',
+    portfolioTag: 'CREATIVE MOTION & UI/UX',
+    position: [5.5, 0, -4.8],
+    lookAt: [5.5, 1.8, -7.0],
+    inspectCamPosition: [5.5, 1.7, -2.8],
     radarCoord: { x: 0.45, y: -0.45 },
-  },
-  {
-    id: 'web_dev',
-    name: 'Web Dev & Software Lab',
-    position: [-7, 0, 4.5],
-    lookAt: [-7, 1.6, 7.0],
-    inspectCamPosition: [-7, 1.7, 2.0],
-    radarCoord: { x: -0.45, y: 0.4 },
   },
   {
     id: 'data_analytics',
     name: 'Data Analytics Hub',
-    position: [11.5, 0, -4],
-    lookAt: [11.5, 2.2, -6.8],
-    inspectCamPosition: [11.5, 1.9, -1.8],
+    shortTag: 'DATA ANALYTICS',
+    portfolioTag: 'DATA SCIENCE & SEM-PLS',
+    position: [10.5, 0, -5.0],
+    lookAt: [10.5, 2.2, -7.2],
+    inspectCamPosition: [10.5, 1.8, -2.5],
     radarCoord: { x: 0.75, y: -0.35 },
+  },
+  {
+    id: 'web_dev',
+    name: 'Web Dev & Software Lab',
+    shortTag: 'WEB DEV LAB',
+    portfolioTag: 'FULL-STACK & IOT',
+    position: [-6.5, 0, 3.5],
+    lookAt: [-6.5, 1.6, 6.0],
+    inspectCamPosition: [-6.5, 1.7, 1.5],
+    radarCoord: { x: -0.45, y: 0.4 },
   },
 ];
 
-export const SERVER_RACK_COORDS: [number, number, number] = [15.5, 0, 8.5];
+export const SERVER_RACK_COORDS: [number, number, number] = [14.5, 0, -5.2];
 
 export default function StudioScene() {
-  const { playerPosition, setNearbyZone, setCurrentFps } = useGameStore();
+  const {
+    playerPosition,
+    setNearbyZone,
+    setCurrentFps,
+    nearbyZone,
+    openProjectModal,
+    activeProject,
+  } = useGameStore();
+
   const { scene, gl } = useThree();
 
-  // WebGL Garbage Collection Cleanup: Pencegahan Memory Leak saat beralih ke Bento Grid Mode
+  // Load HD Texture untuk Master Control Room Grand Studio
+  const studioTexture = useLoader(THREE.TextureLoader, '/mcr_studio_hd.jpg');
+  studioTexture.generateMipmaps = true;
+  studioTexture.minFilter = THREE.LinearMipmapLinearFilter;
+
+  // Cleanup WebGL Memory saat unmount / switch mode
   useEffect(() => {
     return () => {
       scene.traverse((object: any) => {
-        if (object.geometry) {
-          object.geometry.dispose();
-        }
+        if (object.geometry) object.geometry.dispose();
         if (object.material) {
           if (Array.isArray(object.material)) {
             object.material.forEach((mat: any) => {
@@ -79,206 +102,194 @@ export default function StudioScene() {
     };
   }, [scene, gl]);
 
-  // Engine Proximity Detection (~2.2 meter radius)
+  // Proximity Detection Loop & FPS update
   useFrame((state) => {
     setCurrentFps(Math.round(1 / state.clock.getDelta()));
 
     const pPos = new THREE.Vector3(...playerPosition);
     let detectedZone: any = null;
 
-    // Cek jarak ke 5 Workstation
+    // Cek jarak ke 5 Workstations
     for (const ws of WORKSTATION_SPATIAL_DATA) {
       const wsPos = new THREE.Vector3(...ws.position);
-      if (pPos.distanceTo(wsPos) <= 2.3) {
+      if (pPos.distanceTo(wsPos) <= 2.8) {
         detectedZone = ws.id;
         break;
       }
     }
 
-    // Cek jarak ke Server Rack Admin di pojok
+    // Cek jarak ke Server Rack Admin di pojok kanan
     if (!detectedZone) {
       const rackPos = new THREE.Vector3(...SERVER_RACK_COORDS);
-      if (pPos.distanceTo(rackPos) <= 2.0) {
+      if (pPos.distanceTo(rackPos) <= 2.5) {
         detectedZone = 'server_rack';
       }
     }
 
-    setNearbyZone(detectedZone);
+    if (detectedZone && detectedZone !== nearbyZone) {
+      setNearbyZone(detectedZone);
+    }
   });
+
+  const handleStationClick = (zoneId: WorkstationCategory | 'server_rack') => {
+    audioEngine.playSwitchClick();
+    setNearbyZone(zoneId);
+  };
 
   return (
     <>
-      {/* 1. Pencahayaan Dark Industrial Hangar Studio */}
-      <ambientLight intensity={0.4} color="#0f172a" />
-      <directionalLight position={[5, 14, 8]} intensity={1.4} color="#f8fafc" castShadow />
+      {/* 1. Pencahayaan Studio Industri */}
+      <ambientLight intensity={0.85} color="#e2e8f0" />
+      <directionalLight position={[0, 10, 5]} intensity={1.5} color="#ffffff" />
       
-      {/* Point Lights Aksen Neon Per Zona */}
-      <pointLight position={[-11, 4.5, -6]} intensity={3.5} distance={14} color="#06b6d4" />
-      <pointLight position={[0, 4.5, -4.5]} intensity={3.0} distance={12} color="#38bdf8" />
-      <pointLight position={[6.5, 4.5, -5]} intensity={3.2} distance={12} color="#a855f7" />
-      <pointLight position={[-7, 4.5, 4.5]} intensity={3.0} distance={12} color="#22c55e" />
-      <pointLight position={[11.5, 4.5, -4]} intensity={3.5} distance={14} color="#10b981" />
-      <pointLight position={[15.5, 4.0, 8.5]} intensity={2.5} distance={8} color="#eab308" />
+      {/* Aksen Point Lights per Zona */}
+      <pointLight position={[-10.5, 4.0, -5.0]} intensity={3.0} distance={12} color="#06b6d4" />
+      <pointLight position={[0, 3.5, -3.5]} intensity={2.8} distance={10} color="#38bdf8" />
+      <pointLight position={[5.5, 3.5, -4.5]} intensity={2.8} distance={10} color="#c084fc" />
+      <pointLight position={[10.5, 3.8, -4.5]} intensity={3.0} distance={12} color="#10b981" />
+      <pointLight position={[14.5, 3.2, -4.5]} intensity={2.5} distance={8} color="#f59e0b" />
 
-      {/* 2. Lantai Beton Industri Studio dengan Refleksi Halus */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[42, 32]} />
-        <meshStandardMaterial color="#111827" roughness={0.72} metalness={0.25} />
+      {/* 2. Studio Master Backdrop Plate (Photorealistic Grand MCR Hangar) */}
+      <mesh position={[0, 2.6, -9.2]}>
+        <planeGeometry args={[27.5, 10.4]} />
+        <meshBasicMaterial map={studioTexture} />
       </mesh>
 
-      {/* Dinding Hanggar Belakang */}
-      <mesh position={[0, 7.5, -16]} receiveShadow>
-        <planeGeometry args={[42, 15]} />
-        <meshStandardMaterial color="#0b0f19" roughness={0.9} metalness={0.1} />
+      {/* 3. Lantai Beton Studio Reflektif Bawah */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
+        <planeGeometry args={[35, 24]} />
+        <meshStandardMaterial 
+          color="#090d16" 
+          roughness={0.65} 
+          metalness={0.3} 
+        />
       </mesh>
 
-      {/* Dinding Hanggar Kiri & Kanan */}
-      <mesh position={[-21, 7.5, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[32, 15]} />
-        <meshStandardMaterial color="#090d16" roughness={0.9} />
-      </mesh>
-      <mesh position={[21, 7.5, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[32, 15]} />
-        <meshStandardMaterial color="#090d16" roughness={0.9} />
-      </mesh>
-
-      {/* 3. Gantry Truss Rangka Besi & Kabel Gantung di Langit-langit */}
-      <group position={[0, 10, 0]}>
-        <mesh position={[0, 0, -6]}>
-          <boxGeometry args={[40, 0.4, 0.4]} />
-          <meshStandardMaterial color="#1e293b" metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 0, 4]}>
-          <boxGeometry args={[40, 0.4, 0.4]} />
-          <meshStandardMaterial color="#1e293b" metalness={0.8} />
-        </mesh>
-      </group>
-
-      {/* 4. Model 5 Workstation Terpisah */}
+      {/* 4. Floating 3D Text Labels di Langit-Langit Workstations (Exact match to reference mockup) */}
       
-      {/* Zona 1: Operator LED & Broadcast (Main LED Wall Raksasa) */}
-      <group position={[-11, 0, -6]}>
-        {/* Meja Kontrol Switcher */}
-        <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-          <boxGeometry args={[3.2, 0.9, 1.4]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Main LED Wall Panggung Raksasa di Belakang Meja */}
-        <mesh position={[0, 3.2, -2.5]}>
-          <boxGeometry args={[6.5, 3.8, 0.15]} />
-          <meshStandardMaterial 
-            color="#083344" 
-            emissive="#06b6d4" 
-            emissiveIntensity={0.65} 
-          />
-        </mesh>
-        {/* LED Proximity Ring di Lantai */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.9, 2.05, 32]} />
-          <meshBasicMaterial color="#06b6d4" transparent opacity={0.5} />
-        </mesh>
+      {/* Label 1: MAIN LED WALL & LED & BROADCAST */}
+      <group position={[-9.2, 5.8, -7.8]}>
+        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
+          <div 
+            onClick={() => handleStationClick('led_broadcast')}
+            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
+          >
+            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
+              MAIN LED WALL
+            </span>
+            <span className="font-sans font-bold text-slate-200 text-xs tracking-wider drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap mt-0.5">
+              LED & BROADCAST
+            </span>
+          </div>
+        </Html>
       </group>
 
-      {/* Zona 2: FOH Audio-Visual & Stage (Konsol Mixer X32 & Intercom) */}
-      <group position={[0, 0, -4.5]}>
-        <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-          <boxGeometry args={[3.0, 0.9, 1.4]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Permukaan Konsol Mixer Miring */}
-        <mesh position={[0, 0.98, -0.1]} rotation={[-0.25, 0, 0]}>
-          <boxGeometry args={[2.4, 0.1, 0.9]} />
-          <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.2} />
-        </mesh>
-        {/* Monitor Preview Panggung */}
-        <mesh position={[0, 1.45, -0.6]}>
-          <boxGeometry args={[2.2, 0.7, 0.08]} />
-          <meshStandardMaterial color="#0369a1" emissive="#0284c7" emissiveIntensity={0.7} />
-        </mesh>
-        {/* Proximity Ring */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 1.95, 32]} />
-          <meshBasicMaterial color="#38bdf8" transparent opacity={0.5} />
-        </mesh>
+      {/* Label 2: FOH AUDIO-VISUAL */}
+      <group position={[0, 4.3, -7.0]}>
+        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
+          <div 
+            onClick={() => handleStationClick('foh_av')}
+            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
+          >
+            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
+              FOH AUDIO-VISUAL
+            </span>
+          </div>
+        </Html>
       </group>
 
-      {/* Zona 3: Designer / UI/UX & Motion (Portrait Displays) */}
-      <group position={[6.5, 0, -5]}>
-        <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.6, 0.9, 1.2]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Dual Portrait Screens */}
-        <mesh position={[-0.6, 1.5, -0.4]}>
-          <boxGeometry args={[0.7, 1.2, 0.08]} />
-          <meshStandardMaterial color="#581c87" emissive="#a855f7" emissiveIntensity={0.65} />
-        </mesh>
-        <mesh position={[0.6, 1.5, -0.4]}>
-          <boxGeometry args={[0.7, 1.2, 0.08]} />
-          <meshStandardMaterial color="#581c87" emissive="#a855f7" emissiveIntensity={0.65} />
-        </mesh>
-        {/* Proximity Ring */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 1.95, 32]} />
-          <meshBasicMaterial color="#a855f7" transparent opacity={0.5} />
-        </mesh>
+      {/* Label 3: DESIGNER / UI/UX & MOTION */}
+      <group position={[5.4, 4.7, -7.5]}>
+        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
+          <div 
+            onClick={() => handleStationClick('uiux_motion')}
+            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
+          >
+            <span className="font-sans font-bold text-white text-sm tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
+              DESIGNER / UI/UX & MOTION
+            </span>
+          </div>
+        </Html>
       </group>
 
-      {/* Zona 4: Web Dev & Software Lab (Dual Curved Displays) */}
-      <group position={[-7, 0, 4.5]}>
-        <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.8, 0.9, 1.2]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Curved Screen Display */}
-        <mesh position={[0, 1.35, 0.4]} rotation={[0, Math.PI, 0]}>
-          <boxGeometry args={[2.4, 0.8, 0.08]} />
-          <meshStandardMaterial color="#14532d" emissive="#22c55e" emissiveIntensity={0.65} />
-        </mesh>
-        {/* Proximity Ring */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 1.95, 32]} />
-          <meshBasicMaterial color="#22c55e" transparent opacity={0.5} />
-        </mesh>
+      {/* Label 4: DATA ANALYTICS HUB */}
+      <group position={[9.8, 5.0, -7.5]}>
+        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
+          <div 
+            onClick={() => handleStationClick('data_analytics')}
+            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
+          >
+            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
+              DATA ANALYTICS HUB
+            </span>
+          </div>
+        </Html>
       </group>
 
-      {/* Zona 5: Data Analytics Hub (Telemetry Dashboard Wall) */}
-      <group position={[11.5, 0, -4]}>
-        <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.8, 0.9, 1.2]} />
-          <meshStandardMaterial color="#0f172a" metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Telemetry Multi-Charts Wall */}
-        <mesh position={[0, 2.5, -1.8]}>
-          <boxGeometry args={[4.2, 2.4, 0.1]} />
-          <meshStandardMaterial color="#064e3b" emissive="#10b981" emissiveIntensity={0.6} />
-        </mesh>
-        {/* Proximity Ring */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 1.95, 32]} />
-          <meshBasicMaterial color="#10b981" transparent opacity={0.5} />
-        </mesh>
+      {/* Label 5: TINY SERVER RACK / ROOT ADMIN */}
+      <group position={[14.2, 4.2, -7.5]}>
+        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
+          <div 
+            onClick={() => handleStationClick('server_rack')}
+            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
+          >
+            <span className="font-sans font-bold text-white text-xs tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-amber-300 transition-colors whitespace-nowrap">
+              TINY SERVER RACK
+            </span>
+            <span className="font-sans font-semibold text-amber-300 text-[10px] tracking-wider drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] whitespace-nowrap">
+              / ROOT ADMIN
+            </span>
+          </div>
+        </Html>
       </group>
 
-      {/* Objek Rahasia: Server Rack Terminal Admin di Pojok */}
-      <group position={SERVER_RACK_COORDS}>
-        <mesh position={[0, 1.6, 0]} castShadow receiveShadow>
-          <boxGeometry args={[1.2, 3.2, 1.1]} />
-          <meshStandardMaterial color="#020617" metalness={0.9} roughness={0.2} />
-        </mesh>
-        {/* Lampu Status Server Rack Berkedip Hijau & Emas */}
-        <mesh position={[0, 2.4, 0.56]}>
-          <planeGeometry args={[0.8, 0.25]} />
-          <meshBasicMaterial color="#eab308" />
-        </mesh>
-        {/* Proximity Ring */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.3, 1.45, 32]} />
-          <meshBasicMaterial color="#eab308" transparent opacity={0.6} />
-        </mesh>
-      </group>
+      {/* 5. Interactive 3D Workstation Trigger Hotspots */}
+      <mesh 
+        position={[-10.5, 2.0, -5.5]} 
+        onClick={() => handleStationClick('led_broadcast')}
+        visible={false}
+      >
+        <boxGeometry args={[5.5, 3.5, 2]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
 
-      {/* Karakter Avatar & Third-Person Camera Rig */}
+      <mesh 
+        position={[0, 1.2, -3.8]} 
+        onClick={() => handleStationClick('foh_av')}
+        visible={false}
+      >
+        <boxGeometry args={[4.0, 2.5, 2]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      <mesh 
+        position={[5.5, 1.6, -4.8]} 
+        onClick={() => handleStationClick('uiux_motion')}
+        visible={false}
+      >
+        <boxGeometry args={[3.0, 3.0, 2]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      <mesh 
+        position={[10.5, 2.0, -5.0]} 
+        onClick={() => handleStationClick('data_analytics')}
+        visible={false}
+      >
+        <boxGeometry args={[5.0, 3.5, 2]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      <mesh 
+        position={[14.5, 1.8, -5.2]} 
+        onClick={() => handleStationClick('server_rack')}
+        visible={false}
+      >
+        <boxGeometry args={[2.5, 3.5, 2]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* 6. Realistic Third-Person Character Controller */}
       <CharacterController />
     </>
   );

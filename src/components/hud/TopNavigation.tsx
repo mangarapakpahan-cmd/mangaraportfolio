@@ -6,13 +6,7 @@ import { useGameStore } from '@/lib/store';
 import { audioEngine } from '@/lib/audioEngine';
 
 export default function TopNavigation() {
-  const {
-    displayMode,
-    setDisplayMode,
-    currentFps,
-    isAudioMuted,
-    toggleAudioMuted,
-  } = useGameStore();
+  const { displayMode, setDisplayMode } = useGameStore();
 
   const handleModeSwitch = (mode: '3d' | 'bento') => {
     if (mode !== displayMode) {
@@ -21,78 +15,49 @@ export default function TopNavigation() {
     }
   };
 
-  const handleAudioToggle = () => {
-    audioEngine.playSwitchClick();
-    toggleAudioMuted();
-  };
-
   return (
-    <header className="fixed top-0 inset-x-0 z-30 flex items-center justify-between px-6 py-3.5 bg-slate-950/75 backdrop-blur-md border-b border-white/10 font-mono text-xs select-none pointer-events-auto">
+    <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 py-3 bg-black/40 backdrop-blur-sm border-b border-white/5 font-mono text-xs select-none pointer-events-auto">
       
-      {/* Branding OS */}
+      {/* Kiri: Branding Command OS */}
       <div className="flex items-center space-x-3">
-        <span className="px-2.5 py-1 rounded bg-cyan-950/90 border border-cyan-700/80 text-cyan-300 font-bold tracking-wider">
+        <div className="px-3 py-1 rounded bg-[#0b101b]/90 border border-cyan-800/60 text-slate-200 font-bold tracking-wider text-[11px] shadow-sm">
           COMMAND OS v1.0
-        </span>
-        <span className="hidden md:inline text-slate-400 text-[11px]">
-          MASTER CONTROL ROOM HUB
-        </span>
+        </div>
       </div>
 
-      {/* Dual Mode Switcher Toggle Permanen */}
-      <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5 shadow-inner">
+      {/* Tengah: Dual-Mode Switcher */}
+      <div className="flex items-center space-x-1.5 font-bold tracking-wider text-xs">
         <button
           onClick={() => handleModeSwitch('3d')}
-          className={`px-3.5 py-1 rounded-md transition-all font-bold ${
+          className={`transition-all ${
             displayMode === '3d'
-              ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.5)]'
-              : 'text-slate-400 hover:text-white'
+              ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.9)]'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           [3D STUDIO Mode]
         </button>
+        <span className="text-slate-500">/</span>
         <button
           onClick={() => handleModeSwitch('bento')}
-          className={`px-3.5 py-1 rounded-md transition-all font-bold ${
+          className={`transition-all ${
             displayMode === 'bento'
-              ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.5)]'
-              : 'text-slate-400 hover:text-white'
+              ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.9)]'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           [BENTO GRID Mode]
         </button>
       </div>
 
-      {/* Controls Kanan: Audio Mute Toggle, FPS Telemetry & Admin Gateway */}
-      <div className="flex items-center space-x-3">
-        
-        {/* Toggle Audio Sound In-Universe */}
-        <button
-          onClick={handleAudioToggle}
-          className={`px-2.5 py-1 rounded-lg border font-mono text-[10px] font-bold transition-all flex items-center space-x-1.5 ${
-            isAudioMuted
-              ? 'bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300'
-              : 'bg-cyan-950/70 border-cyan-700 text-cyan-300 hover:bg-cyan-900'
-          }`}
-          title="Toggle In-Universe Audio"
-        >
-          <span>{isAudioMuted ? '🔇 AUDIO: OFF' : '🔊 AUDIO: ON'}</span>
-        </button>
-
-        {/* FPS Telemetry */}
-        <div className="hidden lg:flex items-center space-x-2 text-slate-400 text-[11px] bg-slate-900/60 px-2.5 py-1 rounded-lg border border-white/5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{currentFps} FPS</span>
-        </div>
-
-        {/* Root Admin Gateway */}
+      {/* Kanan: Gateway Root Admin */}
+      <div className="flex items-center">
         <Link
           href="/admin/login"
-          className="px-3.5 py-1.5 rounded-lg bg-amber-950/80 border border-amber-600 text-amber-300 hover:bg-amber-900 transition-colors font-bold tracking-wider"
+          className="px-3 py-1 rounded bg-[#1e1509]/90 border border-amber-500/80 text-amber-300 hover:bg-amber-900/60 transition-colors font-bold tracking-wider text-[11px] shadow-[0_0_10px_rgba(245,158,11,0.2)]"
         >
           ACCESS LEVEL: ROOT / ADMIN
         </Link>
-
       </div>
 
     </header>

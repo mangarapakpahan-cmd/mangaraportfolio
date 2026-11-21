@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { ProjectWithMedia, WorkstationCategory } from './types';
+import { FALLBACK_PROJECTS } from './data/fallbackProjects';
 
 export interface GameState {
   // Display Mode
@@ -36,6 +37,7 @@ export interface GameState {
   activeCameraSlot: number;
   openProjectModal: (project: ProjectWithMedia) => void;
   closeProjectModal: () => void;
+  toggleProjectModal: () => void;
   setActiveCameraSlot: (slot: number) => void;
 
   // Virtual Joystick input for mobile touch
@@ -57,11 +59,12 @@ export const useGameStore = create<GameState>((set) => ({
   isAudioMuted: false,
   toggleAudioMuted: () => set((state) => ({ isAudioMuted: !state.isAudioMuted })),
 
-  playerPosition: [0, 0.9, 0],
+  // Spawns standing in front of FOH Audio-Visual console
+  playerPosition: [0, 0, -2.8],
   playerRotation: 0,
   setPlayerTransform: (pos, rot) => set({ playerPosition: pos, playerRotation: rot }),
 
-  nearbyZone: null,
+  nearbyZone: 'foh_av',
   setNearbyZone: (zone) => set({ nearbyZone: zone }),
 
   cameraState: 'free',
@@ -78,8 +81,9 @@ export const useGameStore = create<GameState>((set) => ({
     inspectCamPos: null 
   }),
 
-  activeProject: null,
-  isProjectModalOpen: false,
+  // Project Showcase HUD Modal starts open on bottom-right as in reference image
+  activeProject: FALLBACK_PROJECTS[0],
+  isProjectModalOpen: true,
   activeCameraSlot: 1,
   openProjectModal: (project) => set({ 
     activeProject: project, 
@@ -88,8 +92,10 @@ export const useGameStore = create<GameState>((set) => ({
   }),
   closeProjectModal: () => set({ 
     isProjectModalOpen: false, 
-    activeProject: null 
   }),
+  toggleProjectModal: () => set((state) => ({ 
+    isProjectModalOpen: !state.isProjectModalOpen 
+  })),
   setActiveCameraSlot: (slot) => set({ activeCameraSlot: slot }),
 
   virtualMoveInput: { x: 0, y: 0 },

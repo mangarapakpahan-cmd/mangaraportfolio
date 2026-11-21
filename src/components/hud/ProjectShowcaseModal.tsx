@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useGameStore } from '@/lib/store';
-import { ProjectWithMedia, WorkstationCategory } from '@/lib/types';
-import { WORKSTATION_SPATIAL_DATA } from '../3d/StudioScene';
+import { ProjectWithMedia } from '@/lib/types';
 import { audioEngine } from '@/lib/audioEngine';
 
 interface ProjectShowcaseModalProps {
@@ -14,228 +13,190 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
   const {
     isProjectModalOpen,
     closeProjectModal,
-    exitInspect,
+    openProjectModal,
     nearbyZone,
+    activeProject: storeActiveProject,
   } = useGameStore();
 
-  // Filter semua proyek yang terkait dengan workstation aktif
-  const workstationProjects = useMemo(() => {
-    if (!nearbyZone || nearbyZone === 'server_rack') return [];
-    return projects.filter((p) => p.workstation === nearbyZone);
-  }, [projects, nearbyZone]);
-
-  // Index proyek yang sedang aktif di workstation ini (jika ada lebih dari 1 kegiatan)
-  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
-
-  // Slot kamera yang sedang aktif di viewport utama (Slot 1 sampai 5)
-  const [activeCameraSlot, setActiveCameraSlot] = useState(1);
-
-  // Reset slot dan index saat workstation berubah atau modal dibuka
-  useEffect(() => {
-    if (isProjectModalOpen) {
-      audioEngine.playTerminalBoot();
-      setCurrentProjectIndex(0);
-      setActiveCameraSlot(1);
+  // Ambil proyek yang aktif berdasarkan workstation saat ini
+  const currentProject = useMemo(() => {
+    if (storeActiveProject) return storeActiveProject;
+    if (nearbyZone && nearbyZone !== 'server_rack') {
+      const match = projects.find((p) => p.workstation === nearbyZone);
+      if (match) return match;
     }
-  }, [nearbyZone, isProjectModalOpen]);
+    return projects[0];
+  }, [projects, nearbyZone, storeActiveProject]);
 
-  const handleSelectSlot = (slot: number) => {
+  // Slot kamera yang aktif (1 sampai 4)
+  const [activeSlot, setActiveSlot] = useState(1);
+
+  // Daftar media (pastikan minimal 4 slot untuk 2x2 matrix)
+  const mediaList = useMemo(() => {
+    const list = currentProject?.project_media || [];
+    if (list.length >= 4) return list.slice(0, 4);
+
+    // Fallback slot camera jika media kurang dari 4
+    return [
+      list[0] || { display_order: 1, camera_tag: 'CAM 01: FOH SETUP', image_url: '/cam1_foh_setup.jpg' },
+      list[1] || { display_order: 2, camera_tag: 'STAGE VIEW', image_url: '/cam2_stage_view.jpg' },
+      list[2] || { display_order: 3, camera_tag: 'STAGE VIEW 2', image_url: '/cam3_stage_view2.jpg' },
+      list[3] || { display_order: 4, camera_tag: 'STAGE VIEW', image_url: '/cam4_console_side.jpg' },
+    ];
+  }, [currentProject]);
+
+  const handleSelectSlot = (order: number) => {
     audioEngine.playSwitchClick();
-    setActiveCameraSlot(slot);
+    setActiveSlot(order);
   };
 
-  const handleNextProject = () => {
-    audioEngine.playSwitchClick();
-    setCurrentProjectIndex((prev) => (prev + 1) % workstationProjects.length);
-    setActiveCameraSlot(1);
-  };
-
-  const handlePrevProject = () => {
-    audioEngine.playSwitchClick();
-    setCurrentProjectIndex((prev) => (prev - 1 + workstationProjects.length) % workstationProjects.length);
-    setActiveCameraSlot(1);
-  };
-
-  // Shortcut keyboard: [ESC] untuk keluar, [ArrowLeft] & [ArrowRight] untuk ganti proyek
+  // Keyboard shortcut [ESC] untuk menutup / membuka modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isProjectModalOpen) return;
-
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && isProjectModalOpen) {
         closeProjectModal();
-        exitInspect();
-      } else if (e.key === 'ArrowRight' && workstationProjects.length > 1) {
-        setCurrentProjectIndex((prev) => (prev + 1) % workstationProjects.length);
-        setActiveCameraSlot(1);
-      } else if (e.key === 'ArrowLeft' && workstationProjects.length > 1) {
-        setCurrentProjectIndex((prev) => (prev - 1 + workstationProjects.length) % workstationProjects.length);
-        setActiveCameraSlot(1);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isProjectModalOpen, workstationProjects.length, closeProjectModal, exitInspect]);
+  }, [isProjectModalOpen, closeProjectModal]);
 
-  if (!isProjectModalOpen || workstationProjects.length === 0) return null;
-
-  const currentProject = workstationProjects[currentProjectIndex] || workstationProjects[0];
-  const activeMedia =
-    currentProject.project_media?.find((m) => m.display_order === activeCameraSlot) ||
-    currentProject.project_media?.[0];
-
-  const workstationMeta = WORKSTATION_SPATIAL_DATA.find((ws) => ws.id === nearbyZone);
+  // Jika modal diminimalkan, tampilkan tombol pemicu minimal di sudut kanan bawah
+  if (!isProjectModalOpen) {
+    return (
+      <div className="absolute bottom-6 right-6 z-30 pointer-events-auto select-none">
+        <button
+          onClick={() => {
+            audioEngine.playTerminalBoot();
+            openProjectModal(currentProject);
+          }}
+          className="group flex items-center space-x-2 bg-[#070d18]/90 hover:bg-cyan-950/80 border border-cyan-500/80 px-4 py-2 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.35)] transition-all font-mono text-xs cursor-pointer"
+        >
+          <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold text-[11px] shadow-[0_0_8px_rgba(6,182,212,0.6)]">
+            [F]
+          </span>
+          <span className="font-bold text-slate-100 group-hover:text-cyan-300 tracking-wider">
+            PROJECT SHOWCASE HUD
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none flex items-end justify-end p-4 md:p-8 bg-slate-950/45 backdrop-blur-[2px]">
+    <div className="absolute bottom-6 right-6 z-30 pointer-events-auto select-none flex flex-col items-end">
       
-      {/* Box HUD Modal bergaya Master Control Room */}
+      {/* Box Utama HUD Modal (Exact match to reference mockup) */}
       <div 
-        className="pointer-events-auto w-full max-w-2xl bg-slate-900/95 border border-cyan-500/70 rounded-2xl shadow-[0_0_35px_rgba(6,182,212,0.35)] overflow-hidden font-sans text-slate-100 animate-in fade-in zoom-in-95 duration-200"
+        className="w-[520px] max-w-[94vw] bg-[#070d18]/92 backdrop-blur-xl border border-cyan-500/70 rounded-xl p-4 shadow-[0_0_35px_rgba(6,182,212,0.3)] relative text-slate-100 font-sans animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* Header Bar HUD */}
-        <div className="flex items-center justify-between px-5 py-3 bg-cyan-950/70 border-b border-cyan-800/80">
-          <div className="flex items-center space-x-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-300">
-              Project Showcase HUD modal &bull; {workstationMeta?.name || 'WORKSTATION HUB'}
-            </span>
-          </div>
+        {/* Sudut Cyberpunk Glowing Brackets */}
+        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
+        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
+        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400" />
 
-          <div className="flex items-center space-x-3">
-              {/* Navigasi Proyek Sebelumnya / Selanjutnya jika > 1 Proyek di Workstation */}
-              {workstationProjects.length > 1 && (
-                <div className="flex items-center space-x-1.5 bg-black/60 px-2 py-0.5 rounded border border-cyan-800 text-[10px] font-mono text-cyan-300">
-                  <button
-                    onClick={handlePrevProject}
-                    className="hover:text-white px-1"
-                    title="Proyek Sebelumnya"
-                  >
-                    &larr;
-                  </button>
-                  <span>
-                    PROJ {currentProjectIndex + 1}/{workstationProjects.length}
-                  </span>
-                  <button
-                    onClick={handleNextProject}
-                    className="hover:text-white px-1"
-                    title="Proyek Selanjutnya"
-                  >
-                    &rarr;
-                  </button>
-                </div>
-              )}
-
-            <button
-              onClick={() => {
-                closeProjectModal();
-                exitInspect();
-              }}
-              className="text-[11px] font-mono text-cyan-400 hover:text-cyan-200 flex items-center space-x-1"
-            >
-              <span>[ESC] RETURN TO STUDIO</span>
-            </button>
-          </div>
+        {/* Baris 1: Header Teks & Return Button */}
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-cyan-800/40 font-mono">
+          <span className="text-[11px] font-bold text-cyan-400 tracking-wider">
+            Project Showcase HUD modal
+          </span>
+          <button
+            onClick={closeProjectModal}
+            className="text-[10px] text-cyan-300 hover:text-white transition-colors flex items-center space-x-1 cursor-pointer"
+          >
+            <span>[ESC] RETURN TO STUDIO</span>
+          </button>
         </div>
 
-        {/* Grid Konten: Multi-Cam Viewport (Kiri) + Info Detail (Kanan) */}
-        <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-          
-          {/* Sisi Kiri: Multi-Cam Screen Swap Matrix */}
-          <div className="flex flex-col space-y-2.5">
-            {/* Viewport Layar Utama (Slot Aktif) */}
-            <div className="relative aspect-video bg-black rounded-xl border border-cyan-700/60 overflow-hidden shadow-inner group">
-              <img
-                src={activeMedia?.image_url || '/placeholder.webp'}
-                alt={activeMedia?.caption || currentProject.title}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              {/* Badge Camera Feed Tag */}
-              <div className="absolute top-2.5 left-2.5 bg-slate-950/85 backdrop-blur-md border border-cyan-500/80 px-2 py-0.5 rounded text-[10px] font-mono text-cyan-300 font-bold">
-                {activeMedia?.camera_tag || `CAM 0${activeCameraSlot}: ACTIVE`}
-              </div>
-              {/* Caption Overlay */}
-              {activeMedia?.caption && (
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-2 text-[10px] text-slate-300 truncate">
-                  {activeMedia.caption}
-                </div>
-              )}
-            </div>
+        {/* Baris 2: Judul Proyek & Tombol Close */}
+        <div className="flex items-center justify-between pb-2.5">
+          <h3 className="text-sm font-bold text-white tracking-wide truncate pr-2">
+            {currentProject.title}
+          </h3>
+          <button
+            onClick={closeProjectModal}
+            className="text-slate-400 hover:text-white text-sm font-mono cursor-pointer transition-colors"
+            title="Close modal"
+          >
+            ✕
+          </button>
+        </div>
 
-            {/* Thumbnail Slots 1-5 untuk Screen Swap Instan */}
-            <div className="grid grid-cols-4 gap-1.5">
-              {currentProject.project_media?.map((item) => (
-                <button
-                  key={item.display_order}
-                  onClick={() => handleSelectSlot(item.display_order)}
-                  className={`relative aspect-video rounded-lg overflow-hidden border transition-all ${
-                    activeCameraSlot === item.display_order
-                      ? 'border-cyan-400 ring-2 ring-cyan-500/50 scale-105 shadow-[0_0_10px_rgba(6,182,212,0.5)]'
-                      : 'border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-600'
+        {/* Baris 3: Dua Kolom (Kiri: 2x2 Camera Matrix, Kanan: Detail & Tech Stack) */}
+        <div className="grid grid-cols-2 gap-3.5">
+          
+          {/* Kolom Kiri: 2x2 Multi-Cam Screen Swap Matrix */}
+          <div className="grid grid-cols-2 gap-2">
+            {mediaList.map((media, idx) => {
+              const slotNum = idx + 1;
+              const isActive = activeSlot === slotNum;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleSelectSlot(slotNum)}
+                  className={`relative rounded-md overflow-hidden bg-black cursor-pointer transition-all ${
+                    isActive
+                      ? 'border-2 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.8)] scale-[1.02]'
+                      : 'border border-cyan-800/50 hover:border-cyan-500/80 opacity-80 hover:opacity-100'
                   }`}
                 >
-                  <img src={item.image_url} alt={item.camera_tag} className="w-full h-full object-cover" />
-                  <span className="absolute bottom-0 inset-x-0 bg-slate-950/90 text-[7.5px] font-mono text-cyan-300 truncate px-1">
-                    {item.camera_tag}
-                  </span>
-                </button>
-              ))}
-            </div>
+                  <div className="aspect-video w-full bg-slate-950 overflow-hidden">
+                    <img
+                      src={media.image_url}
+                      alt={media.camera_tag}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                  <div className="bg-[#050913]/90 px-1.5 py-0.5 text-center border-t border-cyan-900/60">
+                    <span className="text-[8.5px] font-mono font-bold text-cyan-300 tracking-wider truncate block">
+                      {media.camera_tag}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Sisi Kanan: Spesifikasi Proyek & Hardware Rig */}
-          <div className="flex flex-col justify-between text-xs space-y-3">
+          {/* Kolom Kanan: Info Role, Date, Description, Tech Stack */}
+          <div className="flex flex-col justify-between text-xs font-sans space-y-1.5 leading-relaxed text-slate-300">
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight leading-snug mb-1">
-                {currentProject.title}
-              </h2>
-              
-              <div className="flex flex-col space-y-0.5 text-[11px] font-mono mb-2">
-                <span className="text-cyan-400">
-                  Role: <span className="text-slate-300 font-sans">{currentProject.role}</span>
-                </span>
-                <span className="text-cyan-400">
-                  Date: <span className="text-slate-300 font-sans">{currentProject.event_date}</span>
-                </span>
-              </div>
-
-              <p className="text-slate-300 leading-relaxed text-[11px] line-clamp-4 border-t border-slate-800 pt-2">
-                {currentProject.summary}
+              <p className="text-[11px] text-slate-200">
+                <span className="font-bold text-white">Role:</span> {currentProject.role}
+              </p>
+              <p className="text-[11px] text-slate-200 mt-1">
+                <span className="font-bold text-white">Date:</span> {currentProject.event_date}
+              </p>
+              <p className="text-[10px] text-slate-300 mt-1 line-clamp-3">
+                <span className="font-bold text-white">Description:</span> {currentProject.summary}
               </p>
             </div>
 
-            {/* Tech Stack & Hardware Badges */}
-            <div className="pt-2 border-t border-slate-800">
-              <span className="text-[10px] font-mono text-slate-400 block mb-1.5 uppercase tracking-wider">
-                Integrated Hardware &amp; Toolchain:
+            <div className="pt-1.5 border-t border-cyan-900/40">
+              <span className="font-bold text-[10.5px] text-white block mb-1">
+                Tech Stack:
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {currentProject.tech_stack?.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-800 text-[10px] font-mono text-cyan-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+              <p className="text-[10px] font-mono text-cyan-300/90 leading-tight">
+                {currentProject.tech_stack.join(', ')}
+              </p>
             </div>
-
           </div>
-        </div>
 
-        {/* Footer Bar HUD Shortcut */}
-        <div className="px-5 py-2 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[10px] font-mono text-slate-400">
-          <div className="flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>MCR VIDEO SWITCHER: 60.5 FPS FEED</span>
-          </div>
-          <span className="text-cyan-400">[ESC] CLOSE / RETURN TO ROAMING</span>
         </div>
 
       </div>
+
+      {/* Teks Bawah Modal (Exact match to reference mockup) */}
+      <div 
+        onClick={closeProjectModal}
+        className="mt-2 text-[10px] font-mono text-amber-300/80 hover:text-amber-200 tracking-wider cursor-pointer"
+      >
+        [ESC] CLOSE / RETURN TO ROAMING
+      </div>
+
     </div>
   );
 }
