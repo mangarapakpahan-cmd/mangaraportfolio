@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree, useLoader } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '@/lib/store';
 import { WorkstationSpatialPosition, WorkstationCategory } from '@/lib/types';
@@ -15,9 +14,9 @@ export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
     name: 'Operator LED & Broadcast',
     shortTag: 'LED & BROADCAST',
     portfolioTag: 'MAIN LED WALL & BROADCAST',
-    position: [-10.5, 0, -5.5],
-    lookAt: [-10.5, 2.5, -8.0],
-    inspectCamPosition: [-10.5, 2.0, -3.5],
+    position: [-6.8, 0, -1.0],
+    lookAt: [-6.8, 1.5, -3.0],
+    inspectCamPosition: [-6.8, 1.2, 1.0],
     radarCoord: { x: -0.65, y: -0.5 },
   },
   {
@@ -25,9 +24,9 @@ export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
     name: 'FOH Audio-Visual & Stage',
     shortTag: 'FOH',
     portfolioTag: 'LEAD FOH & LIVE EVENT',
-    position: [0, 0, -3.8],
-    lookAt: [0, 1.4, -6.5],
-    inspectCamPosition: [0, 1.5, -2.2],
+    position: [0, 0, -0.5],
+    lookAt: [0, 1.2, -3.0],
+    inspectCamPosition: [0, 1.1, 1.2],
     radarCoord: { x: 0, y: -0.4 },
   },
   {
@@ -35,9 +34,9 @@ export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
     name: 'Designer / UI/UX & Motion',
     shortTag: 'UI/UX & MOTION',
     portfolioTag: 'CREATIVE MOTION & UI/UX',
-    position: [5.5, 0, -4.8],
-    lookAt: [5.5, 1.8, -7.0],
-    inspectCamPosition: [5.5, 1.7, -2.8],
+    position: [3.8, 0, -1.0],
+    lookAt: [3.8, 1.4, -3.0],
+    inspectCamPosition: [3.8, 1.2, 1.0],
     radarCoord: { x: 0.45, y: -0.45 },
   },
   {
@@ -45,9 +44,9 @@ export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
     name: 'Data Analytics Hub',
     shortTag: 'DATA ANALYTICS',
     portfolioTag: 'DATA SCIENCE & SEM-PLS',
-    position: [10.5, 0, -5.0],
-    lookAt: [10.5, 2.2, -7.2],
-    inspectCamPosition: [10.5, 1.8, -2.5],
+    position: [7.2, 0, -1.0],
+    lookAt: [7.2, 1.5, -3.0],
+    inspectCamPosition: [7.2, 1.3, 1.0],
     radarCoord: { x: 0.75, y: -0.35 },
   },
   {
@@ -55,14 +54,14 @@ export const WORKSTATION_SPATIAL_DATA: WorkstationSpatialPosition[] = [
     name: 'Web Dev & Software Lab',
     shortTag: 'WEB DEV LAB',
     portfolioTag: 'FULL-STACK & IOT',
-    position: [-6.5, 0, 3.5],
-    lookAt: [-6.5, 1.6, 6.0],
-    inspectCamPosition: [-6.5, 1.7, 1.5],
+    position: [-4.2, 0, 1.5],
+    lookAt: [-4.2, 1.2, 3.5],
+    inspectCamPosition: [-4.2, 1.3, 0.5],
     radarCoord: { x: -0.45, y: 0.4 },
   },
 ];
 
-export const SERVER_RACK_COORDS: [number, number, number] = [14.5, 0, -5.2];
+export const SERVER_RACK_COORDS: [number, number, number] = [9.8, 0, -1.0];
 
 export default function StudioScene() {
   const {
@@ -70,18 +69,33 @@ export default function StudioScene() {
     setNearbyZone,
     setCurrentFps,
     nearbyZone,
-    openProjectModal,
-    activeProject,
+    isProjectModalOpen,
   } = useGameStore();
 
-  const { scene, gl } = useThree();
+  const { scene, gl, camera } = useThree();
 
-  // Load HD Texture untuk Master Control Room Grand Studio
-  const studioTexture = useLoader(THREE.TextureLoader, '/mcr_studio_hd.jpg');
-  studioTexture.generateMipmaps = true;
-  studioTexture.minFilter = THREE.LinearMipmapLinearFilter;
+  // Load tekstur HD MCR Grand Studio (menyesuaikan status modal terbuka vs diminimalkan)
+  const masterTexture = useLoader(
+    THREE.TextureLoader,
+    isProjectModalOpen ? '/mcr_scene_hd.jpg' : '/mcr_scene_clean_hd.jpg'
+  );
+  masterTexture.generateMipmaps = true;
+  masterTexture.minFilter = THREE.LinearMipmapLinearFilter;
 
-  // Cleanup WebGL Memory saat unmount / switch mode
+  const mouseParallax = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1;
+      mouseParallax.current = { x: x * 0.15, y: y * 0.1 };
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Cleanup WebGL Memory saat unmount
   useEffect(() => {
     return () => {
       scene.traverse((object: any) => {
@@ -102,14 +116,17 @@ export default function StudioScene() {
     };
   }, [scene, gl]);
 
-  // Proximity Detection Loop & FPS update
+  // Frame Loop: Proximity Detection, FPS Telemetry, & Subtle Mouse Parallax
   useFrame((state) => {
     setCurrentFps(Math.round(1 / state.clock.getDelta()));
+
+    // Dynamic Camera Mouse Parallax
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, mouseParallax.current.x, 0.05);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouseParallax.current.y, 0.05);
 
     const pPos = new THREE.Vector3(...playerPosition);
     let detectedZone: any = null;
 
-    // Cek jarak ke 5 Workstations
     for (const ws of WORKSTATION_SPATIAL_DATA) {
       const wsPos = new THREE.Vector3(...ws.position);
       if (pPos.distanceTo(wsPos) <= 2.8) {
@@ -118,7 +135,6 @@ export default function StudioScene() {
       }
     }
 
-    // Cek jarak ke Server Rack Admin di pojok kanan
     if (!detectedZone) {
       const rackPos = new THREE.Vector3(...SERVER_RACK_COORDS);
       if (pPos.distanceTo(rackPos) <= 2.5) {
@@ -138,158 +154,68 @@ export default function StudioScene() {
 
   return (
     <>
-      {/* 1. Pencahayaan Studio Industri */}
-      <ambientLight intensity={0.85} color="#e2e8f0" />
-      <directionalLight position={[0, 10, 5]} intensity={1.5} color="#ffffff" />
-      
-      {/* Aksen Point Lights per Zona */}
-      <pointLight position={[-10.5, 4.0, -5.0]} intensity={3.0} distance={12} color="#06b6d4" />
-      <pointLight position={[0, 3.5, -3.5]} intensity={2.8} distance={10} color="#38bdf8" />
-      <pointLight position={[5.5, 3.5, -4.5]} intensity={2.8} distance={10} color="#c084fc" />
-      <pointLight position={[10.5, 3.8, -4.5]} intensity={3.0} distance={12} color="#10b981" />
-      <pointLight position={[14.5, 3.2, -4.5]} intensity={2.5} distance={8} color="#f59e0b" />
+      {/* 1. Pencahayaan Ambient & Direct */}
+      <ambientLight intensity={1.0} color="#ffffff" />
+      <directionalLight position={[0, 5, 8]} intensity={1.2} color="#ffffff" />
 
-      {/* 2. Studio Master Backdrop Plate (Photorealistic Grand MCR Hangar) */}
-      <mesh position={[0, 2.6, -9.2]}>
-        <planeGeometry args={[27.5, 10.4]} />
-        <meshBasicMaterial map={studioTexture} />
+      {/* 2. Master Photorealistic Studio Canvas Plate (Edge-to-Edge) */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[18.8, 6.6]} />
+        <meshBasicMaterial map={masterTexture} />
       </mesh>
 
-      {/* 3. Lantai Beton Studio Reflektif Bawah */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
-        <planeGeometry args={[35, 24]} />
-        <meshStandardMaterial 
-          color="#090d16" 
-          roughness={0.65} 
-          metalness={0.3} 
-        />
-      </mesh>
-
-      {/* 4. Floating 3D Text Labels di Langit-Langit Workstations (Exact match to reference mockup) */}
-      
-      {/* Label 1: MAIN LED WALL & LED & BROADCAST */}
-      <group position={[-9.2, 5.8, -7.8]}>
-        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
-          <div 
-            onClick={() => handleStationClick('led_broadcast')}
-            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
-          >
-            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
-              MAIN LED WALL
-            </span>
-            <span className="font-sans font-bold text-slate-200 text-xs tracking-wider drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap mt-0.5">
-              LED & BROADCAST
-            </span>
-          </div>
-        </Html>
-      </group>
-
-      {/* Label 2: FOH AUDIO-VISUAL */}
-      <group position={[0, 4.3, -7.0]}>
-        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
-          <div 
-            onClick={() => handleStationClick('foh_av')}
-            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
-          >
-            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
-              FOH AUDIO-VISUAL
-            </span>
-          </div>
-        </Html>
-      </group>
-
-      {/* Label 3: DESIGNER / UI/UX & MOTION */}
-      <group position={[5.4, 4.7, -7.5]}>
-        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
-          <div 
-            onClick={() => handleStationClick('uiux_motion')}
-            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
-          >
-            <span className="font-sans font-bold text-white text-sm tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
-              DESIGNER / UI/UX & MOTION
-            </span>
-          </div>
-        </Html>
-      </group>
-
-      {/* Label 4: DATA ANALYTICS HUB */}
-      <group position={[9.8, 5.0, -7.5]}>
-        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
-          <div 
-            onClick={() => handleStationClick('data_analytics')}
-            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
-          >
-            <span className="font-sans font-extrabold text-white text-base tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-cyan-300 transition-colors whitespace-nowrap">
-              DATA ANALYTICS HUB
-            </span>
-          </div>
-        </Html>
-      </group>
-
-      {/* Label 5: TINY SERVER RACK / ROOT ADMIN */}
-      <group position={[14.2, 4.2, -7.5]}>
-        <Html center transform distanceFactor={9} zIndexRange={[10, 0]}>
-          <div 
-            onClick={() => handleStationClick('server_rack')}
-            className="flex flex-col items-center cursor-pointer group select-none pointer-events-auto"
-          >
-            <span className="font-sans font-bold text-white text-xs tracking-wider drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] group-hover:text-amber-300 transition-colors whitespace-nowrap">
-              TINY SERVER RACK
-            </span>
-            <span className="font-sans font-semibold text-amber-300 text-[10px] tracking-wider drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] whitespace-nowrap">
-              / ROOT ADMIN
-            </span>
-          </div>
-        </Html>
-      </group>
-
-      {/* 5. Interactive 3D Workstation Trigger Hotspots */}
+      {/* 3. Invisible Interactive Hit Zones over each workstation */}
+      {/* Zone: LED & Broadcast */}
       <mesh 
-        position={[-10.5, 2.0, -5.5]} 
+        position={[-6.8, 0.6, 0.1]} 
         onClick={() => handleStationClick('led_broadcast')}
         visible={false}
       >
-        <boxGeometry args={[5.5, 3.5, 2]} />
+        <boxGeometry args={[4.8, 3.2, 0.5]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
+      {/* Zone: FOH Audio-Visual */}
       <mesh 
-        position={[0, 1.2, -3.8]} 
+        position={[0, -0.2, 0.1]} 
         onClick={() => handleStationClick('foh_av')}
         visible={false}
       >
-        <boxGeometry args={[4.0, 2.5, 2]} />
+        <boxGeometry args={[3.8, 2.8, 0.5]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
+      {/* Zone: Designer / UI/UX & Motion */}
       <mesh 
-        position={[5.5, 1.6, -4.8]} 
+        position={[3.8, 0.4, 0.1]} 
         onClick={() => handleStationClick('uiux_motion')}
         visible={false}
       >
-        <boxGeometry args={[3.0, 3.0, 2]} />
+        <boxGeometry args={[2.8, 3.0, 0.5]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
+      {/* Zone: Data Analytics Hub */}
       <mesh 
-        position={[10.5, 2.0, -5.0]} 
+        position={[7.2, 0.6, 0.1]} 
         onClick={() => handleStationClick('data_analytics')}
         visible={false}
       >
-        <boxGeometry args={[5.0, 3.5, 2]} />
+        <boxGeometry args={[4.0, 3.2, 0.5]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
+      {/* Zone: Server Rack Root Admin */}
       <mesh 
-        position={[14.5, 1.8, -5.2]} 
+        position={[9.8, 0.2, 0.1]} 
         onClick={() => handleStationClick('server_rack')}
         visible={false}
       >
-        <boxGeometry args={[2.5, 3.5, 2]} />
+        <boxGeometry args={[2.0, 3.2, 0.5]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* 6. Realistic Third-Person Character Controller */}
+      {/* 4. Karakter & Keyboard Controller */}
       <CharacterController />
     </>
   );

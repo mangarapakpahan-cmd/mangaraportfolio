@@ -15,10 +15,10 @@ export default function InteractionPrompt({ projects }: InteractionPromptProps) 
   const router = useRouter();
   const {
     nearbyZone,
-    startInspect,
     openProjectModal,
     isProjectModalOpen,
     toggleProjectModal,
+    startInspect,
   } = useGameStore();
 
   const activeZoneConfig = WORKSTATION_SPATIAL_DATA.find((ws) => ws.id === nearbyZone);
@@ -65,20 +65,22 @@ export default function InteractionPrompt({ projects }: InteractionPromptProps) 
     isProjectModalOpen,
   ]);
 
-  // Prompt floating in world position near FOH / character (lower-middle area)
+  // Tombol interaktif yang sejajar presisi dengan visual prompt di latar studio
   return (
-    <div className="absolute top-[62%] left-[49%] -translate-y-1/2 z-30 pointer-events-auto select-none flex flex-col space-y-2 font-mono">
-      
-      {/* Tombol [E] Interact */}
+    <div 
+      className="absolute top-[61%] left-[48.8%] z-30 pointer-events-auto select-none flex flex-col space-y-1.5 font-mono"
+      style={{ transform: 'translate(0, 0)' }}
+    >
+      {/* Tombol [E] Interact with FOH */}
       <button
         onClick={handleInteract}
-        className="group flex items-center space-x-2 text-left bg-black/60 hover:bg-cyan-950/70 border border-cyan-800/60 hover:border-cyan-400 px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all cursor-pointer"
+        className="group flex items-center space-x-2 text-left bg-black/60 hover:bg-cyan-950/80 border border-cyan-700/60 hover:border-cyan-400 px-2.5 py-1 rounded shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all cursor-pointer backdrop-blur-[2px]"
       >
-        <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold text-xs shadow-[0_0_8px_rgba(6,182,212,0.6)]">
+        <span className="px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400 text-cyan-300 font-bold text-[11px] shadow-[0_0_8px_rgba(6,182,212,0.8)]">
           [E]
         </span>
-        <span className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 tracking-wider">
-          {nearbyZone === 'server_rack' 
+        <span className="text-[11.5px] font-bold text-slate-100 group-hover:text-cyan-300 tracking-wider">
+          {nearbyZone === 'server_rack'
             ? 'ACCESS ROOT ADMIN TERMINAL'
             : `INTERACT WITH ${activeZoneConfig?.shortTag || 'FOH'}`}
         </span>
@@ -87,16 +89,15 @@ export default function InteractionPrompt({ projects }: InteractionPromptProps) 
       {/* Tombol [F] View Portfolio */}
       <button
         onClick={handleViewPortfolio}
-        className="group flex items-center space-x-2 text-left bg-black/60 hover:bg-cyan-950/70 border border-cyan-800/60 hover:border-cyan-400 px-3 py-1.5 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all cursor-pointer"
+        className="group flex items-center space-x-2 text-left bg-black/60 hover:bg-cyan-950/80 border border-cyan-700/60 hover:border-cyan-400 px-2.5 py-1 rounded shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all cursor-pointer backdrop-blur-[2px]"
       >
-        <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold text-xs shadow-[0_0_8px_rgba(6,182,212,0.6)]">
+        <span className="px-1.5 py-0.5 rounded bg-cyan-950/90 border border-cyan-400 text-cyan-300 font-bold text-[11px] shadow-[0_0_8px_rgba(6,182,212,0.8)]">
           [F]
         </span>
-        <span className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 tracking-wider">
+        <span className="text-[11.5px] font-bold text-slate-100 group-hover:text-cyan-300 tracking-wider">
           VIEW PORTFOLIO ({activeZoneConfig?.portfolioTag || 'LEAD FOH & LIVE EVENT'})
         </span>
       </button>
-
     </div>
   );
 }

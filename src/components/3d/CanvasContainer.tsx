@@ -10,7 +10,7 @@ function CanvasLoader() {
       <div className="flex flex-col items-center space-y-3">
         <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
         <span className="tracking-widest uppercase animate-pulse">
-          INITIALIZING MCR 3D STUDIO HANGAR...
+          INITIALIZING MCR 3D GRAND STUDIO...
         </span>
       </div>
     </div>
@@ -22,12 +22,11 @@ export default function CanvasContainer() {
     <div className="relative w-full h-screen bg-[#07090E] overflow-hidden select-none">
       <Suspense fallback={<CanvasLoader />}>
         <Canvas
-          shadows
           camera={{
-            position: [0, 2.5, 4.5],
-            fov: 60,
+            position: [0, 0, 5.2],
+            fov: 52,
             near: 0.1,
-            far: 100,
+            far: 50,
           }}
           gl={{
             antialias: true,
