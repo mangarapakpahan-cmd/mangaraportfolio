@@ -588,7 +588,7 @@ export default function StudioScene() {
   }, [scene, gl]);
 
   useFrame((state) => {
-    setCurrentFps(Math.round(1 / state.clock.getDelta()));
+    setCurrentFps(Math.round(state.clock.getDelta() > 0 ? 1 / state.clock.getDelta() : 60));
 
     const pPos = new THREE.Vector3(...playerPosition);
     let detected: any = null;

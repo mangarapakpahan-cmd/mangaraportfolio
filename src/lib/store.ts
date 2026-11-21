@@ -3,6 +3,10 @@ import { ProjectWithMedia, WorkstationCategory } from './types';
 import { FALLBACK_PROJECTS } from './data/fallbackProjects';
 
 export interface GameState {
+  // Splash / Intro State
+  introCompleted: boolean;
+  setIntroCompleted: (val: boolean) => void;
+
   // Display Mode
   displayMode: '3d' | 'bento';
   setDisplayMode: (mode: '3d' | 'bento') => void;
@@ -40,6 +44,29 @@ export interface GameState {
   toggleProjectModal: () => void;
   setActiveCameraSlot: (slot: number) => void;
 
+  // Smartphone HUD (iFruit Style)
+  isSmartphoneOpen: boolean;
+  toggleSmartphone: () => void;
+  setSmartphoneOpen: (open: boolean) => void;
+
+  // Confirmation Dialog
+  confirmationDialog: {
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm: () => void;
+  } | null;
+  showConfirmation: (params: {
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm: () => void;
+  }) => void;
+  closeConfirmation: () => void;
+
   // Virtual Joystick input for mobile touch
   virtualMoveInput: { x: number; y: number };
   setVirtualMoveInput: (input: { x: number; y: number }) => void;
@@ -50,6 +77,9 @@ export interface GameState {
 }
 
 export const useGameStore = create<GameState>((set) => ({
+  introCompleted: false,
+  setIntroCompleted: (val) => set({ introCompleted: val }),
+
   displayMode: '3d',
   setDisplayMode: (mode) => set({ displayMode: mode }),
 
@@ -97,6 +127,14 @@ export const useGameStore = create<GameState>((set) => ({
     isProjectModalOpen: !state.isProjectModalOpen 
   })),
   setActiveCameraSlot: (slot) => set({ activeCameraSlot: slot }),
+
+  isSmartphoneOpen: false,
+  toggleSmartphone: () => set((state) => ({ isSmartphoneOpen: !state.isSmartphoneOpen })),
+  setSmartphoneOpen: (open) => set({ isSmartphoneOpen: open }),
+
+  confirmationDialog: null,
+  showConfirmation: (params) => set({ confirmationDialog: { ...params, isOpen: true } }),
+  closeConfirmation: () => set({ confirmationDialog: null }),
 
   virtualMoveInput: { x: 0, y: 0 },
   setVirtualMoveInput: (input) => set({ virtualMoveInput: input }),

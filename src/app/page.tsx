@@ -7,17 +7,28 @@ import { useGameStore } from '@/lib/store';
 import { FALLBACK_PROJECTS } from '@/lib/data/fallbackProjects';
 import { usePerformanceFallback } from '@/hooks/usePerformanceFallback';
 
+// 3D Canvas Scene
 import CanvasContainer from '@/components/3d/CanvasContainer';
-import TopNavigation from '@/components/hud/TopNavigation';
-import MiniMapRadar from '@/components/hud/MiniMapRadar';
-import InteractionPrompt from '@/components/hud/InteractionPrompt';
+
+// HUD Modules (GTA VI Neon Dusk Aesthetic)
+import IntroCoverScreen from '@/components/hud/IntroCoverScreen';
+import TopNavigationHeader from '@/components/hud/TopNavigationHeader';
+import MissionObjectiveBox from '@/components/hud/MissionObjectiveBox';
+import MiniMapRadarWidget from '@/components/hud/MiniMapRadarWidget';
+import FloatingActionBillboard from '@/components/hud/FloatingActionBillboard';
 import ProjectShowcaseModal from '@/components/hud/ProjectShowcaseModal';
+import ConfirmationDialog from '@/components/hud/ConfirmationDialog';
 import VirtualJoystick from '@/components/hud/VirtualJoystick';
+
+// Smartphone Module (iFruit Housing)
+import SmartphoneMockup from '@/components/smartphone/SmartphoneMockup';
+
+// Bento Grid 2D Mode (Apple & Linear Minimal Dark Mode)
 import BentoGridView from '@/components/bento/BentoGridView';
 
 export default function HomePage() {
   const [projects, setProjects] = useState<ProjectWithMedia[]>(FALLBACK_PROJECTS);
-  const { displayMode, setDisplayMode, currentFps } = useGameStore();
+  const { displayMode } = useGameStore();
 
   // 1. Inisialisasi Deteksi Performa WebGL & Auto-Fallback jika < 20 FPS
   usePerformanceFallback();
@@ -53,10 +64,13 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-[#07090E] overflow-hidden select-none">
+    <div className="relative w-full min-h-screen bg-mcr-black overflow-hidden select-none">
       
-      {/* 1. Top Navigation Bar (Header) */}
-      <TopNavigation />
+      {/* 0. GTA VI Style Cover Splash Screen & Audio Unlocker */}
+      <IntroCoverScreen />
+
+      {/* 1. Top Navigation Bar Header */}
+      <TopNavigationHeader />
 
       {/* 2. Kondisional Render: 3D Studio Hangar vs Bento Grid 2D */}
       {displayMode === '3d' ? (
@@ -65,7 +79,7 @@ export default function HomePage() {
           {/* WebGL 3D Canvas Scene */}
           <CanvasContainer />
 
-          {/* Sisi Kiri Layar: Telemetri Database Vertikal (Exact match to reference mockup) */}
+          {/* Sisi Kiri Layar: Telemetri Database Vertikal */}
           <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none select-none hidden lg:flex flex-col items-center z-20">
             <div className="[writing-mode:vertical-lr] text-[9.5px] font-mono tracking-widest text-emerald-400/90 font-bold uppercase drop-shadow-[0_0_8px_rgba(52,211,153,0.5)] flex items-center space-x-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mb-2" />
@@ -73,18 +87,21 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Sisi Kanan Layar: Telemetri Engine Vertikal (Exact match to reference mockup) */}
+          {/* Sisi Kanan Layar: Telemetri Engine Vertikal */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none select-none hidden lg:flex flex-col items-center z-20">
-            <div className="[writing-mode:vertical-lr] text-[9.5px] font-mono tracking-widest text-cyan-400/90 font-bold uppercase drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
+            <div className="[writing-mode:vertical-lr] text-[9.5px] font-mono tracking-widest text-mcr-cyan/90 font-bold uppercase drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
               <span>3D ENGINE 60 FPS</span>
             </div>
           </div>
 
-          {/* Mini-Map Radar HUD (Pojok Kiri Bawah) */}
-          <MiniMapRadar />
+          {/* GTA VI Top-Left Mission Objective Task Box */}
+          <MissionObjectiveBox />
 
-          {/* Proximity Interaction Floating Prompt ([E] / [F]) */}
-          <InteractionPrompt projects={projects} />
+          {/* Mini-Map Radar HUD (Pojok Kiri Bawah) */}
+          <MiniMapRadarWidget />
+
+          {/* Proximity Interaction Floating Action Billboard ([E] / [F]) */}
+          <FloatingActionBillboard projects={projects} />
 
           {/* Project Showcase HUD Modal (Pojok Kanan Bawah, 2x2 Camera Swap Matrix) */}
           <ProjectShowcaseModal projects={projects} />
@@ -99,6 +116,12 @@ export default function HomePage() {
           <BentoGridView projects={projects} />
         </div>
       )}
+
+      {/* iFruit Smartphone Mockup (Toggleable from Top Navigation) */}
+      <SmartphoneMockup />
+
+      {/* GTA Styled Action Confirmation Pop-up */}
+      <ConfirmationDialog />
 
     </div>
   );
