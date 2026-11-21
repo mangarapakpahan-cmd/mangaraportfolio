@@ -84,10 +84,10 @@ export default function BentoHeader({
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         <button
           onClick={() => handleTabClick('ALL')}
-          className={`px-4 py-2 rounded-full font-mono text-xs transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-full font-mono text-xs transition-colors duration-150 whitespace-nowrap ${
             selectedCategory === 'ALL'
               ? 'bg-cyan-500 text-slate-950 font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-              : 'bg-white/[0.03] text-slate-400 hover:text-white border border-white/[0.06]'
+              : 'bg-black/40 text-slate-300 hover:text-white border border-white/10'
           }`}
         >
           ALL PILARS ({projects.length})
@@ -101,10 +101,10 @@ export default function BentoHeader({
             <button
               key={key}
               onClick={() => handleTabClick(key)}
-              className={`px-4 py-2 rounded-full font-mono text-xs transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full font-mono text-xs transition-colors duration-150 whitespace-nowrap ${
                 isSelected
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-                  : 'bg-white/[0.03] text-slate-400 hover:text-white border border-white/[0.06]'
+                  : 'bg-black/40 text-slate-300 hover:text-white border border-white/10'
               }`}
             >
               {meta ? meta.title.split('&')[0].trim().toUpperCase() : key.toUpperCase()} ({count})

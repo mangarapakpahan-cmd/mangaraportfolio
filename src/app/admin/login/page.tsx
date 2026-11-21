@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_60%_at_50%_40%,rgba(6,182,212,0.12),transparent)]" />
 
-      <div className="relative w-full max-w-md bg-slate-900/90 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+      <div className="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-2xl">
         
         {/* Terminal Header */}
         <div className="text-center mb-8">
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@mangaraportfolio.com"
               required
-              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-white/10 text-white font-mono text-xs focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-white/10 text-white font-mono text-xs focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors"
             />
           </div>
 
@@ -100,14 +100,14 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               required
-              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-white/10 text-white font-mono text-xs focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-white/10 text-white font-mono text-xs focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-2 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50"
+            className="w-full mt-2 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-colors duration-150 shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50"
           >
             {isLoading ? 'AUTHENTICATING KEY...' : 'INITIALIZE COMMAND SESSION'}
           </button>

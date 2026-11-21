@@ -20,15 +20,16 @@ export default function ProjectCardItem({ project, onSelect }: ProjectCardItemPr
   };
 
   return (
-    <div
+    <button
+      type="button"
       onClick={handleClick}
-      className="group relative h-40 rounded-3xl overflow-hidden border border-white/[0.06] bg-black cursor-pointer hover:border-cyan-400/70 transition-all duration-300 shadow-lg select-none"
+      className="group relative h-40 w-full rounded-2xl overflow-hidden border border-white/10 bg-black cursor-pointer hover:border-cyan-400 text-left transition-[border-color,box-shadow] duration-200 shadow-lg select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
     >
       {/* Background Image */}
       <img
         src={heroThumb}
         alt={project.title}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-75 group-hover:opacity-100"
+        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-200"
       />
 
       {/* Vignette Overlay */}
@@ -40,7 +41,7 @@ export default function ProjectCardItem({ project, onSelect }: ProjectCardItemPr
             <Camera className="w-2.5 h-2.5 mr-1" />
             <span>{camTag}</span>
           </span>
-          <span className="text-[10px] font-mono text-slate-400 flex items-center space-x-1">
+          <span className="text-[10px] font-mono text-slate-300 flex items-center space-x-1">
             <Calendar className="w-2.5 h-2.5 mr-0.5" />
             <span>{project.event_date}</span>
           </span>
@@ -52,16 +53,16 @@ export default function ProjectCardItem({ project, onSelect }: ProjectCardItemPr
         </h4>
 
         {/* Role */}
-        <span className="text-[11px] text-slate-400 line-clamp-1">
+        <span className="text-[11px] text-slate-300 line-clamp-1">
           {project.role}
         </span>
       </div>
 
       {/* Top Tally Pulse on Hover */}
-      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping inline-block" />
       </div>
 
-    </div>
+    </button>
   );
 }

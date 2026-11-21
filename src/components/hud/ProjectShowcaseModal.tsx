@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useGameStore } from '@/lib/store';
 import { ProjectWithMedia } from '@/lib/types';
 import { audioEngine } from '@/lib/audioEngine';
-import { Maximize2, X, Eye, Video, Sparkles, RefreshCw } from 'lucide-react';
+import { Maximize2, X, RefreshCw } from 'lucide-react';
 import CardFlipViewer from './CardFlipViewer';
 
 interface ProjectShowcaseModalProps {
@@ -68,11 +68,12 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
     return (
       <div className="fixed bottom-5 right-5 z-30 pointer-events-auto select-none">
         <button
+          type="button"
           onClick={() => {
             audioEngine.playTerminalBoot();
             openProjectModal(currentProject);
           }}
-          className="group relative flex items-center space-x-2.5 px-4 py-2.5 rounded-xl bg-mcr-black/90 hover:bg-mcr-surface border border-mcr-cyan/50 hover:border-mcr-cyan text-mcr-cyan font-mono text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-[0_0_25px_rgba(6,182,212,0.35)] active:scale-95"
+          className="group relative flex items-center space-x-2.5 px-4 py-2.5 rounded-xl bg-mcr-black/90 hover:bg-mcr-surface border border-mcr-cyan/50 hover:border-mcr-cyan text-mcr-cyan font-mono text-xs font-bold tracking-wider uppercase transition-[border-color,background-color] duration-150 shadow-[0_0_25px_rgba(6,182,212,0.35)] active:scale-95"
         >
           <span className="w-2 h-2 rounded-full bg-mcr-cyan animate-ping" />
           <Maximize2 className="w-3.5 h-3.5" />
@@ -83,10 +84,10 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
   }
 
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-30 pointer-events-auto select-none w-[94vw] sm:w-[540px] md:w-[620px] lg:w-[660px] transition-all duration-300">
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-30 pointer-events-auto select-none w-[94vw] sm:w-[540px] md:w-[620px] lg:w-[660px] transition-opacity duration-200">
       
       {/* HUD Container Panel dengan Neon Cyan Borders & Bracket Corners */}
-      <div className="relative rounded-2xl bg-mcr-surface/90 backdrop-blur-xl border border-mcr-cyan/40 shadow-[0_0_35px_rgba(6,182,212,0.25)] p-4 sm:p-5 overflow-hidden">
+      <div className="relative rounded-2xl bg-mcr-surface/95 border border-mcr-cyan/40 shadow-[0_0_35px_rgba(6,182,212,0.25)] p-4 sm:p-5 overflow-hidden">
         
         {/* Sudut Siku-Siku Cyan (GTA & Sci-Fi HUD Bracket Corners) */}
         <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-mcr-cyan pointer-events-none" />
@@ -95,7 +96,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
         <div className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-mcr-cyan pointer-events-none" />
 
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between pb-2 mb-3 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between pb-2 mb-3 border-b border-white/10">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-mcr-cyan animate-pulse shadow-[0_0_6px_#06b6d4]" />
             <h3 className="text-[11px] sm:text-xs font-mono font-bold tracking-widest text-mcr-cyan uppercase drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]">
@@ -105,22 +106,25 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
 
           <div className="flex items-center space-x-2">
             <button
+              type="button"
               onClick={() => {
                 audioEngine.playSwitchClick();
                 setIsFlippedView(!isFlippedView);
               }}
-              className="text-[10px] font-mono font-bold text-mcr-pink hover:text-white px-2 py-0.5 rounded bg-white/[0.04] border border-mcr-pink/40 hover:border-mcr-pink transition-all flex items-center space-x-1"
+              className="text-[10px] font-mono font-bold text-mcr-pink hover:text-white px-2 py-0.5 rounded bg-black/40 border border-mcr-pink/40 hover:border-mcr-pink transition-colors flex items-center space-x-1"
             >
               <RefreshCw className="w-2.5 h-2.5" />
               <span>[3D FLIP]</span>
             </button>
 
             <button
+              type="button"
               onClick={() => {
                 audioEngine.playSwitchClick();
                 closeProjectModal();
               }}
-              className="flex items-center space-x-1 text-[10px] font-mono text-slate-400 hover:text-white px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+              aria-label="Close Project Showcase HUD Modal"
+              className="flex items-center space-x-1 text-[10px] font-mono text-slate-300 hover:text-white px-2 py-0.5 rounded bg-black/40 hover:bg-slate-800 transition-colors"
             >
               <span className="hidden sm:inline">[ESC]</span>
               <span>RETURN TO STUDIO</span>
@@ -168,19 +172,21 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
                 {mediaList.map((media, idx) => {
                   const isActive = activeSlot === media.display_order;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={media.display_order || idx}
                       onClick={() => handleSelectSlot(media.display_order)}
-                      className={`group relative h-24 sm:h-28 rounded-lg overflow-hidden border cursor-pointer transition-all duration-200 bg-black shadow-md ${
+                      aria-label={`Select camera angle ${media.camera_tag || `Camera ${idx + 1}`}`}
+                      className={`group relative h-24 sm:h-28 w-full rounded-lg overflow-hidden border cursor-pointer transition-[border-color,box-shadow] duration-150 bg-black shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 text-left ${
                         isActive
                           ? 'border-mcr-cyan ring-1 ring-mcr-cyan/80 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-                          : 'border-white/[0.12] hover:border-cyan-400/60 opacity-80 hover:opacity-100'
+                          : 'border-white/15 hover:border-cyan-400/60 opacity-80 hover:opacity-100'
                       }`}
                     >
                       <img
                         src={media.image_url}
                         alt={media.camera_tag || `Camera ${idx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity duration-150"
                       />
                       
                       {/* Dark gradient for badge legibility */}
@@ -196,7 +202,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
                           <span className="w-1.5 h-1.5 rounded-full bg-mcr-cyan animate-ping shrink-0" />
                         )}
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -209,7 +215,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
             <div className="space-y-2">
               {/* Role */}
               <div>
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Role:</span>
+                <span className="text-[10px] font-mono text-slate-300 block uppercase">Role:</span>
                 <span className="text-xs font-semibold text-white leading-tight block">
                   {currentProject?.role || 'Lead FOH & Live Event Technical Operator'}
                 </span>
@@ -217,7 +223,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
 
               {/* Date */}
               <div>
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Date:</span>
+                <span className="text-[10px] font-mono text-slate-300 block uppercase">Date:</span>
                 <span className="text-xs font-mono text-slate-200">
                   {currentProject?.event_date || '19 Mei 2022'}
                 </span>
@@ -225,8 +231,8 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
 
               {/* Description */}
               <div>
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Description:</span>
-                <p className="text-[11px] text-slate-300 leading-snug line-clamp-3">
+                <span className="text-[10px] font-mono text-slate-300 block uppercase">Description:</span>
+                <p className="text-[11px] text-slate-200 leading-snug line-clamp-3">
                   {currentProject?.summary ||
                     'Operasional sound system digital 32-channel, routing kabel multicore, serta live sound mixing untuk ribuan audiens konser.'}
                 </p>
@@ -234,7 +240,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
 
               {/* Tech Stack Badges */}
               <div>
-                <span className="text-[10px] font-mono text-slate-400 block uppercase mb-1">
+                <span className="text-[10px] font-mono text-slate-300 block uppercase mb-1">
                   Tech Stack:
                 </span>
                 <div className="flex flex-wrap gap-1">
@@ -242,7 +248,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
                     (tech, idx) => (
                       <span
                         key={idx}
-                        className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 text-cyan-300"
+                        className="text-[9px] font-mono px-2 py-0.5 rounded bg-black/40 border border-white/10 text-cyan-300"
                       >
                         {tech}
                       </span>
@@ -253,7 +259,7 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
             </div>
 
             {/* In-Universe Sub-Footer */}
-            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[9px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[9px] font-mono text-slate-300">
               <span>MATRIX FEED: ACTIVE</span>
               <span className="text-mcr-cyan uppercase">CALIBRATED</span>
             </div>
@@ -263,9 +269,10 @@ export default function ProjectShowcaseModal({ projects }: ProjectShowcaseModalP
         </div>
 
         {/* Bottom Banner [ESC] CLOSE / RETURN TO ROAMING */}
-        <div className="mt-3.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono">
-          <span className="text-slate-400">MCR ARCHIVE &bull; SECURE READ-ONLY</span>
+        <div className="mt-3.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono">
+          <span className="text-slate-300">MCR ARCHIVE &bull; SECURE READ-ONLY</span>
           <button
+            type="button"
             onClick={() => {
               audioEngine.playSwitchClick();
               closeProjectModal();

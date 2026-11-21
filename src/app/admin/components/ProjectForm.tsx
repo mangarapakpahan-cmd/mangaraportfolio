@@ -221,7 +221,7 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
   };
 
   return (
-    <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl font-sans text-slate-100 shadow-2xl">
+    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 md:p-8 font-sans text-slate-100 shadow-2xl">
       
       {/* Header Form */}
       <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-6">
@@ -236,7 +236,7 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-400 hover:text-white transition-colors"
+          className="px-4 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-slate-300 hover:text-white transition-colors"
         >
           [ESC] CANCEL
         </button>
@@ -270,7 +270,7 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
             <button
               type="button"
               onClick={() => setIsPublished(!isPublished)}
-              className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-bold transition-all border flex items-center justify-center space-x-2 ${
+              className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-bold transition-colors duration-150 border flex items-center justify-center space-x-2 ${
                 isPublished
                   ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300'
                   : 'bg-amber-950/60 border-amber-500 text-amber-300'
@@ -389,7 +389,7 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
                       type="button"
                       onClick={() => moveSlot(idx, 'up')}
                       disabled={idx === 0}
-                      className="w-5 h-5 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-[10px] text-slate-400 disabled:opacity-20"
+                      className="w-5 h-5 flex items-center justify-center rounded bg-black/40 hover:bg-slate-800 text-[10px] text-slate-300 disabled:opacity-20 transition-colors"
                       title="Geser Prioritas Naik"
                     >
                       &uarr;
@@ -398,7 +398,7 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
                       type="button"
                       onClick={() => moveSlot(idx, 'down')}
                       disabled={idx === mediaSlots.length - 1}
-                      className="w-5 h-5 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-[10px] text-slate-400 disabled:opacity-20"
+                      className="w-5 h-5 flex items-center justify-center rounded bg-black/40 hover:bg-slate-800 text-[10px] text-slate-300 disabled:opacity-20 transition-colors"
                       title="Geser Prioritas Turun"
                     >
                       &darr;
@@ -489,14 +489,14 @@ export default function ProjectForm({ initialData, onSuccess, onCancel }: Projec
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-mono text-xs text-slate-300 transition-colors"
+            className="px-6 py-3 rounded-xl bg-black/40 hover:bg-slate-800 font-mono text-xs text-slate-300 transition-colors"
           >
             CANCEL
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-50"
+            className="px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-colors duration-150 shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-50"
           >
             {isSubmitting ? 'SYNCING TO STUDIO...' : initialData ? 'UPDATE ENTRY' : 'PUBLISH ENTRY'}
           </button>

@@ -38,7 +38,8 @@ export default function ConfirmationDialog() {
           {/* Close button */}
           <button
             onClick={handleCancel}
-            className="absolute top-4 right-4 p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+            aria-label="Close confirmation dialog"
+            className="absolute top-4 right-4 p-1 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -73,7 +74,7 @@ export default function ConfirmationDialog() {
             </button>
             <button
               onClick={handleConfirm}
-              className="px-5 py-2 rounded-xl bg-mcr-cyan hover:bg-cyan-400 text-slate-950 transition-all font-bold tracking-wider uppercase shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+              className="px-5 py-2 rounded-xl bg-mcr-cyan hover:bg-cyan-400 text-slate-950 transition-colors duration-150 font-bold tracking-wider uppercase shadow-[0_0_15px_rgba(6,182,212,0.4)]"
             >
               {confirmationDialog.confirmText || '[ CONFIRM / PROCEED ]'}
             </button>

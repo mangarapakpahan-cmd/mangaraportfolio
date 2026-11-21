@@ -52,11 +52,13 @@ export default function SmartphoneMockup() {
 
               {/* Close Button */}
               <button
+                type="button"
                 onClick={() => {
                   audioEngine.playSwitchClick();
                   toggleSmartphone();
                 }}
-                className="p-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                aria-label="Close smartphone"
+                className="p-1 rounded-full bg-black/40 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -73,7 +75,7 @@ export default function SmartphoneMockup() {
             <QuickActionButtons />
 
             {/* iOS / iFruit Home Indicator Bar */}
-            <div className="w-24 h-1 rounded-full bg-white/30 mx-auto mt-3 mb-0.5" />
+            <div className="w-24 h-1 rounded-full bg-slate-500 mx-auto mt-3 mb-0.5" />
           </div>
 
         </motion.div>

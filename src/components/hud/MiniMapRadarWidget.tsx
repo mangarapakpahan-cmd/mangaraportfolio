@@ -33,7 +33,7 @@ export default function MiniMapRadarWidget() {
       </div>
 
       {/* Radar Disc Housing */}
-      <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full border border-cyan-500/50 bg-[#070b14]/85 backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.25)] overflow-hidden">
+      <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full border border-cyan-500/50 bg-[#070b14]/90 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.25)] overflow-hidden">
         
         {/* Radar concentric range circles */}
         <div className="absolute inset-2.5 rounded-full border border-cyan-500/20" />
@@ -74,9 +74,9 @@ export default function MiniMapRadarWidget() {
               className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
             >
               <div
-                className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center transition-all ${
+                className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center transition-colors duration-150 ${
                   isNearby
-                    ? 'border-white bg-cyan-400 shadow-[0_0_8px_#22d3ee] scale-125'
+                    ? 'border-white bg-cyan-400 shadow-[0_0_8px_#22d3ee]'
                     : 'border-cyan-400/60 bg-cyan-900/80'
                 }`}
               >

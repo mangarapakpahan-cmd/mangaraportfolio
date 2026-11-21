@@ -20,7 +20,7 @@ export default function QuickActionButtons() {
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}
-          className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl bg-mcr-cyan text-slate-950 font-bold hover:bg-cyan-300 transition-all shadow-[0_0_12px_rgba(6,182,212,0.35)]"
+          className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl bg-mcr-cyan text-slate-950 font-bold hover:bg-cyan-300 transition-colors duration-150 shadow-[0_0_12px_rgba(6,182,212,0.35)]"
         >
           <FileDown className="w-3.5 h-3.5" />
           <span className="text-[10px] tracking-wider uppercase">CV ANALYST</span>
@@ -31,7 +31,7 @@ export default function QuickActionButtons() {
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}
-          className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/15 transition-all"
+          className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl bg-black/50 hover:bg-black/80 text-white border border-white/15 transition-colors duration-150"
         >
           <FileDown className="w-3.5 h-3.5 text-mcr-pink" />
           <span className="text-[10px] tracking-wider uppercase">CV MEDIA</span>

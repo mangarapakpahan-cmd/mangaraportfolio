@@ -216,11 +216,11 @@ function Workstation_UIUX({ pos }: { pos: [number, number, number] }) {
       {/* Dual monitors */}
       <mesh position={[-0.65, 1.3, -0.4]}>
         <boxGeometry args={[0.9, 0.55, 0.05]} />
-        <meshStandardMaterial color="#8b5cf6" emissive="#7c3aed" emissiveIntensity={0.7} />
+        <meshStandardMaterial color="#c026d3" emissive="#a21caf" emissiveIntensity={0.7} />
       </mesh>
       <mesh position={[0.65, 1.2, -0.4]}>
         <boxGeometry args={[0.75, 0.47, 0.05]} />
-        <meshStandardMaterial color="#a855f7" emissive="#9333ea" emissiveIntensity={0.6} />
+        <meshStandardMaterial color="#d946ef" emissive="#c026d3" emissiveIntensity={0.6} />
       </mesh>
       {/* Totem / light display */}
       <mesh position={[1.6, 1.5, -0.3]}>

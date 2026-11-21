@@ -13,7 +13,7 @@ interface ProjectListTableProps {
 const WORKSTATION_LABELS: Record<WorkstationCategory, { label: string; color: string }> = {
   led_broadcast: { label: 'LED & Broadcast', color: 'bg-rose-950/80 border-rose-800 text-rose-300' },
   foh_av: { label: 'FOH Audio-Visual', color: 'bg-amber-950/80 border-amber-800 text-amber-300' },
-  uiux_motion: { label: 'UI/UX & Motion', color: 'bg-purple-950/80 border-purple-800 text-purple-300' },
+  uiux_motion: { label: 'UI/UX & Motion', color: 'bg-fuchsia-950/80 border-fuchsia-800 text-fuchsia-300' },
   web_dev: { label: 'Web & Software', color: 'bg-cyan-950/80 border-cyan-800 text-cyan-300' },
   data_analytics: { label: 'Data Analytics', color: 'bg-emerald-950/80 border-emerald-800 text-emerald-300' },
 };
@@ -61,7 +61,7 @@ export default function ProjectListTable({ projects, onEdit, onRefresh }: Projec
   }
 
   return (
-    <div className="bg-slate-900/80 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
+    <div className="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
       <div className="overflow-x-auto">
         <table className="w-full text-left font-sans text-xs">
           
@@ -136,7 +136,7 @@ export default function ProjectListTable({ projects, onEdit, onRefresh }: Projec
                   <td className="py-4 px-6 text-center">
                     <button
                       onClick={() => togglePublishStatus(project)}
-                      className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold border transition-all ${
+                      className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold border transition-colors duration-150 ${
                         project.is_published
                           ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-300 hover:bg-emerald-900'
                           : 'bg-amber-950/70 border-amber-500/80 text-amber-300 hover:bg-amber-900'
@@ -151,7 +151,7 @@ export default function ProjectListTable({ projects, onEdit, onRefresh }: Projec
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => onEdit(project)}
-                        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 font-mono text-xs text-cyan-400 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-black/40 hover:bg-slate-800 border border-white/10 font-mono text-xs text-cyan-400 transition-colors"
                       >
                         EDIT
                       </button>

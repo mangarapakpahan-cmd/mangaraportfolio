@@ -44,10 +44,10 @@ export default function MissionObjectiveBox() {
   const currentInfo = nearbyZone ? ZONE_OBJECTIVES[nearbyZone] : null;
 
   return (
-    <div className="fixed top-14 left-4 md:left-6 z-20 pointer-events-none select-none max-w-[280px] sm:max-w-xs transition-all duration-300">
+    <div className="fixed top-14 left-4 md:left-6 z-20 pointer-events-none select-none max-w-[280px] sm:max-w-xs transition-opacity duration-200">
       
       {/* Box Container with GTA VI Neon Dusk Sunset Accent */}
-      <div className="relative rounded-xl overflow-hidden bg-mcr-black/80 backdrop-blur-md border border-white/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-3">
+      <div className="relative rounded-xl overflow-hidden bg-mcr-black/90 backdrop-blur-sm border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] p-3">
         
         {/* Top Accent Gradient Bar */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-mcr-pink via-mcr-orange to-mcr-cyan" />

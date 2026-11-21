@@ -73,7 +73,7 @@ export default function DownloadPdfButton({
     <button
       onClick={handleDownload}
       disabled={isGenerating || projects.length === 0}
-      className={`relative inline-flex items-center justify-center font-mono text-xs font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`relative inline-flex items-center justify-center font-mono text-xs font-semibold transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       {isGenerating ? (
         <span className="flex items-center space-x-2 text-cyan-400">

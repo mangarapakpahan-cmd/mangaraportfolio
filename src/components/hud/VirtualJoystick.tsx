@@ -75,7 +75,7 @@ export default function VirtualJoystick() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
-        className={`w-32 h-32 rounded-full border-2 border-cyan-500/50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center transition-opacity ${
+        className={`w-32 h-32 rounded-full border-2 border-cyan-500/50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center transition-opacity ${
           isActive ? 'opacity-100' : 'opacity-60'
         }`}
       >

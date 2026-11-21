@@ -1,25 +1,26 @@
 'use client';
 
 import React, { useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 import { audioEngine } from '@/lib/audioEngine';
-import { Play, Sparkles, Volume2 } from 'lucide-react';
+import { Volume2, Terminal, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function IntroCoverScreen() {
-  const { introCompleted, setIntroCompleted, isAudioMuted } = useGameStore();
+  const { introCompleted, setIntroCompleted } = useGameStore();
+  const shouldReduceMotion = useReducedMotion();
 
   const handleUnlockAndStart = useCallback(() => {
     if (introCompleted) return;
     audioEngine.playTerminalBoot();
     setTimeout(() => {
       audioEngine.playSwitchClick();
-    }, 200);
+    }, 150);
     setIntroCompleted(true);
   }, [introCompleted, setIntroCompleted]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = () => {
       handleUnlockAndStart();
     };
 
@@ -34,114 +35,93 @@ export default function IntroCoverScreen() {
       <motion.div
         key="gta-vi-intro-cover"
         initial={{ opacity: 1 }}
-        exit={{ opacity: 0, scale: 1.05 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
         onClick={handleUnlockAndStart}
         className="fixed inset-0 z-50 flex flex-col justify-between items-center cursor-pointer select-none overflow-hidden bg-mcr-black"
+        role="button"
+        tabIndex={0}
+        aria-label="Click or press any key to enter Master Control Room Studio"
       >
-        {/* Ken Burns Background Cover Art */}
+        {/* Authentic GTA VI Cover Art: Mangara Pakpahan Artwork */}
         <motion.div
           initial={{ scale: 1.0 }}
-          animate={{ scale: 1.08 }}
-          transition={{ duration: 14, ease: 'linear', repeat: Infinity, repeatType: 'reverse' }}
+          animate={shouldReduceMotion ? { scale: 1.0 } : { scale: 1.04 }}
+          transition={{
+            duration: 12,
+            ease: 'linear',
+            repeat: Infinity,
+            repeatType: 'reverse',
+          }}
           className="absolute inset-0 w-full h-full"
         >
           <img
-            src="/mcr_studio_reference.jpg"
-            alt="MCR Studio Grand Stage"
-            className="w-full h-full object-cover object-center filter brightness-90 contrast-110"
+            src="/intro_gta_cover.webp"
+            alt="Mangara Pakpahan Portfolio GTA VI Style Cover Art"
+            className="w-full h-full object-cover object-center"
           />
         </motion.div>
 
-        {/* Cinematic Vignette & Sunset Glow Overlay */}
+        {/* Cinematic Vignette */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(circle at center, transparent 35%, rgba(5,5,7,0.7) 70%, #050507 95%)',
+              'radial-gradient(circle at center, transparent 45%, rgba(5,5,7,0.4) 75%, #050507 98%)',
           }}
         />
 
-        {/* GTA VI Neon Dusk Top/Bottom Gradient Wash */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/80 via-transparent to-black/90" />
-        <div className="absolute inset-0 pointer-events-none crt-scanlines opacity-40" />
+        {/* Ambient Top & Bottom Shades */}
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 pointer-events-none crt-scanlines opacity-25" />
 
-        {/* Perimeter Sunset Hairline Frame */}
-        <div className="absolute inset-3 md:inset-5 border border-white/10 pointer-events-none rounded-2xl flex flex-col justify-between p-4 md:p-6">
-          <div className="flex justify-between items-center">
-            <span className="text-[10px] font-mono tracking-widest text-mcr-pink font-bold uppercase drop-shadow-[0_0_8px_rgba(255,42,133,0.8)]">
-              GTA VI DUSK // ENGINE v1.0
-            </span>
-            <div className="flex items-center space-x-2 text-[10px] font-mono text-mcr-cyan">
-              <span className="w-2 h-2 rounded-full bg-mcr-cyan animate-ping" />
-              <span>STATION ONLINE</span>
+        {/* Perimeter Telemetry HUD Frame */}
+        <div className="absolute inset-3 sm:inset-5 border border-white/10 pointer-events-none rounded-2xl flex flex-col justify-between p-3 sm:p-5">
+          <div className="flex justify-between items-center text-[10px] font-mono">
+            <div className="flex items-center space-x-2 text-mcr-cyan">
+              <Terminal className="w-3.5 h-3.5" />
+              <span className="font-bold tracking-widest uppercase">MCR COMMAND OS v1.0</span>
+            </div>
+            <div className="flex items-center space-x-2 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="tracking-widest uppercase font-semibold">FEED ONLINE &bull; 60 FPS</span>
             </div>
           </div>
+
           <div className="flex justify-between items-center text-[9px] font-mono text-slate-400">
-            <span>SECURE TERMINAL : PORT 8080</span>
-            <span>MANGARA PAKPAHAN ARCHIVE</span>
+            <span className="flex items-center space-x-1">
+              <ShieldCheck className="w-3 h-3 text-cyan-400" />
+              <span>SECURE ARCHIVE : PORT 8080</span>
+            </span>
+            <span>MANGARA PAKPAHAN OFFICIAL</span>
           </div>
         </div>
 
-        {/* Top Header Branding */}
-        <div className="relative z-10 pt-16 md:pt-24 text-center px-4">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-3"
-          >
+        {/* Top Floating Badge */}
+        <div className="relative z-10 pt-8 sm:pt-12 text-center px-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm">
             <Sparkles className="w-3.5 h-3.5 text-mcr-cyan" />
-            <span className="text-[11px] font-mono font-bold tracking-widest text-slate-200 uppercase">
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-widest text-slate-200 uppercase">
               INTERACTIVE 3D MASTER CONTROL ROOM
             </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.35, duration: 0.8 }}
-            className="text-4xl sm:text-6xl md:text-8xl font-black uppercase tracking-tight text-white drop-shadow-[0_12px_30px_rgba(0,0,0,0.95)]"
-          >
-            MANGARA PAKPAHAN
-          </motion.h1>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="mt-2 text-sm md:text-lg font-mono font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-mcr-pink via-mcr-orange to-mcr-cyan uppercase"
-          >
-            PORTFOLIO // MCR STUDIO
-          </motion.div>
-          <div className="text-[11px] md:text-xs font-mono text-slate-400 tracking-wider mt-1">
-            LEAD FOH &bull; BROADCAST DIRECTOR &bull; UI/UX &bull; FULL-STACK &bull; DATA ANALYTICS
           </div>
         </div>
 
-        {/* Center GTA VI Badge / Hero Icon */}
-        <div className="relative z-10 flex flex-col items-center my-auto">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="w-16 h-16 md:w-20 md:h-20 rounded-full border border-mcr-cyan/40 bg-mcr-surface/80 backdrop-blur-xl flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.35)] group-hover:scale-110 transition-transform"
-          >
-            <Play className="w-7 h-7 text-mcr-cyan fill-mcr-cyan/20 ml-1" />
-          </motion.div>
-        </div>
+        {/* Spacer for the center artwork to be fully visible */}
+        <div className="relative z-10 my-auto pointer-events-none" />
 
-        {/* Bottom Call-To-Action & Sound Prompt */}
-        <div className="relative z-10 pb-16 md:pb-20 text-center px-4 flex flex-col items-center">
+        {/* Bottom Call-To-Action & Audio Unlocker */}
+        <div className="relative z-10 pb-8 sm:pb-12 text-center px-4 flex flex-col items-center">
           <motion.div
-            animate={{ opacity: [1, 0.3, 1] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="px-6 py-3 rounded-full bg-black/60 border border-mcr-cyan/50 backdrop-blur-md shadow-[0_0_25px_rgba(6,182,212,0.3)] text-mcr-cyan font-mono font-extrabold text-xs md:text-sm tracking-widest uppercase"
+            animate={{ opacity: [1, 0.35, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="px-6 py-3 rounded-xl bg-black/80 border border-mcr-cyan/60 backdrop-blur-sm shadow-[0_0_25px_rgba(6,182,212,0.35)] text-mcr-cyan font-mono font-extrabold text-xs sm:text-sm tracking-widest uppercase"
           >
             [ CLICK ANYWHERE OR PRESS ANY KEY TO INITIALIZE STUDIO ]
           </motion.div>
 
-          <div className="flex items-center space-x-2 mt-4 text-[10px] font-mono text-slate-400">
+          <div className="flex items-center space-x-2 mt-3 text-[10px] font-mono text-slate-300">
             <Volume2 className="w-3.5 h-3.5 text-mcr-orange" />
             <span>SOUND FX ENABLED &bull; BEST EXPERIENCED WITH HEADPHONES</span>
           </div>

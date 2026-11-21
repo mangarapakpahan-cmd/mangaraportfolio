@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
     <main className="min-h-screen bg-[#07090E] text-slate-100 font-sans selection:bg-cyan-500 selection:text-black">
       
       {/* Top Admin Navbar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between px-6 md:px-10 py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 font-mono text-xs">
+      <header className="sticky top-0 z-30 flex items-center justify-between px-6 md:px-10 py-4 bg-slate-950/90 backdrop-blur-sm border-b border-white/10 font-mono text-xs">
         <div className="flex items-center space-x-3">
           <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />
           <span className="px-2.5 py-1 rounded bg-cyan-950/80 border border-cyan-700 text-cyan-300 font-bold tracking-wider">
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
               </div>
               <button
                 onClick={handleOpenCreateForm}
-                className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(6,182,212,0.35)] flex items-center space-x-2"
+                className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-colors duration-150 shadow-[0_0_15px_rgba(6,182,212,0.35)] flex items-center space-x-2"
               >
                 <span>+ ADD NEW PROJECT ENTRY</span>
               </button>

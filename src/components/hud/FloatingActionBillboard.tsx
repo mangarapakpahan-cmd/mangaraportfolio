@@ -76,7 +76,7 @@ export default function FloatingActionBillboard({ projects }: FloatingActionBill
       {/* Tombol [E] INTERACT WITH ... */}
       <button
         onClick={handleInteract}
-        className="px-3.5 py-1.5 rounded-lg bg-black/75 hover:bg-black/90 border border-cyan-400/50 hover:border-cyan-300 text-left transition-all duration-150 shadow-[0_0_15px_rgba(6,182,212,0.35)] group active:scale-95"
+        className="px-3.5 py-1.5 rounded-lg bg-black/85 hover:bg-black border border-cyan-400/50 hover:border-cyan-300 text-left transition-colors duration-150 shadow-[0_0_15px_rgba(6,182,212,0.35)] group active:scale-95"
       >
         <span className="font-mono font-extrabold text-[12px] md:text-[13px] text-cyan-400 tracking-wider group-hover:text-cyan-300">
           [E] INTERACT WITH {shortName}
@@ -86,7 +86,7 @@ export default function FloatingActionBillboard({ projects }: FloatingActionBill
       {/* Tombol [F] VIEW PORTFOLIO (...) */}
       <button
         onClick={handleTogglePortfolio}
-        className="px-3.5 py-1.5 rounded-lg bg-black/75 hover:bg-black/90 border border-cyan-400/50 hover:border-cyan-300 text-left transition-all duration-150 shadow-[0_0_15px_rgba(6,182,212,0.35)] group active:scale-95"
+        className="px-3.5 py-1.5 rounded-lg bg-black/85 hover:bg-black border border-cyan-400/50 hover:border-cyan-300 text-left transition-colors duration-150 shadow-[0_0_15px_rgba(6,182,212,0.35)] group active:scale-95"
       >
         <span className="font-mono font-extrabold text-[12px] md:text-[13px] text-cyan-400 tracking-wider group-hover:text-cyan-300">
           [F] VIEW PORTFOLIO ({portfolioTag})
